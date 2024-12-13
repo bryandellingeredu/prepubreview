@@ -1,0 +1,64 @@
+@keyframes slideDown {
+    0% {
+        transform: translate(-50%, -100%); /* Start off-screen (top) and horizontally centered */
+        opacity: 0; /* Optional: start transparent */
+    }
+    100% {
+        transform: translate(-50%, 25vh); /* Slide to one-quarter of the page, horizontally centered */
+        opacity: 1; /* Optional: fully visible */
+    }
+}
+
+.homepage {
+    position: relative;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.homepage h1 {
+    font-family: 'Industry', 'GIBold', Arial, Helvetica, sans-serif;
+    font-size: 3rem;
+    line-height: 1.2;
+    position: absolute; /* Allows free positioning */
+    top: 0; /* Start animation from the top */
+    left: 50%; /* Horizontally center based on the container */
+    transform: translate(-50%, -100%); /* Center horizontally and move off-screen */
+    animation: slideDown .5s ease-out forwards; /* Apply the animation */
+    text-align: center; /* Ensures text inside h1 is centered */
+}
+
+.homepage button {
+    font-family: 'Industry', 'GIBold', Arial, Helvetica, sans-serif !important;
+    font-size: 2.5rem;
+    padding: 15px 30px;
+    margin-top: 150px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FFCC01; /* Primary blue color */
+    color: #221F20;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.homepage button:hover {
+    background-color: #CC9900; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.logo {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+    width: 200px; /* Set the base size; adjust as necessary */
+    height: auto; /* Maintain aspect ratio */
+    transform: scale(1); /* Double the size */
+    transform-origin: top left; /* Keep scaling relative to top-right corner */
+}
