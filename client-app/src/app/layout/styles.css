@@ -1,0 +1,50 @@
+
+
+@font-face {
+    font-family: 'GILite';
+    src:  url('font/ARMY_GI/woff2/G.I.-400.woff2') format('woff2'),
+          url('font/ARMY_GI/woff/G.I.-400.woff') format('woff');
+    }
+
+    @font-face {
+    font-family: 'GIReg';
+    src:  url('font/ARMY_GI/woff2/G.I.-530.woff2') format('woff2'),
+          url('font/ARMY_GI/woff/G.I.-530.woff') format('woff');
+    }
+
+    @font-face {
+    font-family: 'GItBold';
+    src:  url('font/ARMY_GI/woff2/G.I.-750.woff2') format('woff2'),
+          url('font/ARMY_GI/woff/G.I.-750.woff') format('woff');
+    }
+
+    @font-face {
+      font-family: 'Industry';
+      src:  url('font/industry_Ultra/woff2/Industry-Ultra.woff2') format('woff2'),
+            url('font/industry_Ultra/woff/Industry-Ultra.woff') format('woff');
+      }
+      
+body{
+    background-color:  #F1E4C7;
+}
+
+.gilite{
+    font-family: 'GILite' !important;
+}
+
+.gireg{
+    font-family: 'GIReg' !important;
+}
+
+.gitbold{
+    font-family: 'GItBold' !important;
+}
+
+.gibold{
+    font-family: 'GIBold' !important;
+}
+
+.industry{
+    font-family: 'Industry' !important;
+}
+

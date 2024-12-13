@@ -1,10 +1,13 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { UserManager, WebStorageStateStore,  } from 'oidc-client-ts';
+import { AppUser } from "../models/appUser";
+import agent from "../api/agent";
 
 export default class UserStore {
     token: string | null = null;
     userManager: UserManager;
     refreshTokenTimeout?: ReturnType<typeof setTimeout>;
+    appUser: AppUser | null = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -13,10 +16,10 @@ export default class UserStore {
         const config = {
             authority: 'https://localhost:7274', // OpenIddict server URL
             client_id: 'new-client-id', // The client ID registered in OpenIddict
-            redirect_uri: 'https://localhost:3000/callback', // Redirect URI after successful login
+            redirect_uri: 'https://localhost:3000/prepubreview/callback', // Redirect URI after successful login
             response_type: 'code', // Authorization Code Flow
             scope: 'openid profile email', // Include required scopes
-            post_logout_redirect_uri: 'https://localhost:3000/',
+            post_logout_redirect_uri: 'https://localhost:3000/prepubreview/homepage',
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 
@@ -59,6 +62,7 @@ export default class UserStore {
         try {
            // await this.userManager.signoutRedirect();
             this.token = null;
+            this.appUser = null;
             window.localStorage.removeItem('jwt');
             this.stopRefreshTokenTimer();
         } catch (error) {
@@ -72,11 +76,11 @@ export default class UserStore {
         try {
             // Ensure all parameters are strings, defaulting to an empty string if undefined
             const queryParams = new URLSearchParams({
-                redirect_uri: this.userManager.settings.redirect_uri || "",
+                redirect_uri: "https://localhost:3000/prepubreview/callback",
             }).toString();
     
             // Redirect to the login endpoint with query parameters
-            window.location.href = `https://localhost:7274/login?${queryParams}&buttons=army,edu,email,google`;
+            window.location.href = `https://localhost:7274/login?${queryParams}&buttons=army,edu`;
         } catch (error) {
             console.error("Login error:", error);
         }
@@ -95,13 +99,30 @@ export default class UserStore {
                 console.log("Token obtained from query string:", token);
                 window.localStorage.setItem('jwt', this.token);
                 this.startRefreshTokenTimer();
+                await this.loginAppUser();
             } else {
-                console.warn("No token found in the callback URL.");
+                // Throw an error if the token is missing
+                throw new Error("No token found in the callback URL.");
             }
         } catch (error) {
             console.error("Callback error:", error);
+            // Re-throw the error to allow it to propagate to the calling code
+            throw error;
         }
     };
+
+    loginAppUser = async () => {
+        try{
+            debugger;
+            const appUser : AppUser = await agent.AppUsers.login();
+            this.setAppUser(appUser);
+
+        }catch(error){
+            throw error;
+        }
+    }
+
+    setAppUser = (appUser: AppUser) => this.appUser = appUser;
 
 
     get isLoggedIn() {

@@ -4,7 +4,6 @@ using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
 builder.Services.AddApplicationServices(builder.Configuration);
 
 // Add services to the container.

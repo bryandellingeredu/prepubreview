@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { Publication } from '../models/publication';
 import { store } from '../stores/store';
+import { AppUser } from '../models/appUser';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -31,8 +32,14 @@ axios.interceptors.request.use((config) => {
     list: () => requests.get<Publication[]>('/publications'),
   }
 
+  const AppUsers = {
+    login: () => requests.post<AppUser>('/appusers/login', {})
+  }
+
+
   const agent = {
-    Publications
+    Publications,
+    AppUsers
   }
 
   
