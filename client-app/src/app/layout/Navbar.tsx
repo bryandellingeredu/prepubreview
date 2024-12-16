@@ -27,14 +27,17 @@ export default observer(function Navbar(){
     return(
       <Menu inverted className='navbar'>
         <MenuItem>
-        <img src="/prepubreview/logo.svg" alt="Logo" className='navbar-logo' />
+        <img src="/prepubreview/star.svg" alt="Logo"  />
+        </MenuItem>
+        <MenuItem>
+          <h2 className='industry'>PRE PUBLICATION REVIEW</h2>
         </MenuItem>
         <MenuItem position="right">
         <Menu.Menu >
         <Dropdown
           trigger={
             <span style={{ color: 'white' }}>
-              <Icon name="user" /> {userStore.appUser?.email}
+              <Icon name="user" /> <span className='gilite'>{userStore.appUser?.email}</span>
             </span>
           }
           pointing="top right"

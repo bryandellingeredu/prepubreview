@@ -1,37 +1,31 @@
-
 using Domain;
+using Bogus; // Add Bogus for generating random data
+using System;
 
 namespace Persistence
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context){
+        public static async Task SeedData(DataContext context)
+        {
+            // Check if data already exists
             if (context.Publications.Any()) return;
 
-            var publications = new List<PrePublication_Publication>{
-                new PrePublication_Publication{
-                    Title= "The Primose Path of AI-Enabled Warfare"
-                },
-                new PrePublication_Publication{
-                    Title= "Darrin Fry nanotechnology podcast"
-                },
-                new PrePublication_Publication{
-                    Title= "Tricks of the Trade"
-                },
-                new PrePublication_Publication{
-                    Title= "Stategy Short of War: The Logistics of the Berlin Airlift"
-                },
-                new PrePublication_Publication{
-                    Title= "Artificial Intelligence and Logistics on the Modern Battlefield"
-                },
-                new PrePublication_Publication{
-                    Title= "Professionals Talk Logistics Introduction"
-                },
-                new PrePublication_Publication{
-                    Title= "SOIC Columbia FARC 1964-2016"
-                },
-            };
+            var faker = new Faker(); // Initialize Faker for random data generation
+            var random = new Random(); // Random instance for custom date generation
 
+            var publications = new List<PrePublication_Publication>();
+
+            for (int i = 0; i < 5000; i++)
+            {
+                publications.Add(new PrePublication_Publication
+                {
+                    Title = faker.Lorem.Sentence(5), // Generate a random title with 5 words
+                    DateCreated = DateTime.UtcNow.AddDays(-random.Next(0, 5 * 365)) // Random date in the last 5 years
+                });
+            }
+
+            // Add generated publications to the database context
             await context.Publications.AddRangeAsync(publications);
             await context.SaveChangesAsync();
         }

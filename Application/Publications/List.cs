@@ -22,8 +22,11 @@ namespace Application.Publications
             }
 
             public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken) =>
-                 Result<List<PrePublication_Publication>>.Success(await _context.Publications.ToListAsync(cancellationToken));
-            
+                Result<List<PrePublication_Publication>>.Success(
+                    await _context.Publications
+                        .OrderByDescending(p => p.DateCreated) // Order by DateCreated descending
+                        .ToListAsync(cancellationToken)       // Convert to a list asynchronously
+                );
         }
     }
 }

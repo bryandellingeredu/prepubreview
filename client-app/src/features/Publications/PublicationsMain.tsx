@@ -1,51 +1,33 @@
 
-import { useState } from 'react';
-import { Publication } from '../../app/models/publication';
-import agent from '../../app/api/agent';
+import { observer } from "mobx-react-lite";
 import Navbar from '../../app/layout/Navbar';
-import { Container } from 'semantic-ui-react';
+import { Container, Divider, Header, Icon } from 'semantic-ui-react';
+import { useStore } from "../../app/stores/store";
+import { useEffect } from "react";
+import LoadingComponent from "../../app/layout/LoadingComponent";
+import PublicationTable from "./PublicationTable";
 
-export default function PublicationsMain() {
+export default observer(function PublicationsMain() {
 
-    const [publications, setPublications] = useState<Publication[]>([]);
+const { publicationStore} = useStore();
+const {loadPublications, publicationLoading, publications} = publicationStore
 
-    const [error, setError] = useState('');
+useEffect(() => {
+    loadPublications();
+},[publicationStore]);
 
-    const handleOnclick = async () => {
-        setError('');
-        try {
-            const response = await agent.Publications.list();
-            setPublications(response);
-        } catch (error) {
-            console.log("Error fetching publications:");
-            const err = JSON.stringify(error);
-            setError(`Error fetching publications: ${err}`);
-        }
-    };
+if(publicationLoading) return(<LoadingComponent content='loading publication data'/>);
 
  return (
 <Container fluid>
 <Navbar />
-  <h1 className='industry'>HELLO FROM PUBLICATIONS MAIN</h1>
-  <button onClick={handleOnclick}>Get Publications (Protected API)</button>
-
-  {error && <p>{error}</p>}
-
-  {publications.length > 0 && (
-                        <div>
-                            <h2 className='industry'>PUBLICATIONS</h2>
-                            <ul>
-                                {publications.map((publication, index) => (
-                                    <li key={index}>
-                                        <strong className='gibold'>Title:</strong> <span className='gilite'>{publication.title} </span> <br />
-                                       
-                                        <hr />
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+<Divider horizontal>
+      <Header as='h1'className='industry' >
+        <Icon name='book' />
+      PRE-PUBLICATION SECURITY & POLICY REVIEW     
+      </Header>
+    </Divider>
+      <PublicationTable publications={publications} />
 </Container>
  )
-
-}
+})
