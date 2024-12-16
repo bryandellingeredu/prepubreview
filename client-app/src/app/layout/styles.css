@@ -48,3 +48,13 @@ body{
     font-family: 'Industry' !important;
 }
 
+.navbar-logo {
+    width: 10em !important;
+    height: auto !important;
+  }
+
+  .navbar {
+    border-radius: 0 !important; /* Remove rounded corners */
+    margin: 0 !important; /* Remove any margin */
+    width: 100%; /* Ensure it spans the full width */
+  }

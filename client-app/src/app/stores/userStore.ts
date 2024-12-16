@@ -4,10 +4,13 @@ import { AppUser } from "../models/appUser";
 import agent from "../api/agent";
 
 export default class UserStore {
-    token: string | null = null;
+    token: string | null = localStorage.getItem('jwtpub');
+    redirectPath: string | null = localStorage.getItem('redirectPath')
     userManager: UserManager;
     refreshTokenTimeout?: ReturnType<typeof setTimeout>;
     appUser: AppUser | null = null;
+    appLoaded = false;
+    loadingUser: boolean = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -28,47 +31,67 @@ export default class UserStore {
 
         // Reaction to keep token in local storage
         reaction(
-            () => this.token,
+            () => this.token, // React to changes in the token
             token => {
                 if (token) {
-                    window.localStorage.setItem('jwt', token);
+                    window.localStorage.setItem('jwtpub', token); // Store the token in localStorage
+                    if (!this.appUser) {
+                        // If appUser is not set, fetch the user
+                        this.loginAppUser().catch(error => {
+                            console.error("Error loading AppUser in reaction:", error);
+                        });
+                    }
                 } else {
-                    window.localStorage.removeItem('jwt');
+                    window.localStorage.removeItem('jwtpub'); // Clear the token if it is null
+                    this.appUser = null; // Clear the user information as well
+                }
+            }
+            
+        );
+
+        reaction(
+            () => this.redirectPath, // React to changes in the redirectPath
+            (path) => {
+                if (path) {
+                    window.localStorage.setItem('redirectPath', path); // Save the redirect path in localStorage
+                } else {
+                    window.localStorage.removeItem('redirectPath'); // Remove the redirect path if it is null
                 }
             }
         );
+    
 
         // Load token from local storage if available
-        const savedToken = window.localStorage.getItem('jwt');
+        const savedToken = window.localStorage.getItem('jwtpub');
         if (savedToken) {
             this.token = savedToken;
+            this.startRefreshTokenTimer();
+            this.loginAppUser().catch(error => {
+                console.error("Error loading AppUser on init:", error);
+            });
         }
 
         // Automatically check for user on initialization
-        this.userManager.getUser().then(user => {
-            if (user && !user.expired) {
-                this.token = user.access_token;
-                this.startRefreshTokenTimer();
-            } else {
-                this.token = null;
-            }
-        }).catch(error => {
-            console.error("User loading error:", error);
-        });
+     //   this.userManager.getUser().then(user => {
+          //  if (user && !user.expired) {
+            //    this.token = user.access_token;
+             //   this.startRefreshTokenTimer();
+          //  } else {
+              //  this.token = null;
+          //  }
+      //  }).catch(error => {
+         //   console.error("User loading error:", error);
+      //  });
     }
 
-      // Method to log out the user
-      logout = async () => {
-        try {
-           // await this.userManager.signoutRedirect();
-            this.token = null;
-            this.appUser = null;
-            window.localStorage.removeItem('jwt');
-            this.stopRefreshTokenTimer();
-        } catch (error) {
-            console.error("Logout error:", error);
-        }
-    }
+    logout = () => {
+        this.token = null; // Clear the token
+        this.appUser = null; // Clear the user
+        this.clearRedirectPath(); // Clear the redirect path
+        window.localStorage.removeItem('jwtpub'); // Remove token from local storage
+        window.localStorage.removeItem('redirectPath'); // Remove redirect path from local storage
+        this.stopRefreshTokenTimer(); // Stop any ongoing refresh token timers
+    };
 
 
     // Method to start the login process by redirecting to the /login endpoint on your server
@@ -97,7 +120,7 @@ export default class UserStore {
             if (token) {
                 this.token = token;
                 console.log("Token obtained from query string:", token);
-                window.localStorage.setItem('jwt', this.token);
+                window.localStorage.setItem('jwtpub', this.token);
                 this.startRefreshTokenTimer();
                 await this.loginAppUser();
             } else {
@@ -112,17 +135,28 @@ export default class UserStore {
     };
 
     loginAppUser = async () => {
-        try{
-            debugger;
-            const appUser : AppUser = await agent.AppUsers.login();
-            this.setAppUser(appUser);
-
-        }catch(error){
-            throw error;
+        debugger;
+        this.setLoadingUser(true); // Start loading state
+        try {
+            const appUser: AppUser = await agent.AppUsers.login(); // Fetch AppUser
+            runInAction(() => {
+                this.setAppUser(appUser); // Set the AppUser
+            });
+        } catch (error) {
+            console.error("Error during loginAppUser:", error);
+            throw error; // Re-throw error to propagate it to the caller
+        } finally {
+            runInAction(() => {
+                this.setLoadingUser(false); // Ensure loading is stopped
+            });
         }
-    }
+    };
+
+    setLoadingUser = (loadingUser: boolean) => this.loadingUser = loadingUser;
 
     setAppUser = (appUser: AppUser) => this.appUser = appUser;
+
+    setAppLoaded = (appLoaded: boolean) => this.appLoaded = appLoaded;
 
 
     get isLoggedIn() {
@@ -166,7 +200,7 @@ export default class UserStore {
           // Save the new token (e.g., in localStorage, context, or state)
           runInAction(() => this.token = token);
           console.log("Token obtained from refresh token:", token);
-          window.localStorage.setItem('jwt', token);
+          window.localStorage.setItem('jwtpub', token);
       
           // Optionally, restart the refresh token timer based on token expiration
           this.startRefreshTokenTimer();
@@ -196,4 +230,29 @@ export default class UserStore {
         console.log('stop refresh token timer');
         clearTimeout(this.refreshTokenTimeout);
     }
+
+    getUser = async () => {
+        debugger;
+        this.setLoadingUser(true);
+        try {
+            const user = await agent.AppUsers.login(); // Fetch user from API
+            runInAction(() => this.setAppUser(user));
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            runInAction(() => {
+                this.token = null; // Clear token if user fetch fails
+                window.localStorage.removeItem('jwtpub'); // Ensure localStorage is cleared
+            });
+        } finally {
+            runInAction(() => this.setLoadingUser(false));
+        }
+    };
+
+    setRedirectPath = (path: string) => {
+        this.redirectPath = path;
+    };
+
+    clearRedirectPath = () => {
+        this.redirectPath = null;
+    };
 }

@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { Publication } from '../../app/models/publication';
 import agent from '../../app/api/agent';
+import Navbar from '../../app/layout/Navbar';
+import { Container } from 'semantic-ui-react';
 
 export default function PublicationsMain() {
 
@@ -22,7 +24,8 @@ export default function PublicationsMain() {
     };
 
  return (
-<div>
+<Container fluid>
+<Navbar />
   <h1 className='industry'>HELLO FROM PUBLICATIONS MAIN</h1>
   <button onClick={handleOnclick}>Get Publications (Protected API)</button>
 
@@ -42,7 +45,7 @@ export default function PublicationsMain() {
                             </ul>
                         </div>
                     )}
-</div>
+</Container>
  )
 
 }
