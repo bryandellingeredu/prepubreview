@@ -29,7 +29,8 @@ axios.interceptors.request.use((config) => {
   };
 
   const Publications = {
-    list: () => requests.get<Publication[]>('/publications'),
+    list: (offset: number, limit: number) =>
+      requests.get<Publication[]>(`/publications?offset=${offset}&limit=${limit}`),
   }
 
   const AppUsers = {

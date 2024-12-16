@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import UserStore from "./userStore";
-import PublicationStore from "./publication";
+import PublicationStore from "./publicationStore";
 
 interface Store{
     userStore: UserStore;

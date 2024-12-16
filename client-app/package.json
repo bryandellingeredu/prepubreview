@@ -11,12 +11,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/react-infinite-scroller": "^1.2.5",
     "axios": "^1.7.9",
     "mobx": "^6.13.5",
     "mobx-react-lite": "^4.1.0",
     "oidc-client-ts": "^3.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-infinite-scroller": "^1.2.6",
     "react-router-dom": "^7.0.2",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.5"
