@@ -4,7 +4,7 @@ import { Publication } from "../models/publication";
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
-    loading = false;
+    publicationloading = false;
     offset = 0; // Start offset
     limit = 100; // Number of items to fetch per page
     hasMore = true;
@@ -18,9 +18,8 @@ export default class PublicationStore{
     }
 
     loadPublications = async () => {
-        if (!this.hasMore || this.loading) return; // Prevent unnecessary requests
-    
-        this.setLoading(true); // Set loading to true
+        if (!this.hasMore || this.publicationloading ) return; // Prevent unnecessary requests
+        this.setPublicationLoading(true); // Set loading to true
         try {
             const publications = await agent.Publications.list(this.offset, this.limit);
     
@@ -39,7 +38,7 @@ export default class PublicationStore{
         } catch (error) {
             console.error("Error loading publications:", error);
         } finally {
-            this.setLoading(false); // Always set loading to false after execution
+            this.setPublicationLoading(false); // Always set loading to false after execution
         }
     };
 
@@ -49,7 +48,7 @@ export default class PublicationStore{
         this.hasMore = true;
     };
 
-    setLoading = (state : boolean) => {
-        this.loading = state;
+    setPublicationLoading = (state : boolean) => {
+        this. publicationloading  = state;
       };
 }

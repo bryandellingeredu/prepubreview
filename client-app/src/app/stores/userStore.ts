@@ -135,7 +135,6 @@ export default class UserStore {
     };
 
     loginAppUser = async () => {
-        debugger;
         this.setLoadingUser(true); // Start loading state
         try {
             const appUser: AppUser = await agent.AppUsers.login(); // Fetch AppUser
@@ -232,7 +231,6 @@ export default class UserStore {
     }
 
     getUser = async () => {
-        debugger;
         this.setLoadingUser(true);
         try {
             const user = await agent.AppUsers.login(); // Fetch user from API

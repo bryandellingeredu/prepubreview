@@ -5,16 +5,17 @@ import { useStore } from "../../app/stores/store";
 import { useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import PublicationTable from "./PublicationTable";
+import LoadingComponent from "../../app/layout/LoadingComponent";
 
 export default observer(function PublicationsMain() {
     const { publicationStore } = useStore();
-    const { loadPublications,  publications, hasMore } = publicationStore;
+    const { loadPublications,  publications, hasMore, publicationloading } = publicationStore;
 
     useEffect(() => {
-        if (publications.length === 0) {
+        if (publications.length === 0 && !publicationloading ) {
             loadPublications(); // Load initial publications if none are loaded
         }
-    }, [loadPublications, publications.length]);
+    }, [loadPublications, publications.length, publicationloading ]);
 
     return (
         <Container fluid>
@@ -32,6 +33,7 @@ export default observer(function PublicationsMain() {
             >
                 <PublicationTable publications={publications} />
             </InfiniteScroll>
+            {publicationloading  && <LoadingComponent content='loading data...' />}
         </Container>
     );
 });
