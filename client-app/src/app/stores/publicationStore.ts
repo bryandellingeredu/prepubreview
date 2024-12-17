@@ -1,6 +1,8 @@
 import { makeAutoObservable } from "mobx";
 import agent from "../api/agent";
 import { Publication } from "../models/publication";
+import { PublicationDTO } from "../models/publicationDTO";
+import { toast } from "react-toastify";
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
@@ -37,10 +39,26 @@ export default class PublicationStore{
             this.offset += this.limit;
         } catch (error) {
             console.error("Error loading publications:", error);
+            toast.error('an error occured loading publications');
         } finally {
             this.setPublicationLoading(false); // Always set loading to false after execution
         }
     };
+
+    addPublication = async (publicationDTO: PublicationDTO) => {
+        this.setPublicationLoading(true);
+        try{
+            await agent.Publications.createUpdate(publicationDTO);
+            const createdPublication : Publication = {id: publicationDTO.id, title: publicationDTO.title, dateCreated: new Date()}
+            this.publicationRegistry.set(createdPublication.id, createdPublication);
+        }
+     catch (error) {
+        console.error("Error adding publication:", error);
+        toast.error('Error adding publication');
+    } finally {
+        this.setPublicationLoading(false); // Reset loading state
+    }
+    }
 
     resetPublications = () => {
         this.publicationRegistry.clear();

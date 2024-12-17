@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Publication } from '../models/publication';
 import { store } from '../stores/store';
 import { AppUser } from '../models/appUser';
+import { PublicationDTO } from '../models/publicationDTO';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -31,6 +32,7 @@ axios.interceptors.request.use((config) => {
   const Publications = {
     list: (offset: number, limit: number) =>
       requests.get<Publication[]>(`/publications?offset=${offset}&limit=${limit}`),
+      createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO)
   }
 
   const AppUsers = {

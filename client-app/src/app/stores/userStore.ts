@@ -2,6 +2,7 @@ import { makeAutoObservable, reaction, runInAction } from "mobx";
 import { UserManager, WebStorageStateStore,  } from 'oidc-client-ts';
 import { AppUser } from "../models/appUser";
 import agent from "../api/agent";
+import { toast } from "react-toastify";
 
 export default class UserStore {
     token: string | null = localStorage.getItem('jwtpub');
@@ -106,6 +107,7 @@ export default class UserStore {
             window.location.href = `https://localhost:7274/login?${queryParams}&buttons=army,edu`;
         } catch (error) {
             console.error("Login error:", error);
+            toast.error('Login Error');
         }
     };
   
@@ -128,6 +130,7 @@ export default class UserStore {
                 throw new Error("No token found in the callback URL.");
             }
         } catch (error) {
+            toast.error('Error in handle callback');
             console.error("Callback error:", error);
             // Re-throw the error to allow it to propagate to the calling code
             throw error;
@@ -142,6 +145,7 @@ export default class UserStore {
                 this.setAppUser(appUser); // Set the AppUser
             });
         } catch (error) {
+            toast.error('Error in login app user');
             console.error("Error during loginAppUser:", error);
             throw error; // Re-throw error to propagate it to the caller
         } finally {
@@ -162,7 +166,7 @@ export default class UserStore {
         return !!this.token;
     }
 
-    getTokenPayload = () => {
+ /*   getTokenPayload = () => {
         if (!this.token) return null;
 
         try {
@@ -170,10 +174,11 @@ export default class UserStore {
             const decodedPayload = JSON.parse(atob(payload));
             return JSON.stringify(decodedPayload, null, 2); // Format as a pretty JSON string
         } catch (error) {
+            toast.error('Error in handle callback');
             console.error("Error decoding token payload:", error);
             return null;
         }
-    };
+    };*/
 
     refreshToken = async () => {
         console.log('starting refresh token');
@@ -190,6 +195,7 @@ export default class UserStore {
       
           if (!response.ok) {
             // Handle non-2xx HTTP responses
+            toast.error('Error in refresh token');
             throw new Error(`Failed to refresh token: ${response.status} ${response.statusText}`);
           }
       
@@ -206,6 +212,7 @@ export default class UserStore {
       
           console.log("Token refreshed successfully:", token);
         } catch (error) {
+            toast.error('Error refreshing token');
           console.error("Error refreshing token:", error);
       
           // Handle the error, e.g., redirect to login or show a message
@@ -236,6 +243,7 @@ export default class UserStore {
             const user = await agent.AppUsers.login(); // Fetch user from API
             runInAction(() => this.setAppUser(user));
         } catch (error) {
+            toast.error('Error fetching user');
             console.error("Error fetching user:", error);
             runInAction(() => {
                 this.token = null; // Clear token if user fetch fails

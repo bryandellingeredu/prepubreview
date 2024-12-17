@@ -1,8 +1,9 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, ScrollRestoration } from "react-router-dom"
 import { useStore } from "../stores/store"
 import { useEffect } from "react";
 import LoadingComponent from "./LoadingComponent";
 import { observer } from "mobx-react-lite";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const {userStore} = useStore();
@@ -27,6 +28,18 @@ function App() {
 
   return (
     <>
+      <ScrollRestoration />
+     <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <Outlet />
     </>
   )
