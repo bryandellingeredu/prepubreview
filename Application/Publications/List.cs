@@ -23,14 +23,27 @@ namespace Application.Publications
                 _context = context;
             }
 
-            public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken) =>
-                Result<List<PrePublication_Publication>>.Success(
-                    await _context.Publications
-                        .OrderByDescending(p => p.DateCreated)
-                        .Skip(request.Offset)                   
-                        .Take(request.Limit)     
-                        .ToListAsync(cancellationToken)       
-                );
+            public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                var publications = await _context.Publications
+                    .OrderByDescending(p => p.DateCreated)
+                    .Skip(request.Offset)
+                    .Take(request.Limit)
+                    .ToListAsync(cancellationToken);
+
+                // If no data, add a single empty publication
+                if (!publications.Any())
+                {
+                    publications.Add(new PrePublication_Publication
+                    {
+                        Id = Guid.Empty,
+                        Title = "No Data Found",
+                        DateCreated = DateTime.Now
+                    });
+                }
+
+                return Result<List<PrePublication_Publication>>.Success(publications);
+            }
         }
     }
 }

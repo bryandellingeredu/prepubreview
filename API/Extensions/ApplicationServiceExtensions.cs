@@ -1,5 +1,6 @@
 ﻿using Application.Core;
 using Application.Publications;
+using Application.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using System.Text;
+
 
 namespace API.Extensions
 {
@@ -123,6 +125,7 @@ namespace API.Extensions
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(List.Handler).Assembly));
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            services.AddScoped<IUSAWCUserService, USAWCUserService>();
 
             return services;
 
