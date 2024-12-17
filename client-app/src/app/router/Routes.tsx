@@ -2,7 +2,8 @@ import { RouteObject, createBrowserRouter } from 'react-router-dom';
 import App from '../layout/App';
 import HomePage from '../../features/HomePage';
 import CallbackPage from '../../features/Callback';
-import PublicationsMain from '../../features/Publications/publicationsMain';
+import PublicationsMain from '../../features/Publications/PublicationsMain';
+
 
 export const routes: RouteObject[] = [
     {

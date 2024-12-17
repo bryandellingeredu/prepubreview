@@ -1,57 +1,38 @@
 using Application.Core;
-using Persistence;
-using Microsoft.EntityFrameworkCore;
 using MediatR;
+using Application.Repository;
 
 namespace Application.AppUsers
 {
     public class Login
     {
-        // Update the IRequest type to return a Result containing the appUser
-        public class Command : IRequest<Result<Domain.PrePublication_AppUser>>
+        // Command to handle login request
+        public class Command : IRequest<Result<Domain.USAWCUser>>
         {
             public string Email { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command, Result<Domain.PrePublication_AppUser>>
+        // Handler for the login command
+        public class Handler : IRequestHandler<Command, Result<Domain.USAWCUser>>
         {
-            private readonly DataContext _context;
+            private readonly IUSAWCUserService _usawcUserService;
 
-            public Handler(DataContext context)
+            public Handler(IUSAWCUserService usawcUserService)
             {
-                _context = context;
+                _usawcUserService = usawcUserService;
             }
 
-            public async Task<Result<Domain.PrePublication_AppUser>> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Domain.USAWCUser>> Handle(Command request, CancellationToken cancellationToken)
             {
-                // Check for the AppUser by email
-                var appUser = await _context.AppUsers
-                    .FirstOrDefaultAsync(x => x.Email.ToLower() == request.Email.ToLower(), cancellationToken);
+                // Fetch the cached email lookup from the repository
+                var emailLookup = await _usawcUserService.GetEmailLookupAsync();
 
-                // If not found, attempt to create a new AppUser
-                if (appUser == null)
+                if (!emailLookup.TryGetValue(request.Email, out var usawcUser))
                 {
-                    try
-                    {
-                        appUser = new Domain.PrePublication_AppUser { Email = request.Email.ToLower() };
-                        _context.AppUsers.Add(appUser);
-                        await _context.SaveChangesAsync(cancellationToken);
-                    }
-                    catch (DbUpdateException)
-                    {
-                        // Handle race condition: another request might have inserted the user
-                        appUser = await _context.AppUsers
-                            .FirstOrDefaultAsync(x => x.Email.ToLower() == request.Email.ToLower(), cancellationToken);
-
-                        if (appUser == null)
-                        {
-                            // If appUser is still null, something unexpected happened
-                            return Result<Domain.PrePublication_AppUser>.Failure("Failed to create or retrieve the AppUser.");
-                        }
-                    }
+                    return Result<Domain.USAWCUser>.Failure("Email not found in USAWC table.");
                 }
 
-                return Result<Domain.PrePublication_AppUser>.Success(appUser);
+                return Result<Domain.USAWCUser>.Success(usawcUser);
             }
         }
     }

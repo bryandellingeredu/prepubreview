@@ -37,7 +37,9 @@ export default observer(function Navbar(){
         <Dropdown
           trigger={
             <span style={{ color: 'white' }}>
-              <Icon name="user" /> <span className='gilite'>{userStore.appUser?.email}</span>
+              <Icon name="user" /> 
+              <span className='gilite'>{userStore.appUser?.firstName}</span>
+              <span className='gilite'>{userStore.appUser?.lastName}</span>
             </span>
           }
           pointing="top right"

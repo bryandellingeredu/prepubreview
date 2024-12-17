@@ -125,6 +125,7 @@ namespace API.Extensions
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(List.Handler).Assembly));
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            services.AddMemoryCache();
             services.AddScoped<IUSAWCUserService, USAWCUserService>();
 
             return services;
