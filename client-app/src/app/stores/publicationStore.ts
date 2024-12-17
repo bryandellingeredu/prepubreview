@@ -3,6 +3,7 @@ import agent from "../api/agent";
 import { Publication } from "../models/publication";
 import { PublicationDTO } from "../models/publicationDTO";
 import { toast } from "react-toastify";
+import { store } from "./store";
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
@@ -49,7 +50,15 @@ export default class PublicationStore{
         this.setPublicationLoading(true);
         try{
             await agent.Publications.createUpdate(publicationDTO);
-            const createdPublication : Publication = {id: publicationDTO.id, title: publicationDTO.title, dateCreated: new Date()}
+            const createdPublication : Publication = {
+                id: publicationDTO.id, 
+                title: publicationDTO.title,
+                dateCreated: new Date(),
+                dateUpdated: null,
+                createdByPersonId: publicationDTO.createdByPersonId,
+                updatedByPersonId: publicationDTO.updatedByPersonId,
+                authorPersonId: publicationDTO.authorPersonId,
+            }
             this.publicationRegistry.set(createdPublication.id, createdPublication);
         }
      catch (error) {

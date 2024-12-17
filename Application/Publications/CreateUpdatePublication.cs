@@ -32,6 +32,9 @@ namespace Application.Publications
 
                     if (existingPublication != null){
                      existingPublication.Title = request.PublicationDTO.Title;
+                     existingPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId; 
+                     existingPublication.UpdatedByPersonId = request.PublicationDTO?.UpdatedByPersonId;
+                     existingPublication.DateUpdated = DateTime.Now;
                      try{
                         await _context.SaveChangesAsync();
                          return Result<Unit>.Success(Unit.Value);
@@ -44,8 +47,10 @@ namespace Application.Publications
                        PrePublication_Publication newPublication = new PrePublication_Publication();
                        newPublication.Id = request.PublicationDTO.Id;
                        newPublication.Title = request.PublicationDTO.Title; 
+                       newPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId;
                        newPublication.DateCreated = DateTime.Now;  
-                        _context.Publications.Add(newPublication);
+                       newPublication.CreatedByPersonId = request.PublicationDTO.CreatedByPersonId;
+                    _context.Publications.Add(newPublication);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create registration"); 
                         return Result<Unit>.Success(Unit.Value);

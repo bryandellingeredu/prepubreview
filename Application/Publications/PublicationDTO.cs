@@ -9,5 +9,8 @@ namespace Application.Publications
     {
         public Guid Id { get; set; }
         public string Title { get; set; } 
+        public int CreatedByPersonId { get; set; }
+         public int? UpdatedByPersonId {get; set;}
+         public int AuthorPersonId { get; set; }    
     }
 }

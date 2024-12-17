@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 export default observer(function PublicationsMain() {
     const { publicationStore } = useStore();
     const { loadPublications,  publications, hasMore, publicationloading } = publicationStore;
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -18,6 +19,9 @@ export default observer(function PublicationsMain() {
             loadPublications(); // Load initial publications if none are loaded
         }
     }, [loadPublications, publications.length, publicationloading ]);
+
+
+         
 
     const handleNewButtonClick = () => {
         navigate('/newpublicationform'); // Navigate to the newpublicationform route

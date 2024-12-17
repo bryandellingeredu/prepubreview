@@ -9,8 +9,9 @@ import { useStore } from "../../app/stores/store";
 import { toast } from "react-toastify";
 
 export default observer(function NewPublicationForm() {
-    const { publicationStore } = useStore();
-    const {addPublication, publicationloading} = publicationStore 
+    const { publicationStore, userStore } = useStore();
+    const {addPublication, publicationloading} = publicationStore;
+    const {appUser} = userStore;
     const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [id] = useState(uuidv4());
@@ -34,8 +35,9 @@ export default observer(function NewPublicationForm() {
           const hasErrors = Object.values(errors).some((error) => error);
 
           if (!hasErrors) {
-            const publicationDTO : PublicationDTO = {id, title}
+            const publicationDTO : PublicationDTO = {id, title, createdByPersonId: appUser!.personId, updatedByPersonId: null, authorPersonId : appUser!.personId}
             try{
+              debugger;
               await addPublication(publicationDTO);
               
             }catch(error){

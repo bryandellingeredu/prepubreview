@@ -1,6 +1,10 @@
 export interface Publication{
     id: string,
-    title: string
-    dateCreated: Date
+    createdByPersonId : number, 
+    updatedByPersonId: number | null,
+    authorPersonId : number,  
+    title: string,
+    dateCreated: Date,
+    dateUpdated: Date | null
  }
  

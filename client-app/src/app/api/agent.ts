@@ -36,7 +36,8 @@ axios.interceptors.request.use((config) => {
   }
 
   const AppUsers = {
-    login: () => requests.post<AppUser>('/appusers/login', {})
+    login: () => requests.post<AppUser>('/appusers/login', {}),
+    list: () => requests.get<AppUser[]>('/appusers')
   }
 
 

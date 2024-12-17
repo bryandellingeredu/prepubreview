@@ -13,6 +13,7 @@ export default function PublicationTable({publications} : Props) {
       <TableRow >
         <TableHeaderCell className='gibold' style={{backgroundColor: '#DBC9A9'}}>DATE</TableHeaderCell>
         <TableHeaderCell style={{backgroundColor: '#DBC9A9'}}>TITLE</TableHeaderCell>
+        <TableHeaderCell style={{backgroundColor: '#DBC9A9'}}>AUTHOR</TableHeaderCell>
       </TableRow>
     </TableHeader>
 

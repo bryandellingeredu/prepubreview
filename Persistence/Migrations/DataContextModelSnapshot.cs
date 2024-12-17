@@ -28,11 +28,23 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("AuthorPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedByPersonId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UpdatedByPersonId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
