@@ -126,9 +126,9 @@ export default observer(function NewPublicationForm() {
     <Icon name="cancel" size="large"/>
         CANCEL
     </Button>
-    <Button type="submit" color="brown" icon labelPosition="left" loading={publicationloading}>
-    <Icon name="save" size="large" />
-          SUBMIT
+    <Button type="submit" color="brown" icon labelPosition="right" loading={publicationloading}>
+    <Icon name="arrow right" size="large" />
+          SAVE AND CONTINUE
     </Button>
 </ButtonGroup>
 </Form>

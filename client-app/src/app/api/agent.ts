@@ -32,7 +32,8 @@ axios.interceptors.request.use((config) => {
   const Publications = {
     list: (offset: number, limit: number) =>
       requests.get<Publication[]>(`/publications?offset=${offset}&limit=${limit}`),
-      createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO)
+      createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO),
+      search: (searchQuery: string) => requests.post<Publication[]>('/publications/search', {searchQuery})
   }
 
   const AppUsers = {
