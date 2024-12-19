@@ -4,12 +4,13 @@ import { Publication } from "../models/publication";
 import { PublicationDTO } from "../models/publicationDTO";
 import { toast } from "react-toastify";
 import { store } from "./store";
+import { AppUser } from "../models/appUser";
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
     publicationloading = false;
     offset = 0; // Start offset
-    limit = 100; // Number of items to fetch per page
+    limit = 25; // Number of items to fetch per page
     hasMore = true;
 
     constructor(){
@@ -50,6 +51,8 @@ export default class PublicationStore{
         this.setPublicationLoading(true);
         try{
             await agent.Publications.createUpdate(publicationDTO);
+            const author: AppUser | undefined = store.appUserStore.appUserRegistry.get(publicationDTO.authorPersonId);
+        
             const createdPublication : Publication = {
                 id: publicationDTO.id, 
                 title: publicationDTO.title,
@@ -58,6 +61,9 @@ export default class PublicationStore{
                 createdByPersonId: publicationDTO.createdByPersonId,
                 updatedByPersonId: publicationDTO.updatedByPersonId,
                 authorPersonId: publicationDTO.authorPersonId,
+                authorFirstName: author!.firstName,
+                authorLastName: author!.lastName,
+                authorMiddleName: author!.middleName
             }
             this.publicationRegistry.set(createdPublication.id, createdPublication);
         }

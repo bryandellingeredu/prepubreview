@@ -3,6 +3,7 @@ using MediatR;
 using Persistence;
 using Microsoft.EntityFrameworkCore;
 using Domain;
+using Application.Repository;
 
 
 namespace Application.Publications
@@ -18,14 +19,17 @@ namespace Application.Publications
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
              private readonly DataContext _context;
+             private readonly IUSAWCUserService _userService;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IUSAWCUserService userService)
             {
                 _context = context;
+                _userService = userService;
             }
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                var author = await _userService.GetUserByPersonIdAsync(request.PublicationDTO.AuthorPersonId);
                 var existingPublication = await _context.Publications
                     .Where(x => x.Id == request.PublicationDTO.Id)
                     .FirstOrDefaultAsync();
@@ -33,6 +37,9 @@ namespace Application.Publications
                     if (existingPublication != null){
                      existingPublication.Title = request.PublicationDTO.Title;
                      existingPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId; 
+                     existingPublication.AuthorFirstName = author.FirstName; 
+                     existingPublication.AuthorLastName = author.LastName;  
+                     existingPublication.AuthorLastName = author.MiddleName; 
                      existingPublication.UpdatedByPersonId = request.PublicationDTO?.UpdatedByPersonId;
                      existingPublication.DateUpdated = DateTime.Now;
                      try{
@@ -48,6 +55,9 @@ namespace Application.Publications
                        newPublication.Id = request.PublicationDTO.Id;
                        newPublication.Title = request.PublicationDTO.Title; 
                        newPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId;
+                       newPublication.AuthorFirstName = author.FirstName; 
+                       newPublication.AuthorLastName = author.LastName;  
+                       newPublication.AuthorLastName = author.MiddleName; 
                        newPublication.DateCreated = DateTime.Now;  
                        newPublication.CreatedByPersonId = request.PublicationDTO.CreatedByPersonId;
                     _context.Publications.Add(newPublication);

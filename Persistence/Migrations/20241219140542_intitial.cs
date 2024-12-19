@@ -19,6 +19,9 @@ namespace Persistence.Migrations
                     CreatedByPersonId = table.Column<int>(type: "int", nullable: false),
                     UpdatedByPersonId = table.Column<int>(type: "int", nullable: true),
                     AuthorPersonId = table.Column<int>(type: "int", nullable: false),
+                    AuthorFirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorMiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorLastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: true)

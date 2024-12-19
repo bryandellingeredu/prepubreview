@@ -28,6 +28,15 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AuthorFirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuthorLastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuthorMiddleName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("AuthorPersonId")
                         .HasColumnType("int");
 

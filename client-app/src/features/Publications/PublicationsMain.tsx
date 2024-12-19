@@ -5,7 +5,6 @@ import { useStore } from "../../app/stores/store";
 import { useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import PublicationTable from "./PublicationTable";
-import LoadingComponent from "../../app/layout/LoadingComponent";
 import { useNavigate } from "react-router-dom";
 
 export default observer(function PublicationsMain() {
@@ -21,7 +20,6 @@ export default observer(function PublicationsMain() {
     }, [loadPublications, publications.length, publicationloading ]);
 
 
-         
 
     const handleNewButtonClick = () => {
         navigate('/newpublicationform'); // Navigate to the newpublicationform route
@@ -46,7 +44,8 @@ export default observer(function PublicationsMain() {
             >
                 <PublicationTable publications={publications} />
             </InfiniteScroll>
-            {publicationloading  && <LoadingComponent content='loading data...' />}
+            {publicationloading  && 
+            <Button type='button' disabled floated="right" color='grey'  loading={publicationloading} content='loading...'/>}
         </Container>
     );
 });

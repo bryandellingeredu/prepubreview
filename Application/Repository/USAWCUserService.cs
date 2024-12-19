@@ -10,6 +10,8 @@ namespace Application.Repository
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
 
+         private readonly IUSAWCUserService _userService;
+
         private static readonly string CacheKey = "USAWCUsers";
         private static readonly string EmailLookupCacheKey = "USAWCEmailLookup";
 
@@ -129,5 +131,43 @@ namespace Application.Repository
 
             return emailLookup;
         }
+
+public async Task<Dictionary<int, USAWCUser>> GetPersonIdLookupAsync()
+{
+    const string PersonIdLookupCacheKey = "USAWCPersonIdLookup";
+
+    // Return cached person ID lookup dictionary if available
+    if (_cache.TryGetValue(PersonIdLookupCacheKey, out Dictionary<int, USAWCUser> personIdLookup))
+    {
+        return personIdLookup;
+    }
+
+    // Fetch users and build the lookup dictionary
+    var users = await GetUSAWCUsersAsync();
+    personIdLookup = users.ToDictionary(user => user.PersonId, user => user);
+
+    // Cache the lookup dictionary
+    var cacheOptions = new MemoryCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+    };
+    _cache.Set(PersonIdLookupCacheKey, personIdLookup, cacheOptions);
+
+    return personIdLookup;
+}
+public async Task<USAWCUser> GetUserByPersonIdAsync(int personId)
+{
+    // Retrieve the person ID lookup dictionary
+    var personIdLookup = await GetPersonIdLookupAsync();
+
+    // Attempt to get the user by person ID
+    if (personIdLookup.TryGetValue(personId, out USAWCUser user))
+    {
+        return user;
+    }
+
+    // Return null or handle the scenario where the person ID is not found
+    return null;
+}
     }
 }
