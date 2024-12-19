@@ -51,7 +51,7 @@ export default class PublicationStore{
         this.setPublicationLoading(true);
         try{
             await agent.Publications.createUpdate(publicationDTO);
-            const author: AppUser | undefined = store.appUserStore.appUserRegistry.get(publicationDTO.authorPersonId);
+            const author: AppUser | undefined = store.usawcUserStore.usawcUserRegistry.get(publicationDTO.authorPersonId);
         
             const createdPublication : Publication = {
                 id: publicationDTO.id, 

@@ -1,18 +1,18 @@
 import { createContext, useContext } from "react";
 import UserStore from "./userStore";
 import PublicationStore from "./publicationStore";
-import AppUserStore from "./appUserStore";
+import USAWCUserStore from "./usawcUserStore";
 
 interface Store{
     userStore: UserStore;
     publicationStore: PublicationStore;
-    appUserStore: AppUserStore;
+    usawcUserStore: USAWCUserStore;
 }
 
 export const store: Store ={
     userStore: new UserStore(),
     publicationStore: new PublicationStore(),
-    appUserStore: new AppUserStore()
+    usawcUserStore: new USAWCUserStore()
 }
 
 export const StoreContext = createContext(store);

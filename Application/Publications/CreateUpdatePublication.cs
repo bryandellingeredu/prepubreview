@@ -39,7 +39,7 @@ namespace Application.Publications
                      existingPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId; 
                      existingPublication.AuthorFirstName = author.FirstName; 
                      existingPublication.AuthorLastName = author.LastName;  
-                     existingPublication.AuthorLastName = author.MiddleName; 
+                     existingPublication.AuthorMiddleName = author.MiddleName; 
                      existingPublication.UpdatedByPersonId = request.PublicationDTO?.UpdatedByPersonId;
                      existingPublication.DateUpdated = DateTime.Now;
                      try{
@@ -57,7 +57,7 @@ namespace Application.Publications
                        newPublication.AuthorPersonId = request.PublicationDTO.AuthorPersonId;
                        newPublication.AuthorFirstName = author.FirstName; 
                        newPublication.AuthorLastName = author.LastName;  
-                       newPublication.AuthorLastName = author.MiddleName; 
+                       newPublication.AuthorMiddleName = author.MiddleName; 
                        newPublication.DateCreated = DateTime.Now;  
                        newPublication.CreatedByPersonId = request.PublicationDTO.CreatedByPersonId;
                     _context.Publications.Add(newPublication);

@@ -3,16 +3,16 @@ import { AppUser } from "../models/appUser";
 import agent from "../api/agent";
 import { toast } from "react-toastify";
 
-export default class AppUserStore{
-     appUserRegistry = new Map<number, AppUser>();
-     appUserloading = false;
+export default class USAWCUserStore{
+     usawcUserRegistry = new Map<number, AppUser>();
+     usawcUserloading = false;
 
          constructor(){
              makeAutoObservable(this);
          }
      
-         get appUsers() {
-            return Array.from(this.appUserRegistry.values()).sort((a, b) => {
+         get usawcUsers() {
+            return Array.from(this.usawcUserRegistry.values()).sort((a, b) => {
                 // First compare by last name
                 const lastNameComparison = a.lastName.localeCompare(b.lastName);
                 if (lastNameComparison !== 0) return lastNameComparison;
@@ -22,12 +22,12 @@ export default class AppUserStore{
             });
          }
 
-         loadAppUsers = async () => {
-            this.setAppUserLoading(true);
+         loadUSAWCUsers = async () => {
+            this.setUSAWCUserLoading(true);
             try{
-                const appUsers = await agent.AppUsers.list();
-                appUsers.forEach((appUser) => {
-                    this.appUserRegistry.set(appUser.personId, appUser);
+                const users = await agent.AppUsers.list();
+                users.forEach((user) => {
+                    this.usawcUserRegistry.set(user.personId, user);
                 });
         
             }catch(error){
@@ -35,11 +35,11 @@ export default class AppUserStore{
                   toast.error('Error loading app users');
             }
             finally{
-                this.setAppUserLoading(false);
+                this.setUSAWCUserLoading(false);
             }
          }
 
-         setAppUserLoading = (state: boolean) => this.appUserloading = state; 
+         setUSAWCUserLoading = (state: boolean) => this.usawcUserloading = state; 
 
 
 }
