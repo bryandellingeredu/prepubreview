@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
-import { Container, Divider, Header, Icon, Form, Button, ButtonGroup  } from "semantic-ui-react";
+import { Container, Divider, Header, Icon, Form, Button, ButtonGroup, FormField, Segment, Grid, GridColumn, FormInput  } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -121,7 +121,33 @@ export default observer(function NewPublicationForm() {
                             }
                         }
     />
-<ButtonGroup floated="right">
+    <FormField>
+      <label>PUBLICATION</label>
+    <Segment  style={{backgroundColor: '#F1E4C7'}} >
+    <Grid columns={2} relaxed='very' stackable>
+      <GridColumn>
+     
+          <FormInput
+           fluid
+            icon='paperclip'
+            iconPosition='left'
+            label='ENTER A LINK TO YOUR PUBLICATION'
+            placeholder='paste link here'
+            name='publicationlink'
+          />
+
+      
+      </GridColumn>
+
+      <GridColumn verticalAlign='middle' textAlign="center">
+        <Button content='UPLOAD YOUR PUBLICATION' icon='upload' size='big' color='grey' />
+      </GridColumn>
+    </Grid>
+
+    <Divider vertical>Or</Divider>
+  </Segment>
+    </FormField>
+<ButtonGroup floated="right" size="big">
     <Button type="button" color='black' icon labelPosition="left" onClick={handleCancelButtonClick}>
     <Icon name="cancel" size="large"/>
         CANCEL

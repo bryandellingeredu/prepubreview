@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import LoadingComponent from "./LoadingComponent";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
+import ModalContainer from "../common/modals/ModalContainer";
 
 function App() {
   const {userStore} = useStore();
@@ -40,6 +41,7 @@ function App() {
         draggable
         pauseOnHover
       />
+        <ModalContainer />
       <Outlet />
     </>
   )
