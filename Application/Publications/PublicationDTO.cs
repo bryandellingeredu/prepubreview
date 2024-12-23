@@ -11,6 +11,8 @@ namespace Application.Publications
         public string Title { get; set; } 
         public int CreatedByPersonId { get; set; }
          public int? UpdatedByPersonId {get; set;}
-         public int AuthorPersonId { get; set; }    
+         public int AuthorPersonId { get; set; }  
+         public string PublicationLink {get; set;}  
+         public string PublicationLinkName {get; set;}
     }
 }

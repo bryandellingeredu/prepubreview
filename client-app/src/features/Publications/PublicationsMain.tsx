@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
-import { Button, Container, Divider, Header, Icon, Search, SearchProps } from "semantic-ui-react";
+import { Button, Container, Divider, Header, Icon, Loader, Search, SearchProps } from "semantic-ui-react";
 import { useStore } from "../../app/stores/store";
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
@@ -97,8 +97,8 @@ export default observer(function PublicationsMain() {
             >
                 <PublicationTable publications={publications} />
             </InfiniteScroll>
-            {publicationloading  && 
-            <Button type='button' disabled floated="right" color='grey'  loading={publicationloading} content='loading...'/>}
+            {publicationloading  &&
+            <Loader active inline='centered' />}
         </Container>
     );
 });

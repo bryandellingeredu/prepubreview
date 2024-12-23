@@ -9,5 +9,7 @@ export interface Publication{
     title: string,
     dateCreated: Date,
     dateUpdated: Date | null
+    publicationLink: string
+    publicationLinkName: string
  }
  

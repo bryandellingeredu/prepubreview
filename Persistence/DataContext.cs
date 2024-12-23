@@ -10,6 +10,8 @@ namespace Persistence
         }
 
         public DbSet<PrePublication_Publication> Publications { get; set; }
+        public DbSet<PrePublication_Attachment> Attachments{ get; set; }
+        public DbSet<PrePublication_AttachmentMetaData> AttachmentMetaDatas { get; set; }
 
     }
 }

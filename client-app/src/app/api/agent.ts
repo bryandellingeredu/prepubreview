@@ -41,10 +41,22 @@ axios.interceptors.request.use((config) => {
     list: () => requests.get<AppUser[]>('/appusers')
   }
 
+  const Uploads = {
+    uploadPublication: (file: Blob, lookupId: string) => {
+      let formData = new FormData();
+      formData.append('File', file);
+      formData.append('lookupId', lookupId);
+      return axios.post('upload', formData, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      })
+    },
+  }
+
 
   const agent = {
     Publications,
-    AppUsers
+    AppUsers,
+    Uploads
   }
 
   

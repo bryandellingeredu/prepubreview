@@ -5,6 +5,7 @@ import LoadingComponent from "./LoadingComponent";
 import { observer } from "mobx-react-lite";
 import { ToastContainer } from "react-toastify";
 import ModalContainer from "../common/modals/ModalContainer";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
   const {userStore} = useStore();

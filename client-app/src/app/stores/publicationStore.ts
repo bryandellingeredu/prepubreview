@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Publication } from "../models/publication";
 import { PublicationDTO } from "../models/publicationDTO";
@@ -9,6 +9,7 @@ import { AppUser } from "../models/appUser";
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
     publicationloading = false;
+    uploading = false;
     offset = 0; // Start offset
     limit = 25; // Number of items to fetch per page
     hasMore = true;
@@ -56,6 +57,8 @@ export default class PublicationStore{
             const createdPublication : Publication = {
                 id: publicationDTO.id, 
                 title: publicationDTO.title,
+                publicationLink: publicationDTO.publicationLink,
+                publicationLinkName: publicationDTO.publicationLinkName,
                 dateCreated: new Date(),
                 dateUpdated: null,
                 createdByPersonId: publicationDTO.createdByPersonId,
@@ -84,4 +87,22 @@ export default class PublicationStore{
     setPublicationLoading = (state : boolean) => {
         this. publicationloading  = state;
       };
+
+      uploadPublication = async (file: Blob, lookupId: string) => {
+        this.uploading = true;
+        try{
+          const response = await agent.Uploads.uploadPublication(file, lookupId);
+          const attachment = response.data;
+          runInAction(() => {
+            this.uploading = false;
+          })
+          return attachment;
+        } catch(error){
+          toast.error('Error uploading publication');
+          console.log(error);
+          runInAction(() => {
+            this.uploading = false;
+          })
+        }
+      }
 }

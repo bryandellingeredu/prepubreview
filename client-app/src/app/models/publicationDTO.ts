@@ -4,4 +4,6 @@ export interface PublicationDTO{
     createdByPersonId : number
     updatedByPersonId : number | null
     authorPersonId: number 
+    publicationLink: string
+    publicationLinkName: string
  }

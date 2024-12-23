@@ -14,6 +14,8 @@ namespace Domain
         public string Title { get; set; } 
         public DateTime DateCreated { get; set; } 
         public DateTime? DateUpdated { get; set; } 
+        public string PublicationLink {get; set;}
+        public string PublicationLinkName {get; set;}
           
     }
 }

@@ -42,6 +42,8 @@ namespace Application.Publications
                      existingPublication.AuthorMiddleName = author.MiddleName; 
                      existingPublication.UpdatedByPersonId = request.PublicationDTO?.UpdatedByPersonId;
                      existingPublication.DateUpdated = DateTime.Now;
+                     existingPublication.PublicationLink = request.PublicationDTO.PublicationLink;
+                     existingPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
                      try{
                         await _context.SaveChangesAsync();
                          return Result<Unit>.Success(Unit.Value);
@@ -60,6 +62,8 @@ namespace Application.Publications
                        newPublication.AuthorMiddleName = author.MiddleName; 
                        newPublication.DateCreated = DateTime.Now;  
                        newPublication.CreatedByPersonId = request.PublicationDTO.CreatedByPersonId;
+                       newPublication.PublicationLink = request.PublicationDTO.PublicationLink;
+                       newPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
                     _context.Publications.Add(newPublication);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create registration"); 
