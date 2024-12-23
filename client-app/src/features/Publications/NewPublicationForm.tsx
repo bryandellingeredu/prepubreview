@@ -14,7 +14,7 @@ import {
   GridColumn,
   FormInput,
   TextArea,
-  Label,
+  Message,
 } from "semantic-ui-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -24,21 +24,24 @@ import { useStore } from "../../app/stores/store";
 import { toast } from "react-toastify";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import DocumentUploadWidget from "../../app/common/documentUpload/documentUploadWidget";
+import { AttachmentMetaData } from "../../app/models/attachmentMetaData";
+import agent from "../../app/api/agent";
 
 export default observer(function NewPublicationForm() {
+  const apiUrl = import.meta.env.VITE_API_URL;
   const { publicationStore, userStore, usawcUserStore } = useStore();
   const { addPublication, publicationloading, uploading, uploadPublication } = publicationStore;
-  const { appUser } = userStore;
+  const { appUser, token } = userStore;
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
 
   const navigate = useNavigate();
   const [id] = useState(uuidv4());
   const [author, setAuthor] = useState<number | null>(appUser!.personId); // Selected author
   const [publicationLink, setPublicationLink] = useState("");
-  const [publicationLinkName, setPublicationLinkName] = useState("");
   const [formErrors, setFormErrors] = useState({
     title: false,
     author: false,
+    publication: false,
   });
   const [showDocumentUploadWidget, setShowDocumentUploadWidget] = useState(false);
   const [publicationName, setPublicationName] = useState("");
@@ -69,9 +72,11 @@ export default observer(function NewPublicationForm() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const title = formData.get("title")?.toString().trim() || "";
+    const publicationLinkName = formData.get("publicationlinkname")?.toString().trim() || "";
     const errors = {
       title: title.trim() === "",
       author: author === null,
+      publication: !fileHasBeenUploaded && !publicationLink
     };
 
     setFormErrors(errors);
@@ -110,6 +115,43 @@ export default observer(function NewPublicationForm() {
       setFileHasBeenUploaded(true);
     }
   };
+
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadClick = async () => {
+    setDownloading(true)
+    try{
+      const metaData: AttachmentMetaData = await agent.AttachmentMetaDatas.details(id);
+      const headers = new Headers();
+      headers.append('Authorization', `Bearer ${token}`);
+      const requestOptions = {
+        method: 'GET',
+        headers: headers,
+      };
+      const attachmentData = await fetch(
+        `${apiUrl}/upload/${metaData.id}`,
+        requestOptions,
+      );
+      const data = await attachmentData.arrayBuffer();
+      const file = new Blob([data], { type: metaData.fileType });
+      const fileUrl = window.URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = metaData.fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(fileUrl);
+      
+    }catch(error )
+    {
+      console.log(error);
+      toast.error('an error occured during download');
+    }finally{
+      setDownloading(false);
+    }
+  }
+
+
 
   if (usawcUserloading) return <LoadingComponent content="loading..." />;
 
@@ -154,12 +196,17 @@ export default observer(function NewPublicationForm() {
             <Divider horizontal>
               <Header as="h5" className="industry">
                 <Icon name="paperclip" />
-                PUBLICATION
+                 PUBLICATION 
                 <Header.Subheader>
                   COPY AND PASTE A LINK TO YOUR PUBLICATION, OR UPLOAD IT
                 </Header.Subheader>
               </Header>
             </Divider>
+            {formErrors.publication && 
+            <Message color="red" negative  style={{ textAlign: "center" }}>
+            <h5>ERROR: COPY AND PASTE A LINK OR UPLOAD YOUR PUBLICATION</h5>
+            </Message>
+            }
             {!showDocumentUploadWidget && (
               <Segment style={{ backgroundColor: "#F1E4C7" }}>
                 <Grid columns={2} relaxed="very" stackable>
@@ -180,8 +227,6 @@ export default observer(function NewPublicationForm() {
                       label="ENTER A TITLE FOR YOUR LINK"
                       placeholder="Enter link title"
                       name="publicationlinkname"
-                      value={publicationLinkName}
-                      onChange={(e) => setPublicationLinkName(e.target.value)}
                       disabled={fileHasBeenUploaded}
                       readonly={fileHasBeenUploaded}
                     />
@@ -194,14 +239,13 @@ export default observer(function NewPublicationForm() {
                       size="big"
                       color="grey"
                       onClick={() => setShowDocumentUploadWidget(true)}
-                      disabled={!!publicationLink || !!publicationLinkName}
+                      disabled={!publicationLink }
                     />
                     }
                     {fileHasBeenUploaded && 
                     <ButtonGroup size='big'>
-                     <Button basic color='blue' icon labelPosition="left"
-               
-                      >
+                     <Button basic color='blue' icon labelPosition="left" loading={downloading}
+                     onClick={handleDownloadClick}>
                             <Icon name='download' />
                             {publicationName.length > 20 ? `${publicationName.substring(0, 20)}...` : publicationName} 
                       </Button>

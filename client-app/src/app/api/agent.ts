@@ -3,6 +3,7 @@ import { Publication } from '../models/publication';
 import { store } from '../stores/store';
 import { AppUser } from '../models/appUser';
 import { PublicationDTO } from '../models/publicationDTO';
+import { AttachmentMetaData } from '../models/attachmentMetaData';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -41,6 +42,10 @@ axios.interceptors.request.use((config) => {
     list: () => requests.get<AppUser[]>('/appusers')
   }
 
+  const AttachmentMetaDatas ={
+    details: (lookupId: string) => requests.get<AttachmentMetaData>(`/attachmentMetaDatas/${lookupId}`)
+  }
+
   const Uploads = {
     uploadPublication: (file: Blob, lookupId: string) => {
       let formData = new FormData();
@@ -56,7 +61,8 @@ axios.interceptors.request.use((config) => {
   const agent = {
     Publications,
     AppUsers,
-    Uploads
+    Uploads,
+    AttachmentMetaDatas
   }
 
   
