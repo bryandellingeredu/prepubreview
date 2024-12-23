@@ -1,4 +1,5 @@
 ﻿using Application.Core;
+using Application.GraphHelper;
 using Application.Publications;
 using Application.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -127,6 +128,7 @@ namespace API.Extensions
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddMemoryCache();
             services.AddScoped<IUSAWCUserService, USAWCUserService>();
+            services.AddScoped<IGraphHelperService, GraphHelperService>();
 
             return services;
 
