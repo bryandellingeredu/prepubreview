@@ -195,7 +195,6 @@ export default observer(function NewPublicationForm() {
           <FormField>
             <Divider horizontal>
               <Header as="h5" className="industry">
-                <Icon name="paperclip" />
                  PUBLICATION 
                 <Header.Subheader>
                   COPY AND PASTE A LINK TO YOUR PUBLICATION, OR UPLOAD IT
