@@ -238,7 +238,7 @@ export default observer(function NewPublicationForm() {
                       size="big"
                       color="grey"
                       onClick={() => setShowDocumentUploadWidget(true)}
-                      disabled={!publicationLink }
+                      disabled= {publicationLink?true:false }
                     />
                     }
                     {fileHasBeenUploaded && 

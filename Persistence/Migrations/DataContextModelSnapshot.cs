@@ -28,8 +28,8 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("BinaryData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("ItemId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

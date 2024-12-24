@@ -8,6 +8,6 @@ namespace Domain
     public class PrePublication_Attachment
     {
          public Guid Id { get; set; }
-        public byte[] BinaryData {get; set;}
+        public string ItemId {get; set;}
     }
 }

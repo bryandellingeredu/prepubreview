@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Persistence;
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Application.GraphHelper;
 
 
 namespace Application.Uploads
@@ -19,30 +20,25 @@ namespace Application.Uploads
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             public Handler(
-             DataContext context)
+             DataContext context, IGraphHelperService graphHelperService)
             {
                 _context = context;
+                _graphHelperService = graphHelperService;
             }
 
             private readonly DataContext _context;
+            private readonly IGraphHelperService  _graphHelperService;
 
          public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
 {
     try
     {
-        using (var stream = request.File.OpenReadStream())
-        using (var ms = new MemoryStream())
-        {
-            // Copy the file stream into the memory stream
-            await stream.CopyToAsync(ms);
-
-            // Create the attachment with the binary data
-            var attachment = new PrePublication_Attachment { BinaryData = ms.ToArray() };
-            await _context.Attachments.AddAsync(attachment);
-            await _context.SaveChangesAsync();
-
-            // Update or create metadata
-            var existingAttachmentMetaData = await _context.AttachmentMetaDatas
+       string itemId = await _graphHelperService.UploadFile(request.File);
+       var attachment = new PrePublication_Attachment { ItemId = itemId };
+       await _context.Attachments.AddAsync(attachment);
+       await _context.SaveChangesAsync();
+       
+       var existingAttachmentMetaData = await _context.AttachmentMetaDatas
                 .Where(x => x.LookupId == request.LookupId)
                 .FirstOrDefaultAsync();
 
@@ -68,7 +64,7 @@ namespace Application.Uploads
                 return Result<Unit>.Success(Unit.Value);
             }
         }
-    }
+    
     catch (Exception ex)
     {
         return Result<Unit>.Failure($"Failed to Upload Publication: {ex.Message}");

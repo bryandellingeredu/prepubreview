@@ -11,5 +11,6 @@ namespace Application.GraphHelper
     public interface IGraphHelperService
     {
         Task<string> UploadFile(IFormFile file);
+        Task<Byte[]> DownloadFile(string itemId);
     }
 }

@@ -12,8 +12,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241220202738_attachment")]
-    partial class attachment
+    [Migration("20241224003612_intitial")]
+    partial class intitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,8 +31,8 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("BinaryData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("ItemId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -90,6 +90,9 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PublicationLink")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicationLinkName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")

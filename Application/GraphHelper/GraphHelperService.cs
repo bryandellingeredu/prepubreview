@@ -29,7 +29,40 @@ namespace Application.GraphHelper
             _appClient = new GraphServiceClient(credential, new[] { "https://graph.microsoft.com/.default" });
         }
 
-    
+public async Task<byte[]> DownloadFile( string itemId)
+{
+     string driveId = "b!n8q4TV01IUe4cvbyuYi8UdVKF2uJKVNMvasg_6b0i6XqCkIYuEEkTpEJFysR3WuK";
+    try
+    {
+        if (string.IsNullOrEmpty(driveId) || string.IsNullOrEmpty(itemId))
+        {
+            throw new ArgumentException("Drive ID and Item ID cannot be null or empty.");
+        }
+
+        // Get the file content as a stream from the DriveItem
+        using (var stream = await _appClient
+            .Drives[driveId]
+            .Items[itemId]
+            .Content
+            .GetAsync())
+        {
+            // Read the stream into a byte array
+            using (var memoryStream = new MemoryStream())
+            {
+                await stream.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+    }
+    catch (ServiceException ex)
+    {
+        throw new Exception($"Graph API error: {ex.Message}", ex);
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"An error occurred while downloading the file: {ex.Message}", ex);
+    }
+}
 
         public async Task<string> UploadFile(IFormFile file)
         {
@@ -40,19 +73,14 @@ namespace Application.GraphHelper
 
                 // File name
                 string fileName = file.FileName;
+                fileName = fileName.Replace(":", "_").Replace("/", "_");
 
                 // Create the request body for the upload session
                 var requestBody = new CreateUploadSessionPostRequestBody
                 {
                     Item = new DriveItemUploadableProperties
                     {
-                        Name = fileName,
-                        Description = "Uploaded by Graph API", // Optional description
-                        FileSystemInfo = new Microsoft.Graph.Models.FileSystemInfo
-                        {
-                            CreatedDateTime = DateTimeOffset.UtcNow,
-                            LastModifiedDateTime = DateTimeOffset.UtcNow
-                        }
+                        Name = fileName
                     }
                 };
 
@@ -80,7 +108,7 @@ namespace Application.GraphHelper
                     if (uploadResult.UploadSucceeded)
                     {
                         // Return the uploaded file's URL
-                        return uploadResult.ItemResponse.WebUrl;
+                        return uploadResult.ItemResponse.Id;
                     }
                     else
                     {

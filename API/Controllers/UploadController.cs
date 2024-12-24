@@ -2,14 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using API.Attributes;
 using Application.Uploads;
 using Persistence;
+using Application.GraphHelper;
 
 namespace API.Controllers
 {
     public class UploadController : BaseApiController
     {
         private readonly DataContext _context;
+        private readonly IGraphHelperService _graphHelperService;
 
-        public UploadController(DataContext context) =>   _context = context;
+        public UploadController(DataContext context, IGraphHelperService graphHelperService){
+          _context = context;
+          _graphHelperService = graphHelperService;
+
+        }   
    
 
         [AuthorizeUSAWCEmail]
@@ -30,7 +36,8 @@ namespace API.Controllers
             var metaData = await _context.AttachmentMetaDatas.FindAsync(id);
             var file = await _context.Attachments.FindAsync(metaData.AttachmentLookupId);
             if (file == null)  return NotFound();
-           return File(file.BinaryData, metaData.FileType, metaData.FileName);
+            byte[] binaryData = await _graphHelperService.DownloadFile(file.ItemId);
+           return File(binaryData, metaData.FileType, metaData.FileName);
         }
     }
 }
