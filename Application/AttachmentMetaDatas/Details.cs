@@ -19,9 +19,16 @@ namespace Application.AttachmentMetaDatas
 
             public Handler(DataContext context) => _context = context;
          
-            public async Task<Result<PrePublication_AttachmentMetaData>> Handle(Query request, CancellationToken cancellationToken) =>
-              Result<PrePublication_AttachmentMetaData>.Success(
-                await _context.AttachmentMetaDatas.Where(x =>x.LookupId == request.LookupId).FirstOrDefaultAsync());
+            public async Task<Result<PrePublication_AttachmentMetaData>> Handle(Query request, CancellationToken cancellationToken){
+                PrePublication_AttachmentMetaData metaData = await _context.AttachmentMetaDatas.Where(x =>x.LookupId == request.LookupId).FirstOrDefaultAsync();
+                
+                if(metaData == null){
+                  metaData = new PrePublication_AttachmentMetaData();
+                }
+
+               return    Result<PrePublication_AttachmentMetaData>.Success(metaData);
+            }
+           
         }
 
     }

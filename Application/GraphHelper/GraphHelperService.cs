@@ -11,11 +11,12 @@ namespace Application.GraphHelper
     {
         private readonly IConfiguration _config;
         private readonly GraphServiceClient _appClient;
+        private readonly string driveId;
 
         public GraphHelperService(IConfiguration config)
         {
             _config = config;
-
+            driveId =  _config["GraphHelper:driveId"];
             var tenantId = _config["GraphHelper:TenantId"];
             var clientId = _config["GraphHelper:ClientId"];
             var clientSecret = _config["GraphHelper:ClientSecret"];
@@ -29,9 +30,36 @@ namespace Application.GraphHelper
             _appClient = new GraphServiceClient(credential, new[] { "https://graph.microsoft.com/.default" });
         }
 
-public async Task<byte[]> DownloadFile( string itemId)
+ public async Task DeleteFile(string itemId)
 {
-     string driveId = "b!n8q4TV01IUe4cvbyuYi8UdVKF2uJKVNMvasg_6b0i6XqCkIYuEEkTpEJFysR3WuK";
+    try
+    {
+        if (string.IsNullOrEmpty(driveId))
+        {
+            throw new ArgumentException("Drive ID cannot be null or empty.", nameof(driveId));
+        }
+
+        if (string.IsNullOrEmpty(itemId))
+        {
+            throw new ArgumentException("Item ID cannot be null or empty.", nameof(itemId));
+        }
+
+        await _appClient
+            .Drives[driveId]
+            .Items[itemId]
+            .DeleteAsync();
+    }
+    catch (ServiceException ex)
+    {
+        // Log the exception or handle it as needed
+        Console.Error.WriteLine($"Error deleting file: {ex.Message}");
+        throw; // Re-throw if you want the caller to handle the exception
+    }
+}
+
+        public async Task<byte[]> DownloadFile( string itemId)
+{
+
     try
     {
         if (string.IsNullOrEmpty(driveId) || string.IsNullOrEmpty(itemId))
@@ -68,8 +96,7 @@ public async Task<byte[]> DownloadFile( string itemId)
         {
             try
             {
-                // Drive ID for the Publications library
-                string driveId = "b!n8q4TV01IUe4cvbyuYi8UdVKF2uJKVNMvasg_6b0i6XqCkIYuEEkTpEJFysR3WuK";
+
 
                 // File name
                 string fileName = file.FileName;

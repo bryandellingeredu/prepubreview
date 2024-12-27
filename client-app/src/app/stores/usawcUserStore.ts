@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { AppUser } from "../models/appUser";
 import agent from "../api/agent";
 import { toast } from "react-toastify";
@@ -27,7 +27,9 @@ export default class USAWCUserStore{
             try{
                 const users = await agent.AppUsers.list();
                 users.forEach((user) => {
-                    this.usawcUserRegistry.set(user.personId, user);
+                      runInAction(() => {
+                            this.usawcUserRegistry.set(user.personId, user);
+                      })
                 });
         
             }catch(error){

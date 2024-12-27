@@ -33,8 +33,9 @@ axios.interceptors.request.use((config) => {
   const Publications = {
     list: (offset: number, limit: number) =>
       requests.get<Publication[]>(`/publications?offset=${offset}&limit=${limit}`),
-      createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO),
-      search: (searchQuery: string) => requests.post<Publication[]>('/publications/search', {searchQuery})
+    details: (id: string) => requests.get<Publication>(`/publications/${id}`),
+    createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO),
+    search: (searchQuery: string) => requests.post<Publication[]>('/publications/search', {searchQuery})
   }
 
   const AppUsers = {
@@ -43,7 +44,8 @@ axios.interceptors.request.use((config) => {
   }
 
   const AttachmentMetaDatas ={
-    details: (lookupId: string) => requests.get<AttachmentMetaData>(`/attachmentMetaDatas/${lookupId}`)
+    details: (lookupId: string) => requests.get<AttachmentMetaData>(`/attachmentMetaDatas/${lookupId}`),
+    delete: (lookupId: string) => requests.del<void>(`/attachmentMetaDatas/${lookupId}`)
   }
 
   const Uploads = {

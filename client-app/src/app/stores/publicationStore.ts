@@ -48,6 +48,28 @@ export default class PublicationStore{
         }
     };
 
+    getPublicationById = async (id: string) => {
+        let publication = this.publicationRegistry.get(id);
+        if(publication){
+            return publication;
+        }else{
+            try{
+                this.setPublicationLoading(true);
+                 publication = await agent.Publications.details(id);
+                 runInAction(() => {
+                    this.publicationRegistry.set(publication!.id, publication!);
+                 });
+                 return publication;
+            }
+            catch (error) {
+                console.error("Error loading publication:", error);
+                toast.error('an error occured loading publication');
+            } finally {
+                this.setPublicationLoading(false); // Always set loading to false after execution
+            }
+        }
+    }
+
     addPublication = async (publicationDTO: PublicationDTO) => {
         this.setPublicationLoading(true);
         try{

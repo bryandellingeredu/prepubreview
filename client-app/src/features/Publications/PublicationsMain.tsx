@@ -16,14 +16,6 @@ export default observer(function PublicationsMain() {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (publications.length === 0 && !publicationloading ) {
-            loadPublications(); // Load initial publications if none are loaded
-        }
-    }, [loadPublications, publications.length, publicationloading ]);
-
-
-
     const handleNewButtonClick = () => {
         navigate('/newpublicationform'); // Navigate to the newpublicationform route
     };
@@ -81,6 +73,12 @@ export default observer(function PublicationsMain() {
                     value={searchQuery}
                     placeholder="Search publications..."
                     onSearchChange={handleSearchChange}
+                    onResultSelect={(e, data) => {
+                        const selectedResult = results.find(result => result.id === data.result.key);
+                        if (selectedResult) {
+                            navigate(`/threads/${selectedResult.id}`); // Navigate to the details page
+                        }
+                    }}
                 />
                 <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick}/>
             </div>

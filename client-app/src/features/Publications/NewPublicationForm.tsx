@@ -15,27 +15,28 @@ import {
   FormInput,
   TextArea,
   Message,
+  Popup,
 } from "semantic-ui-react";
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { PublicationDTO } from "../../app/models/publicationDTO";
 import { useStore } from "../../app/stores/store";
 import { toast } from "react-toastify";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import DocumentUploadWidget from "../../app/common/documentUpload/documentUploadWidget";
-import { AttachmentMetaData } from "../../app/models/attachmentMetaData";
 import agent from "../../app/api/agent";
+import DocumentDownloadWidget from "../../app/common/documentDownload/documentDownloadWidget";
 
 export default observer(function NewPublicationForm() {
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const { pubid } = useParams();
   const { publicationStore, userStore, usawcUserStore } = useStore();
-  const { addPublication, publicationloading, uploading, uploadPublication } = publicationStore;
-  const { appUser, token } = userStore;
+  const { addPublication, publicationloading, uploading, uploadPublication, getPublicationById } = publicationStore;
+  const { appUser} = userStore;
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
 
   const navigate = useNavigate();
-  const [id] = useState(uuidv4());
+  const [id] = useState(pubid || uuidv4());
   const [author, setAuthor] = useState<number | null>(appUser!.personId); // Selected author
   const [publicationLink, setPublicationLink] = useState("");
   const [formErrors, setFormErrors] = useState({
@@ -58,6 +59,58 @@ export default observer(function NewPublicationForm() {
     }));
   }, [usawcUsers]);
 
+
+  const [existingTitle, setExistingTitle] = useState('');
+  const [existingPublicationLinkName, setExistingPublicationLinkName] = useState('');
+
+  const [loadingMeta, setLoadingMeta] = useState(false);
+
+  useEffect(() => {
+    if (pubid) {
+      setLoadingMeta(true);
+        agent.AttachmentMetaDatas.details(pubid)
+            .then((metaData) => {
+                if (metaData && metaData.fileName) {
+                    setPublicationName(metaData.fileName);
+                    setFileHasBeenUploaded(true);
+                    setLoadingMeta(false);
+                }else{
+                  setLoadingMeta(false);
+                }
+
+            })
+            .catch((error) => {
+                console.error("Error fetching metadata:", error);
+                toast.error('error loading file');
+                setLoadingMeta(false);
+            });
+    }
+}, [pubid]);
+
+  const[loadingPub, setLoadingPub] = useState(false);
+
+  useEffect(() => {
+    if (pubid) {
+      setLoadingPub(true);
+        getPublicationById(pubid).then((publication) => {
+            // Handle the publication object here
+            console.log(publication);
+            if (publication) {
+              setExistingTitle(publication.title);
+              setAuthor(publication.authorPersonId);
+              setPublicationLink(publication.publicationLink);
+              setExistingPublicationLinkName(publication.publicationLinkName);
+              setLoadingPub(false);
+          }
+        }).catch((error) => {
+            // Optionally handle any errors here
+            console.error("Error fetching publication:", error);
+            toast.error('error loading publication');
+            setLoadingPub(false);
+        });
+    }
+}, [pubid]);
+
   useEffect(() => {
     if (usawcUsers.length === 0 && !usawcUserloading) {
       loadUSAWCUsers();
@@ -65,7 +118,7 @@ export default observer(function NewPublicationForm() {
   }, [loadUSAWCUsers, usawcUsers, usawcUserloading]);
 
   const handleCancelButtonClick = () => {
-    navigate("/publicationsmain");
+    navigate('/publicationsmain')
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,6 +148,7 @@ export default observer(function NewPublicationForm() {
       };
       try {
         await addPublication(publicationDTO);
+        navigate(`/threads/${id}`);
       } catch (error) {
         console.log(error);
         toast.error("An error occurred during submit");
@@ -116,44 +170,33 @@ export default observer(function NewPublicationForm() {
     }
   };
 
-  const [downloading, setDownloading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const handleDownloadClick = async () => {
-    setDownloading(true)
+  const handleDelete = async() => {
+    setDeleting(true)
     try{
-      const metaData: AttachmentMetaData = await agent.AttachmentMetaDatas.details(id);
-      const headers = new Headers();
-      headers.append('Authorization', `Bearer ${token}`);
-      const requestOptions = {
-        method: 'GET',
-        headers: headers,
-      };
-      const attachmentData = await fetch(
-        `${apiUrl}/upload/${metaData.id}`,
-        requestOptions,
-      );
-      const data = await attachmentData.arrayBuffer();
-      const file = new Blob([data], { type: metaData.fileType });
-      const fileUrl = window.URL.createObjectURL(file);
-      const a = document.createElement('a');
-      a.href = fileUrl;
-      a.download = metaData.fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(fileUrl);
-      
-    }catch(error )
-    {
+      await agent.AttachmentMetaDatas.delete(id);
+      setPublicationName('');
+      setFileHasBeenUploaded(false);
+
+    }catch(error){
       console.log(error);
-      toast.error('an error occured during download');
-    }finally{
-      setDownloading(false);
+      toast.error("An error occurred deleting the attachment");
     }
-  }
+    finally{
+      setOpen(false);
+    }
 
 
+};
 
-  if (usawcUserloading) return <LoadingComponent content="loading..." />;
+const handleCancel = () => {
+    console.log("Cancelled!");
+    setOpen(false);
+};
+
+  if (usawcUserloading || loadingMeta || loadingPub) return <LoadingComponent content="loading..." />;
 
   return (
     <Container fluid>
@@ -175,6 +218,7 @@ export default observer(function NewPublicationForm() {
             name="title"
             placeholder="Enter publication title"
             error={formErrors.title && { content: "Title is required" }}
+            defaultValue={existingTitle || ""}
           />
           <Form.Dropdown
             label={
@@ -218,7 +262,7 @@ export default observer(function NewPublicationForm() {
                         value={publicationLink}
                         onChange={(e) => setPublicationLink(e.target.value)}
                         disabled={fileHasBeenUploaded}
-                        readonly={fileHasBeenUploaded}
+                        readOnly={fileHasBeenUploaded}
                       />
                     </Form.Field>
                     <FormInput
@@ -227,7 +271,8 @@ export default observer(function NewPublicationForm() {
                       placeholder="Enter link title"
                       name="publicationlinkname"
                       disabled={fileHasBeenUploaded}
-                      readonly={fileHasBeenUploaded}
+                      readOnly={fileHasBeenUploaded}
+                      defaultValue={existingPublicationLinkName || ""}
                     />
                   </GridColumn>
                   <GridColumn verticalAlign="middle" textAlign="center">
@@ -243,14 +288,37 @@ export default observer(function NewPublicationForm() {
                     }
                     {fileHasBeenUploaded && 
                     <ButtonGroup size='big'>
-                     <Button basic color='blue' icon labelPosition="left" loading={downloading}
-                     onClick={handleDownloadClick}>
-                            <Icon name='download' />
-                            {publicationName.length > 20 ? `${publicationName.substring(0, 20)}...` : publicationName} 
+                     <DocumentDownloadWidget id={id} publicationName={publicationName} />
+                     <Button icon color='brown' type='button' basic   onClick={() => setShowDocumentUploadWidget(true)}
+                      disabled= {publicationLink?true:false }>
+                        <Icon name='upload' />
                       </Button>
-                     <Button icon color='red' basic>
-                        <Icon name='x' />
-                      </Button>
+
+
+                      <Popup
+                        trigger={
+                          <Button icon color='red' basic type='button' onClick={() => setOpen(true)} loading={deleting}>
+                            <Icon name='x' />
+                          </Button>
+                         }
+                           on="click"
+                          open={open}
+                          onClose={() => setOpen(false)}
+                          position="top center"
+                        content={
+                        <div>
+                           <p>Are you sure you want to delete this publication</p>
+                              <Button color="red" onClick={handleDelete}>
+                                Yes
+                              </Button>
+                            <Button color="grey" onClick={handleCancel}>
+                               No
+                             </Button>
+                        </div>
+                        }
+                        />
+
+
                      </ButtonGroup>
                     }
                   </GridColumn>
