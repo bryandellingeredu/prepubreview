@@ -59,6 +59,58 @@ namespace Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Publications", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Threads",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedByPersonId = table.Column<int>(type: "int", nullable: false),
+                    UpdatedByPersonId = table.Column<int>(type: "int", nullable: true),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Comments = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Threads", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Threads_Publications_PublicationId",
+                        column: x => x.PublicationId,
+                        principalTable: "Publications",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubjectMatterExperts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    ThreadId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubjectMatterExperts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubjectMatterExperts_Threads_ThreadId",
+                        column: x => x.ThreadId,
+                        principalTable: "Threads",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectMatterExperts_ThreadId",
+                table: "SubjectMatterExperts",
+                column: "ThreadId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Threads_PublicationId",
+                table: "Threads",
+                column: "PublicationId");
         }
 
         /// <inheritdoc />
@@ -69,6 +121,12 @@ namespace Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Attachments");
+
+            migrationBuilder.DropTable(
+                name: "SubjectMatterExperts");
+
+            migrationBuilder.DropTable(
+                name: "Threads");
 
             migrationBuilder.DropTable(
                 name: "Publications");

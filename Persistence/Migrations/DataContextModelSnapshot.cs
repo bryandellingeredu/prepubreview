@@ -102,6 +102,90 @@ namespace Persistence.Migrations
 
                     b.ToTable("Publications");
                 });
+
+            modelBuilder.Entity("Domain.PrePublication_SubjectMatterExpert", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ThreadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ThreadId");
+
+                    b.ToTable("SubjectMatterExperts");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_Thread", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CreatedByPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("PublicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UpdatedByPersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicationId");
+
+                    b.ToTable("Threads");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_SubjectMatterExpert", b =>
+                {
+                    b.HasOne("Domain.PrePublication_Thread", "Thread")
+                        .WithMany("SubjectMatterExperts")
+                        .HasForeignKey("ThreadId");
+
+                    b.Navigation("Thread");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_Thread", b =>
+                {
+                    b.HasOne("Domain.PrePublication_Publication", "Publication")
+                        .WithMany("Threads")
+                        .HasForeignKey("PublicationId");
+
+                    b.Navigation("Publication");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_Publication", b =>
+                {
+                    b.Navigation("Threads");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_Thread", b =>
+                {
+                    b.Navigation("SubjectMatterExperts");
+                });
 #pragma warning restore 612, 618
         }
     }

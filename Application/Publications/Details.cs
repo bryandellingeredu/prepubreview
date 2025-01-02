@@ -20,11 +20,32 @@ namespace Application.Publications
            private readonly DataContext _context;
 
            public Handler(DataContext context) =>   _context = context;
-           
-            public async Task<Result<PrePublication_Publication>> Handle(Query request, CancellationToken cancellationToken) =>
-                Result<PrePublication_Publication>.Success(await _context.Publications.FindAsync(request.Id, cancellationToken));   
+           public async Task<Result<PrePublication_Publication>> Handle(Query request, CancellationToken cancellationToken)
+            {
+                PrePublication_Publication publication = await _context.Publications
+                    .Include(t => t.Threads)
+                    .ThenInclude(s => s.SubjectMatterExperts)
+                    .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+
+                    if (publication?.Threads != null)
+                        {
+                            foreach (var thread in publication.Threads)
+                            {
+                                if (thread.SubjectMatterExperts != null)
+                                    {
+                                        foreach (var sme in thread.SubjectMatterExperts)
+                                            {
+                                                sme.Thread = null; // Nullify self-referencing property
+                                            }
+                                     }
+                                thread.Publication = null; // Nullify self-referencing property
+                             }               
+                        }
+                        
+
+                    return Result<PrePublication_Publication>.Success(publication);
+                }
+                
         }
-
-
     }
 }

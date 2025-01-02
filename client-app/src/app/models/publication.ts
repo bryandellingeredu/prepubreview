@@ -1,3 +1,5 @@
+import { Thread } from "./thread";
+
 export interface Publication{
     id: string,
     createdByPersonId : number, 
@@ -8,8 +10,9 @@ export interface Publication{
     authorLastName: string,
     title: string,
     dateCreated: Date,
-    dateUpdated: Date | null
-    publicationLink: string
-    publicationLinkName: string
+    dateUpdated: Date | null,
+    publicationLink: string,
+    publicationLinkName: string,
+    threads: Thread[] | null
  }
  

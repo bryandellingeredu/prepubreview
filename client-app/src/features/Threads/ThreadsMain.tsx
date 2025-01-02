@@ -9,11 +9,15 @@ import LoadingComponent from "../../app/layout/LoadingComponent";
 import agent from "../../app/api/agent";
 import { toast } from "react-toastify";
 import DocumentDownloadWidget from "../../app/common/documentDownload/documentDownloadWidget";
+import { Thread } from "../../app/models/thread";
+import { v4 as uuidv4 } from "uuid";
+import { ThreadType } from "../../app/models/threadType";
 
 export default observer(function ThreadsMain() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { publicationStore, usawcUserStore  } = useStore();
+    const { publicationStore, usawcUserStore, userStore  } = useStore();
+    const { appUser} = userStore;
     const {publicationloading, getPublicationById} = publicationStore
     const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
 
@@ -29,7 +33,8 @@ export default observer(function ThreadsMain() {
         dateCreated: new Date(),
         dateUpdated: null,
         publicationLink: '',
-        publicationLinkName: ''
+        publicationLinkName: '',
+        threads: []
     })
 
     const [loadingMeta, setLoadingMeta] = useState(false);
@@ -56,22 +61,39 @@ export default observer(function ThreadsMain() {
     }, [id]);
 
     useEffect(() => {
-        if (id) {
+        if (id && appUser) {
             console.log('Fetching publication with id:', id);
+    
             getPublicationById(id)
                 .then((publication) => {
                     if (publication) {
-                        console.log('Publication fetched:', publication);
+                        if (!publication.threads?.length) {
+                            const thread: Thread = {
+                                id: uuidv4(),
+                                isActive: true,
+                                createdByPersonId: appUser.personId,
+                                dateCreated: new Date(),
+                                updatedByPersonId: null,
+                                dateUpdated: null,
+                                type: ThreadType.Author,
+                                publicationId: publication.id,
+                                subjectMatterExperts: [],
+                                comments: '',
+                            };
+                            publication.threads = [thread];
+                        }
                         setPublication(publication);
                     } else {
                         console.error('No publication found for id:', id);
+                        toast.error(`No publication found for id: ${id}`);
                     }
                 })
                 .catch((error) => {
+                    toast.error(`Error fetching publication: ${error.message}`);
                     console.error('Error fetching publication:', error);
                 });
         }
-    }, [id, getPublicationById]);
+    }, [id, getPublicationById, appUser]);
 
     useEffect(() => {
         if (usawcUsers.length === 0 && !usawcUserloading) loadUSAWCUsers();
@@ -158,6 +180,26 @@ export default observer(function ThreadsMain() {
                 </Button>
                 </Segment>
             </SegmentGroup>
+
+            <SegmentGroup>
+                <Header as="h2" style={{ margin: '1rem 0' }}>Threads</Header>
+                    {(publication.threads || []).map((thread) => (
+                        <Segment key={thread.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <strong>Type:</strong> {ThreadType[thread.type]} <br />
+                                <strong>Created By:</strong> {usawcUsers.find((user) => user.personId === thread.createdByPersonId)?.firstName || 'Unknown'} <br />
+                                <strong>Created At:</strong> {new Date(thread.dateCreated).toLocaleString()} <br />
+                                <strong>Comments:</strong> {thread.comments || 'No comments'}
+                            </div>
+                         <Button color="blue" onClick={() => console.log(`Edit thread ${thread.id}`)}>Edit</Button>
+                        </Segment>
+                     ))}
+                     {(!publication.threads || publication.threads.length === 0) && (
+                        <Segment>No threads available.</Segment>
+                     )}
+                </SegmentGroup>
+
+
         </Container>
     )
 })

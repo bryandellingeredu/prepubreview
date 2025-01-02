@@ -16,6 +16,8 @@ namespace Domain
         public DateTime? DateUpdated { get; set; } 
         public string PublicationLink {get; set;}
         public string PublicationLinkName {get; set;}
+
+        public ICollection<PrePublication_Thread> Threads { get; set; } = new List<PrePublication_Thread>();
           
     }
 }
