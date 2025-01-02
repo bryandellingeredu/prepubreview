@@ -129,6 +129,8 @@ namespace API.Extensions
             services.AddMemoryCache();
             services.AddScoped<IUSAWCUserService, USAWCUserService>();
             services.AddScoped<IGraphHelperService, GraphHelperService>();
+            services.AddScoped<ISubjectMatterExpertDTOService, SubjectMatterExpertDTOService>();
+            services.AddScoped<ISubjectService, SubjectService>();
 
             return services;
 

@@ -58,3 +58,27 @@ body{
     margin: 0 !important; /* Remove any margin */
     width: 100%; /* Ensure it spans the full width */
   }
+
+  /* Wrapper around the entire editor component */
+.editor-container {
+    border: 2px solid #ccc; /* Outer border for the editor */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px; /* Padding inside the border */
+    background-color: #f9f9f9; /* Light background color */
+    margin: 20px 0; /* Margin for spacing */
+  }
+  
+  /* Styling for the typing area */
+  .editor-content {
+    background-color: white; /* White background for typing */
+    padding: 10px; /* Inner padding for content */
+    min-height: 200px; /* Minimum height for typing area */
+    border: 1px solid #ddd; /* Inner border around the typing area */
+    border-radius: 4px; /* Rounded corners for the typing area */
+  }
+  
+  /* Styling for the toolbar */
+  .editor-toolbar {
+    margin-bottom: 10px; /* Space between toolbar and typing area */
+  }
+

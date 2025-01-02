@@ -12,6 +12,8 @@ import DocumentDownloadWidget from "../../app/common/documentDownload/documentDo
 import { Thread } from "../../app/models/thread";
 import { v4 as uuidv4 } from "uuid";
 import { ThreadType } from "../../app/models/threadType";
+import ThreadComponent from "./ThreadComponent";
+
 
 export default observer(function ThreadsMain() {
     const navigate = useNavigate();
@@ -125,6 +127,22 @@ export default observer(function ThreadsMain() {
         window.open(url, "_blank", "noopener,noreferrer");
     }
 
+    const updateThreadComments = (threadId: string, newComments: string) => {
+        setPublication((prev) => {
+          if (!prev.threads) {
+            console.error("Threads are null.");
+            toast.error('threads are null');
+            return prev; // Return unchanged if threads are null
+          }
+          return {
+            ...prev,
+            threads: prev.threads.map((thread) =>
+              thread.id === threadId ? { ...thread, comments: newComments } : thread
+            ),
+          };
+        });
+      };
+
 
     if(!id || publicationloading || usawcUserloading || loadingMeta) return <LoadingComponent content="loading data..."/>
 
@@ -182,17 +200,8 @@ export default observer(function ThreadsMain() {
             </SegmentGroup>
 
             <SegmentGroup>
-                <Header as="h2" style={{ margin: '1rem 0' }}>Threads</Header>
                     {(publication.threads || []).map((thread) => (
-                        <Segment key={thread.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <strong>Type:</strong> {ThreadType[thread.type]} <br />
-                                <strong>Created By:</strong> {usawcUsers.find((user) => user.personId === thread.createdByPersonId)?.firstName || 'Unknown'} <br />
-                                <strong>Created At:</strong> {new Date(thread.dateCreated).toLocaleString()} <br />
-                                <strong>Comments:</strong> {thread.comments || 'No comments'}
-                            </div>
-                         <Button color="blue" onClick={() => console.log(`Edit thread ${thread.id}`)}>Edit</Button>
-                        </Segment>
+                       <ThreadComponent key={thread.id} thread={thread} authorName={getAuthorName()} updateThreadComments={updateThreadComments}/>
                      ))}
                      {(!publication.threads || publication.threads.length === 0) && (
                         <Segment>No threads available.</Segment>
