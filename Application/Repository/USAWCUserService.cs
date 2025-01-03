@@ -12,13 +12,16 @@ namespace Application.Repository
 
          private readonly IUSAWCUserService _userService;
 
+         private readonly IOrganizationUserService _organizationUserService;
+
         private static readonly string CacheKey = "USAWCUsers";
         private static readonly string EmailLookupCacheKey = "USAWCEmailLookup";
 
-        public USAWCUserService(IConfiguration config, IMemoryCache cache)
+        public USAWCUserService(IConfiguration config, IMemoryCache cache, IOrganizationUserService organizationUserService )
         {
             _config = config;
             _cache = cache;
+            _organizationUserService = organizationUserService; 
         }
 
         public async Task<List<USAWCUser>> GetUSAWCUsersAsync()
@@ -28,6 +31,8 @@ namespace Application.Repository
             {
                 return cachedUsers;
             }
+
+            var organizationUsers = await _organizationUserService.GetOrganizationUsersAsync();
 
             var users = new List<USAWCUser>();
 
@@ -74,6 +79,7 @@ namespace Application.Repository
                 {
                     while (await reader.ReadAsync())
                     {
+                        var organizationUser = organizationUsers.FirstOrDefault(x => x.PersonId == reader.GetInt32(reader.GetOrdinal("PersonID")));
                         users.Add(new USAWCUser
                         {
                             PersonId = reader.GetInt32(reader.GetOrdinal("PersonID")),
@@ -87,7 +93,9 @@ namespace Application.Repository
                                 : reader.GetString(reader.GetOrdinal("ArmyEmail")),
                             EduEmail = reader.IsDBNull(reader.GetOrdinal("EduEmail")) 
                                 ? null 
-                                : reader.GetString(reader.GetOrdinal("EduEmail"))
+                                : reader.GetString(reader.GetOrdinal("EduEmail")),
+                            OrganizationId = organizationUser?.OrganizationId,
+                            OrganizationDisplay = organizationUser?.OrganizationDisplay,
                         });
                     }
                 }

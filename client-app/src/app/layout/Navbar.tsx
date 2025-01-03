@@ -35,24 +35,37 @@ export default observer(function Navbar(){
         <MenuItem position="right">
         <Menu.Menu >
         <Dropdown
-          trigger={
-            <span style={{ color: 'white' }}>
-              <Icon name="user" /> 
-              <span className='gilite'>{userStore.appUser?.firstName}</span>
-              <span className='gilite'>{userStore.appUser?.lastName}</span>
-            </span>
-          }
-          pointing="top right"
-          className="user-dropdown"
-        >
-          <Dropdown.Menu>
-            <Dropdown.Item
-              text="Logout"
-              icon="sign-out"
-              onClick={handleLogout}
-            />
-          </Dropdown.Menu>
-        </Dropdown>
+  trigger={
+    <span style={{ color: 'white' }}>
+      <Icon name="user" />
+      <span className="gilite">{userStore.appUser?.firstName} {userStore.appUser?.lastName}</span>
+    </span>
+  }
+  pointing="top right"
+  className="user-dropdown"
+>
+  <Dropdown.Menu>
+    {userStore.appUser && (
+      <>
+        {userStore.appUser.eduEmail && (
+          <Dropdown.Item text={`Edu Email: ${userStore.appUser.eduEmail}`} disabled />
+        )}
+        {userStore.appUser.armyEmail && (
+          <Dropdown.Item text={`Army Email: ${userStore.appUser.armyEmail}`} disabled />
+        )}
+        {userStore.appUser.organizationDisplay && (
+          <Dropdown.Item text={`Organization: ${userStore.appUser.organizationDisplay}`} disabled />
+        )}
+      </>
+    )}
+    <Dropdown.Divider />
+    <Dropdown.Item
+      text="Logout"
+      icon="sign-out"
+      onClick={handleLogout}
+    />
+  </Dropdown.Menu>
+</Dropdown>
       </Menu.Menu>
       </MenuItem>
       </Menu>

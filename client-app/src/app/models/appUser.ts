@@ -4,5 +4,7 @@ export interface AppUser{
     middleName: string,
     lastName: string,
     armyEmail: string,
-    eduEmail: string
+    eduEmail: string,
+    organizationId:  number | null
+    organizationDisplay: string,
  }

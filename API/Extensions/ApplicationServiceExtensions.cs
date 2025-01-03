@@ -131,6 +131,7 @@ namespace API.Extensions
             services.AddScoped<IGraphHelperService, GraphHelperService>();
             services.AddScoped<ISubjectMatterExpertDTOService, SubjectMatterExpertDTOService>();
             services.AddScoped<ISubjectService, SubjectService>();
+            services.AddScoped<IOrganizationUserService, OrganizationUserService>();
 
             return services;
 

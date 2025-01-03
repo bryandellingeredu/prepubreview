@@ -14,7 +14,8 @@ namespace Application.Repository
 
         private static readonly string CacheKey = "UserWithSubjects";
 
-        public SubjectMatterExpertDTOService(IConfiguration config, IMemoryCache cache, IUSAWCUserService userService, ISubjectService subjectService)
+        public SubjectMatterExpertDTOService(
+            IConfiguration config, IMemoryCache cache, IUSAWCUserService userService, ISubjectService subjectService)
         {
             _config = config;
             _cache = cache;

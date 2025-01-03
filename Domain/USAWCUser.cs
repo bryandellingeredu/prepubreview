@@ -10,5 +10,9 @@ namespace Domain
         public string ArmyEmail {get; set;} 
         public string EduEmail {get; set;}
 
+        public int? OrganizationId {get; set;}
+        
+         public string  OrganizationDisplay {get; set;}
+
     }
 }
