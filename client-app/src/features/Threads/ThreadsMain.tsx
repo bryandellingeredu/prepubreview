@@ -13,15 +13,17 @@ import { Thread } from "../../app/models/thread";
 import { v4 as uuidv4 } from "uuid";
 import { ThreadType } from "../../app/models/threadType";
 import ThreadComponent from "./ThreadComponent";
+import { SubjectMatterExpert } from "../../app/models/subjectMatterExpert";
 
 
 export default observer(function ThreadsMain() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { publicationStore, usawcUserStore, userStore  } = useStore();
+    const { publicationStore, usawcUserStore, userStore, smeStore  } = useStore();
     const { appUser} = userStore;
     const {publicationloading, getPublicationById} = publicationStore
     const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
+    const {userSubjectLoading, userSubjects, loadUserSubjects} = smeStore
 
     const [publication, setPublication] = useState<Publication>({
         id: '',
@@ -101,6 +103,10 @@ export default observer(function ThreadsMain() {
         if (usawcUsers.length === 0 && !usawcUserloading) loadUSAWCUsers();
       }, [loadUSAWCUsers, usawcUsers, usawcUserloading]);
 
+      useEffect(() => {
+        if (userSubjects.length === 0 && !userSubjectLoading) loadUserSubjects();
+      }, [loadUserSubjects, userSubjects, userSubjectLoading]);
+
     const getAuthorName = () => 
         publication.authorMiddleName ?
          `${publication.authorFirstName} ${publication.authorMiddleName}  ${publication.authorLastName} ` :
@@ -143,8 +149,34 @@ export default observer(function ThreadsMain() {
         });
       };
 
+      const addSME = (threadId: string, personId: number) => {
+        const newSME: SubjectMatterExpert = { id: uuidv4(), threadId, personId };
+    
+        setPublication((prev) => {
+            if (!prev.threads) {
+                console.error("Threads are null.");
+                toast.error("Threads are null.");
+                return prev; // Return unchanged if threads are null
+            }
+    
+            return {
+                ...prev,
+                threads: prev.threads.map((thread) =>
+                    thread.id === threadId
+                        ? {
+                              ...thread,
+                              subjectMatterExperts: thread.subjectMatterExperts
+                                  ? [...thread.subjectMatterExperts, newSME]
+                                  : [newSME], // Ensure subjectMatterExperts is initialized if it's null or undefined
+                          }
+                        : thread
+                ),
+            };
+        });
+    };
 
-    if(!id || publicationloading || usawcUserloading || loadingMeta) return <LoadingComponent content="loading data..."/>
+
+    if(!id || publicationloading || usawcUserloading || loadingMeta || userSubjectLoading) return <LoadingComponent content="loading data..."/>
 
     return(
         <Container fluid>
@@ -201,7 +233,14 @@ export default observer(function ThreadsMain() {
 
             <SegmentGroup>
                     {(publication.threads || []).map((thread) => (
-                       <ThreadComponent key={thread.id} thread={thread} authorName={getAuthorName()} updateThreadComments={updateThreadComments}/>
+                       <ThreadComponent
+                        key={thread.id}
+                        thread={thread}
+                        authorName={getAuthorName()}
+                        updateThreadComments={updateThreadComments}
+                        addSME={addSME}
+                        threadId={thread.id}
+                        />
                      ))}
                      {(!publication.threads || publication.threads.length === 0) && (
                         <Segment>No threads available.</Segment>

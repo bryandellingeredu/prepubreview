@@ -1,11 +1,23 @@
 import { Button, Card, CardContent, CardDescription, CardHeader, CardMeta, Icon, Label } from "semantic-ui-react";
 import { UserSubject } from "../../app/models/userSubject";
+import { observer } from "mobx-react-lite";
+import { useStore } from "../../app/stores/store";
 
 interface Props{
-    userSubject : UserSubject
+    userSubject : UserSubject,
+    addSME: (threadId: string, personId: number) => void;
+    threadId: string;
 }
 
-export default function SMECard({userSubject} : Props){
+
+export default observer(function SMECard({userSubject, addSME, threadId} : Props){
+  const { modalStore } = useStore();
+  const {closeModal} = modalStore;
+
+  const handleSelectClick = () =>{
+    addSME(threadId, userSubject.usawcUser.personId)
+    closeModal();
+  }
 
     const getSMEName = () => 
         userSubject.usawcUser.middleName ?
@@ -51,7 +63,7 @@ export default function SMECard({userSubject} : Props){
         </CardContent>
         <CardContent extra>
 
-          <Button basic color='brown' floated="right" icon labelPosition='left'>
+          <Button basic color='brown' floated="right" icon labelPosition='left' onClick={handleSelectClick}>
             <Icon name='check circle' />
            <span className="industry">SELECT THIS SME</span> 
           </Button>
@@ -60,4 +72,4 @@ export default function SMECard({userSubject} : Props){
       </CardContent>
       </Card> 
     )
-}
+})

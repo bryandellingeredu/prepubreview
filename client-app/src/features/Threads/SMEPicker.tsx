@@ -6,7 +6,12 @@ import SMECard from "./SMECard";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { UserSubject } from "../../app/models/userSubject";
 
-export default observer(function SMEPicker() {
+interface Props{
+    addSME: (threadId: string, personId: number) => void;
+    threadId: string;
+}
+
+export default observer(function SMEPicker({addSME, threadId}: Props) {
     const { modalStore, smeStore } = useStore();
     const { userSubjectLoading, loadMoreSubjects, userSubjects } = smeStore;
     const { closeModal } = modalStore;
@@ -190,7 +195,11 @@ useEffect(() => {
              <>
                 <CardGroup itemsPerRow={3}>
                     {displayedSubjects.map((userSubject) => (
-                        <SMECard key={userSubject.usawcUser.personId} userSubject={userSubject} />
+                        <SMECard key={userSubject.usawcUser.personId}
+                         userSubject={userSubject}
+                         addSME={addSME}
+                         threadId={threadId}
+                          />
                     ))}
                 </CardGroup>
                 {loadingMore && <LoadingComponent content="Loading more SMEs..." />}
@@ -200,7 +209,11 @@ useEffect(() => {
             {isFiltered &&
                     <CardGroup itemsPerRow={3}>
                     {filteredSubjects.map((userSubject) => (
-                        <SMECard key={userSubject.usawcUser.personId} userSubject={userSubject} />
+                        <SMECard key={userSubject.usawcUser.personId}
+                         userSubject={userSubject}
+                         addSME={addSME}
+                         threadId={threadId}
+                          />
                     ))}
                 </CardGroup>
             }

@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import {
   Button,
   ButtonContent,
+  CardGroup,
   Header,
   HeaderContent,
   HeaderSubheader,
@@ -15,19 +16,24 @@ import { useEffect, useState } from "react";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import RichTextEditor from "./RichTextEditor";
 import SMEPicker from "./SMEPicker";
+import SMECard from "./SMECard";
 
 interface Props {
   thread: Thread;
   authorName: string;
   updateThreadComments: (threadId: string, newComments: string) => void;
+  addSME: (threadId: string, personId: number) => void;
+  threadId: string;
 }
 
 export default observer(function ThreadComponent({
   thread,
   authorName,
   updateThreadComments,
+  addSME,
+  threadId
 }: Props) {
-  const { usawcUserStore, modalStore } = useStore();
+  const { usawcUserStore, modalStore, smeStore } = useStore();
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
   const {openModal} = modalStore;
   useEffect(() => {
@@ -36,7 +42,7 @@ export default observer(function ThreadComponent({
 
   const handleAddSMEButtonClick = () =>{
     openModal(
-      <SMEPicker />, 'fullscreen'
+      <SMEPicker addSME={addSME} threadId={threadId} />, 'fullscreen'
     )
   }
 
@@ -81,7 +87,23 @@ export default observer(function ThreadComponent({
             Choose an SME to review your publication. You may choose more than one.
         </HeaderSubheader>
        </Header>
-       <Button content='Add SME' icon='plus' labelPosition='left' color='brown' onClick={handleAddSMEButtonClick} />
+       <div className="ui clearing" style={{marginBottom: '10px'}}>
+        <Button content='Add SME' icon='plus' labelPosition='left' color='brown' onClick={handleAddSMEButtonClick} />
+       </div>
+       {thread.subjectMatterExperts &&
+        thread.subjectMatterExperts.length > 0 &&
+          <CardGroup itemsPerRow={3}>
+          {
+            thread.subjectMatterExperts.map((subjectMatterExpert) => (
+            <SMECard
+                key={subjectMatterExpert.id}
+                userSubject={smeStore.getUserSubjectByPersonId(subjectMatterExpert.personId)!}
+                addSME={addSME}
+                threadId={thread.id}
+            />
+            ))}
+</CardGroup>
+}
       </div>
     </Segment>
   );

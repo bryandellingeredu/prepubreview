@@ -95,6 +95,10 @@ getFilteredUserSubjects = (lastName: string, subject: string): UserSubject[] => 
       }
   };
 
+  getUserSubjectByPersonId = (personId: number) : UserSubject =>  this.userSubjectRegistry.get(personId)!;
+  
+ 
+
   setuserSubjectLoading = (state: boolean) => {
       this.userSubjectLoading = state;
   };
