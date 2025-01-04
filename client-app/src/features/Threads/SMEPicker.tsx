@@ -20,25 +20,36 @@ export default observer(function SMEPicker() {
     const [subjects, setSubjects] = useState<string[]>([]);
     const [subjectFilter, setSubjectFilter] = useState('');
 
-    // Initial data load
-    useEffect(() => {
-        if (userSubjects.length === 0 && !userSubjectLoading) {
-            smeStore.loadUserSubjects().then(() => {
-                const initialSubjects = smeStore.getPaginatedUserSubjects(24);
-                setDisplayedSubjects(initialSubjects);
-            });
-        }
-        if (userSubjects.length > 0 && !userSubjectLoading) {
-            const subjectsFromUsers = [
-                ...new Set(userSubjects.flatMap(userSubject => userSubject.subjects))
-            ].sort((a, b) => a.localeCompare(b)); // Sort alphabetically
-    
-            console.log('Distinct alphabetical subjects:', subjectsFromUsers);
-    
-            // Use the sorted subjects as needed
-            setSubjects(subjectsFromUsers);
-        }
-    }, [smeStore, userSubjects.length, userSubjectLoading]);
+  // 1. Load user subjects when they are not already loaded
+  useEffect(() => {
+    if (userSubjects.length === 0) {
+        // Load user subjects if not already loaded
+        smeStore.loadUserSubjects().then(() => {
+            const initialSubjects = smeStore.getPaginatedUserSubjects(24);
+            setDisplayedSubjects(initialSubjects);
+            console.log("Displayed subjects after load:", initialSubjects);
+        });
+    } else {
+        // Process the first 25 records if userSubjects is already populated
+        const initialSubjects = smeStore.getPaginatedUserSubjects(24);
+        setDisplayedSubjects(initialSubjects);
+        console.log("Displayed subjects from existing data:", initialSubjects);
+    }
+}, [smeStore, userSubjects.length]);
+
+// 2. Process loaded user subjects to extract and sort subjects
+useEffect(() => {
+    if (userSubjects.length > 0) {
+        const subjectsFromUsers = [
+            ...new Set(userSubjects.flatMap((userSubject) => userSubject.subjects))
+        ].sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+
+        console.log('Distinct alphabetical subjects:', subjectsFromUsers);
+
+        // Update subjects for the datalist
+        setSubjects(subjectsFromUsers);
+    }
+}, [userSubjects]); 
 
     // Fetch more data
     const fetchMoreData = async () => {
