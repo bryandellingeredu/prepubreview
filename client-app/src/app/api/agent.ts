@@ -4,6 +4,7 @@ import { store } from '../stores/store';
 import { AppUser } from '../models/appUser';
 import { PublicationDTO } from '../models/publicationDTO';
 import { AttachmentMetaData } from '../models/attachmentMetaData';
+import { UserSubject } from '../models/userSubject';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -59,12 +60,17 @@ axios.interceptors.request.use((config) => {
     },
   }
 
+  const SubjectMatterExperts = {
+    list: () => requests.get<UserSubject[]>('/SubjectMatterExpertDTOs')
+  }
+
 
   const agent = {
     Publications,
     AppUsers,
     Uploads,
-    AttachmentMetaDatas
+    AttachmentMetaDatas,
+    SubjectMatterExperts
   }
 
   

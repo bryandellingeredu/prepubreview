@@ -88,7 +88,8 @@ export default class PublicationStore{
                 authorPersonId: publicationDTO.authorPersonId,
                 authorFirstName: author!.firstName,
                 authorLastName: author!.lastName,
-                authorMiddleName: author!.middleName
+                authorMiddleName: author!.middleName,
+                threads: null
             }
             this.publicationRegistry.set(createdPublication.id, createdPublication);
         }

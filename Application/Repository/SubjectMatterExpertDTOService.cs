@@ -23,72 +23,74 @@ namespace Application.Repository
             _subjectService = subjectService;
         }
 
-        public async Task<List<UserWithSubjectsDTO>> GetSubjectMatterExpertsDTOsAsync()
+       public async Task<List<UserWithSubjectsDTO>> GetSubjectMatterExpertsDTOsAsync()
+{
+    if (_cache.TryGetValue(CacheKey, out List<UserWithSubjectsDTO> cachedData))
+    {
+        return cachedData;
+    }
+
+    var experts = new List<SubjectMatterExpertDTO>();
+
+    var query = @"
+        SELECT PersonId, SMESubjectId FROM [USAWCPersonnel].[SubjectMatterExperts].[smeEntries2] WHERE IsActive = 1
+        UNION  
+        SELECT PersonId, SMESubjectId FROM [USAWCPersonnel].[SubjectMatterExperts].[smeEntries] WHERE IsActive = 1";
+
+    var connectionString = _config.GetConnectionString("USAWCPersonnelConnection");
+
+    using (var connection = new SqlConnection(connectionString))
+    {
+        await connection.OpenAsync();
+        using (var command = new SqlCommand(query, connection))
+        using (var reader = await command.ExecuteReaderAsync())
         {
-            if (_cache.TryGetValue(CacheKey, out List<UserWithSubjectsDTO> cachedData))
+            while (await reader.ReadAsync())
             {
-                return cachedData;
-            }
-
-            var experts = new List<SubjectMatterExpertDTO>();
-
-            var query = @"
-                SELECT PersonId, SMESubjectId FROM [USAWCPersonnel].[SubjectMatterExperts].[smeEntries2] WHERE IsActive = 1
-                UNION  
-                SELECT PersonId, SMESubjectId FROM [USAWCPersonnel].[SubjectMatterExperts].[smeEntries] WHERE IsActive = 1";
-
-            var connectionString = _config.GetConnectionString("USAWCPersonnelConnection");
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand(query, connection))
-                using (var reader = await command.ExecuteReaderAsync())
+                experts.Add(new SubjectMatterExpertDTO
                 {
-                    while (await reader.ReadAsync())
-                    {
-                        experts.Add(new SubjectMatterExpertDTO
-                        {
-                            PersonId = reader.GetInt32(reader.GetOrdinal("PersonId")),
-                            SMESubjectId = reader.GetInt32(reader.GetOrdinal("SMESubjectId")),
-                        });
-                    }
-                }
+                    PersonId = reader.GetInt32(reader.GetOrdinal("PersonId")),
+                    SMESubjectId = reader.GetInt32(reader.GetOrdinal("SMESubjectId")),
+                });
             }
-
-            // Fetch all USAWC users and subjects
-            var usawcUsers = await _userService.GetUSAWCUsersAsync();
-            var subjects = await _subjectService.GetSubjectsAsync();
-
-            // Group subjects by user and map to UserWithSubjectsDTO
-            var groupedData = experts
-                .Where(expert => usawcUsers.Any(user => user.PersonId == expert.PersonId))
-                .GroupBy(expert => expert.PersonId)
-                .Select(group =>
-                {
-                    var user = usawcUsers.FirstOrDefault(u => u.PersonId == group.Key);
-                     var subjectNames = group
-                        .Select(expert => subjects.FirstOrDefault(subject => subject.SMESubjectId == expert.SMESubjectId)?.SMESubject)
-                        .Where(subjectName => !string.IsNullOrEmpty(subjectName)) // Filter out nulls
-                        .Distinct()
-                        .OrderBy(subjectName => subjectName)
-                        .ToList();
-                    return new UserWithSubjectsDTO
-                    {
-                        USAWCUser = user,
-                        Subjects = subjectNames
-                    };
-                })
-                .ToList();
-
-            // Cache the result
-            var cacheOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
-            };
-            _cache.Set(CacheKey, groupedData, cacheOptions);
-
-            return groupedData;
         }
+    }
+
+    // Fetch all USAWC users and subjects
+    var usawcUsers = await _userService.GetUSAWCUsersAsync();
+    var subjects = await _subjectService.GetSubjectsAsync();
+
+    // Create a dictionary for quick lookup of subjects by PersonId
+    var userSubjectsMap = experts
+        .GroupBy(expert => expert.PersonId)
+        .ToDictionary(
+            group => group.Key,
+            group => group
+                .Select(expert => subjects.FirstOrDefault(subject => subject.SMESubjectId == expert.SMESubjectId)?.SMESubject)
+                .Where(subjectName => !string.IsNullOrEmpty(subjectName))
+                .Distinct()
+                .OrderBy(subjectName => subjectName)
+                .ToList()
+        );
+
+    // Map all USAWC users to UserWithSubjectsDTO, adding empty subject lists for non-experts
+    var result = usawcUsers
+        .Select(user => new UserWithSubjectsDTO
+        {
+            USAWCUser = user,
+            Subjects = userSubjectsMap.ContainsKey(user.PersonId) ? userSubjectsMap[user.PersonId] : new List<string>()
+        })
+        .OrderBy(dto => dto.USAWCUser.LastName) // Optional: Order by last name
+        .ToList();
+
+    // Cache the result
+    var cacheOptions = new MemoryCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+    };
+    _cache.Set(CacheKey, result, cacheOptions);
+
+    return result;
+}
     }
 }
