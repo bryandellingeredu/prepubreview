@@ -5,6 +5,7 @@ import CallbackPage from '../../features/Callback';
 import PublicationsMain from '../../features/Publications/PublicationsMain';
 import NewPublicationForm from '../../features/Publications/NewPublicationForm';
 import ThreadsMain from '../../features/Threads/ThreadsMain';
+import ManageAdministrators from '../../features/Administrators/ManageAdministrators';
 
 
 export const routes: RouteObject[] = [
@@ -14,6 +15,7 @@ export const routes: RouteObject[] = [
         children: [
             { path: '/', element: <HomePage /> }, // Set HomePage as the default route for '/'
             { path: 'callback', element: <CallbackPage /> },
+            { path: 'manageadministrators', element: <ManageAdministrators /> },
             { path: 'publicationsmain', element: <PublicationsMain />},
             { path: 'newpublicationform', element: <NewPublicationForm />},
             { path: 'newpublicationform/:pubid', element: <NewPublicationForm />},

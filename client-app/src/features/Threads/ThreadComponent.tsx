@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite";
 import {
   Button,
-  ButtonContent,
   CardGroup,
   Header,
   HeaderContent,
@@ -12,7 +11,7 @@ import {
 import { ThreadType } from "../../app/models/threadType";
 import { Thread } from "../../app/models/thread";
 import { useStore } from "../../app/stores/store";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import RichTextEditor from "./RichTextEditor";
 import SMEPicker from "./SMEPicker";
@@ -23,6 +22,7 @@ interface Props {
   authorName: string;
   updateThreadComments: (threadId: string, newComments: string) => void;
   addSME: (threadId: string, personId: number) => void;
+  removeSME: (threadId: string, personId: number) => void;
   threadId: string;
 }
 
@@ -31,6 +31,7 @@ export default observer(function ThreadComponent({
   authorName,
   updateThreadComments,
   addSME,
+  removeSME,
   threadId
 }: Props) {
   const { usawcUserStore, modalStore, smeStore } = useStore();
@@ -42,7 +43,7 @@ export default observer(function ThreadComponent({
 
   const handleAddSMEButtonClick = () =>{
     openModal(
-      <SMEPicker addSME={addSME} threadId={threadId} />, 'fullscreen'
+      <SMEPicker addSME={addSME} removeSME={removeSME}  threadId={threadId} />, 'fullscreen'
     )
   }
 
@@ -99,11 +100,27 @@ export default observer(function ThreadComponent({
                 key={subjectMatterExpert.id}
                 userSubject={smeStore.getUserSubjectByPersonId(subjectMatterExpert.personId)!}
                 addSME={addSME}
+                removeSME={removeSME}
                 threadId={thread.id}
+                showRemoveButton={true}
+                showSelectButton={false}
             />
             ))}
-</CardGroup>
-}
+      </CardGroup>
+    }
+      </div>
+
+      <div className="editor-container">
+          <Header as="h4" className="industry">
+          <Icon name="shield" />
+          <HeaderContent>Operational Security Officer II</HeaderContent>
+          <HeaderSubheader>
+            Choose an OPSEC II Officer to review your publication. Try to choose from your organization if possible.
+        </HeaderSubheader>
+          </Header>
+          <div className="ui clearing" style={{marginBottom: '10px'}}>
+            <Button content='Add OPSEC II' icon='plus' labelPosition='left' color='brown'  />
+          </div>
       </div>
     </Segment>
   );

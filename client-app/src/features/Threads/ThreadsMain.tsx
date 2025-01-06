@@ -149,6 +149,32 @@ export default observer(function ThreadsMain() {
         });
       };
 
+      const removeSME = (threadId: string, personId: number) => {
+        setPublication((prev) => {
+            if (!prev.threads) {
+                console.error("Threads are null.");
+                toast.error("Threads are null.");
+                return prev; // Return unchanged if threads are null
+            }
+            return {
+                ...prev,
+                threads: prev.threads.map((thread) =>
+                    thread.id === threadId
+                        ? {
+                              ...thread,
+                              subjectMatterExperts: thread.subjectMatterExperts
+                                  ? thread.subjectMatterExperts.filter(
+                                        (expert) => expert.personId !== personId
+                                    )
+                                  : [] 
+                          }
+                        : thread
+                ),
+            };
+        });
+    };
+
+
       const addSME = (threadId: string, personId: number) => {
         const newSME: SubjectMatterExpert = { id: uuidv4(), threadId, personId };
     
@@ -239,6 +265,7 @@ export default observer(function ThreadsMain() {
                         authorName={getAuthorName()}
                         updateThreadComments={updateThreadComments}
                         addSME={addSME}
+                        removeSME={removeSME}
                         threadId={thread.id}
                         />
                      ))}

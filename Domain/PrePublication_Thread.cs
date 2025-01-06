@@ -22,5 +22,8 @@ namespace Domain
         public PrePublication_Publication Publication { get; set; }
 
          public ICollection<PrePublication_SubjectMatterExpert> SubjectMatterExperts { get; set; } = new List<PrePublication_SubjectMatterExpert>();
+
+         public Guid? SecurityOfficerId {get; set;}
+         public PrePublication_SecurityOfficer? SecurityOfficer{ get; set; }
      }
 }

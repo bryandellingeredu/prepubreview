@@ -8,10 +8,11 @@ import { UserSubject } from "../../app/models/userSubject";
 
 interface Props{
     addSME: (threadId: string, personId: number) => void;
+    removeSME: (threadId: string, personId: number) => void;
     threadId: string;
 }
 
-export default observer(function SMEPicker({addSME, threadId}: Props) {
+export default observer(function SMEPicker({addSME, removeSME, threadId}: Props) {
     const { modalStore, smeStore } = useStore();
     const { userSubjectLoading, loadMoreSubjects, userSubjects } = smeStore;
     const { closeModal } = modalStore;
@@ -198,7 +199,10 @@ useEffect(() => {
                         <SMECard key={userSubject.usawcUser.personId}
                          userSubject={userSubject}
                          addSME={addSME}
+                         removeSME={removeSME}
                          threadId={threadId}
+                         showSelectButton={true}
+                         showRemoveButton={false}
                           />
                     ))}
                 </CardGroup>
@@ -212,7 +216,10 @@ useEffect(() => {
                         <SMECard key={userSubject.usawcUser.personId}
                          userSubject={userSubject}
                          addSME={addSME}
+                         removeSME={removeSME}
                          threadId={threadId}
+                         showSelectButton={true}
+                         showRemoveButton={false}
                           />
                     ))}
                 </CardGroup>

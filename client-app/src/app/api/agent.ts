@@ -5,6 +5,8 @@ import { AppUser } from '../models/appUser';
 import { PublicationDTO } from '../models/publicationDTO';
 import { AttachmentMetaData } from '../models/attachmentMetaData';
 import { UserSubject } from '../models/userSubject';
+import { Administrator } from '../models/administrator';
+import { AdministratorDTO } from '../models/administratorDTO';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -64,13 +66,20 @@ axios.interceptors.request.use((config) => {
     list: () => requests.get<UserSubject[]>('/SubjectMatterExpertDTOs')
   }
 
+  const Administrators =  {
+    list: () => requests.get<Administrator[]>('/Administrators'),
+    create: (administratorDTO: AdministratorDTO) => requests.post<void>('/Administrators', administratorDTO),
+    delete: (id: string) => requests.del<void>(`/Administrators/${id}`)
+  }
+
 
   const agent = {
     Publications,
     AppUsers,
     Uploads,
     AttachmentMetaDatas,
-    SubjectMatterExperts
+    SubjectMatterExperts,
+    Administrators
   }
 
   

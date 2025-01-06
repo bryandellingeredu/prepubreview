@@ -15,5 +15,8 @@ namespace Persistence
         public DbSet<PrePublication_Thread> Threads{ get; set; }
         public DbSet<PrePublication_SubjectMatterExpert> SubjectMatterExperts{ get; set; }
 
+        public DbSet<PrePublication_SecurityOfficer> SecurityOfficers{ get; set; }
+        public DbSet<PrePublication_Administrator> Administrators{ get; set; }
+
     }
 }

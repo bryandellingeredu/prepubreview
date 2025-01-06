@@ -60,6 +60,11 @@ export default observer(function Navbar(){
     )}
     <Dropdown.Divider />
     <Dropdown.Item
+      text="Manage Admins"
+      icon="settings"
+      onClick={() => navigate('/manageadministrators')}
+    />
+    <Dropdown.Item
       text="Logout"
       icon="sign-out"
       onClick={handleLogout}

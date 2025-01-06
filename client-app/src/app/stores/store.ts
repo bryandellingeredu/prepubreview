@@ -4,6 +4,7 @@ import PublicationStore from "./publicationStore";
 import USAWCUserStore from "./usawcUserStore";
 import ModalStore from "./modalStore";
 import SMEStore from "./smeStore";
+import AdministratorStore from "./administratorStore";
 
 interface Store{
     userStore: UserStore;
@@ -11,6 +12,7 @@ interface Store{
     usawcUserStore: USAWCUserStore;
     modalStore: ModalStore;
     smeStore: SMEStore;
+    administratorStore: AdministratorStore;
 }
 
 export const store: Store ={
@@ -18,7 +20,8 @@ export const store: Store ={
     publicationStore: new PublicationStore(),
     usawcUserStore: new USAWCUserStore(),
     modalStore: new ModalStore(),
-    smeStore: new SMEStore()
+    smeStore: new SMEStore(),
+    administratorStore: new AdministratorStore(),
 }
 
 export const StoreContext = createContext(store);
