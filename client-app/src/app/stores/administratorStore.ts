@@ -83,7 +83,7 @@ export default class AdministratorStore{
     };
 
     setAddingAdministrator = (state: boolean) => {
-        this.administratorLoading = state;
+        this.addingAdministrator = state;
     };
 
     setDeletingAdministrator = (state: boolean) => {

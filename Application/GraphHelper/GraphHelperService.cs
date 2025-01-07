@@ -92,61 +92,62 @@ namespace Application.GraphHelper
     }
 }
 
-        public async Task<string> UploadFile(IFormFile file)
+     public async Task<string> UploadFile(IFormFile file)
+{
+    try
+    {
+        // File name
+        string originalFileName = file.FileName;
+        string uniqueFileName = $"{Path.GetFileNameWithoutExtension(originalFileName)}_{DateTime.UtcNow:yyyyMMddHHmmss}{Path.GetExtension(originalFileName)}";
+
+        // Sanitize the file name
+        uniqueFileName = uniqueFileName.Replace(":", "_").Replace("/", "_");
+
+        // Create the request body for the upload session
+        var requestBody = new CreateUploadSessionPostRequestBody
         {
-            try
+            Item = new DriveItemUploadableProperties
             {
-
-
-                // File name
-                string fileName = file.FileName;
-                fileName = fileName.Replace(":", "_").Replace("/", "_");
-
-                // Create the request body for the upload session
-                var requestBody = new CreateUploadSessionPostRequestBody
-                {
-                    Item = new DriveItemUploadableProperties
-                    {
-                        Name = fileName
-                    }
-                };
-
-                // Create an upload session
-                var uploadSession = await _appClient
-                    .Drives[driveId]
-                    .Root
-                    .ItemWithPath(fileName)
-                    .CreateUploadSession
-                    .PostAsync(requestBody);
-
-                if (uploadSession == null || string.IsNullOrEmpty(uploadSession.UploadUrl))
-                {
-                    throw new Exception("Failed to create an upload session.");
-                }
-
-                // Upload the file in chunks
-                using (var fileStream = file.OpenReadStream())
-                {
-                    const int maxChunkSize = 320 * 1024; // 320 KB chunk size
-                    var fileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, fileStream, maxChunkSize);
-
-                    var uploadResult = await fileUploadTask.UploadAsync();
-
-                    if (uploadResult.UploadSucceeded)
-                    {
-                        // Return the uploaded file's URL
-                        return uploadResult.ItemResponse.Id;
-                    }
-                    else
-                    {
-                        throw new Exception("File upload failed.");
-                    }
-                }
+                Name = uniqueFileName
             }
-            catch (ServiceException ex)
+        };
+
+        // Create an upload session
+        var uploadSession = await _appClient
+            .Drives[driveId]
+            .Root
+            .ItemWithPath(uniqueFileName)
+            .CreateUploadSession
+            .PostAsync(requestBody);
+
+        if (uploadSession == null || string.IsNullOrEmpty(uploadSession.UploadUrl))
+        {
+            throw new Exception("Failed to create an upload session.");
+        }
+
+        // Upload the file in chunks
+        using (var fileStream = file.OpenReadStream())
+        {
+            const int maxChunkSize = 320 * 1024; // 320 KB chunk size
+            var fileUploadTask = new LargeFileUploadTask<DriveItem>(uploadSession, fileStream, maxChunkSize);
+
+            var uploadResult = await fileUploadTask.UploadAsync();
+
+            if (uploadResult.UploadSucceeded)
             {
-                throw new Exception($"Graph API error: {ex.Message}", ex);
+                // Return the uploaded file's URL
+                return uploadResult.ItemResponse.Id;
+            }
+            else
+            {
+                throw new Exception("File upload failed.");
             }
         }
+    }
+    catch (ServiceException ex)
+    {
+        throw new Exception($"Graph API error: {ex.Message}", ex);
+    }
+}
     }
 }
