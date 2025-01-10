@@ -177,5 +177,15 @@ public async Task<USAWCUser> GetUserByPersonIdAsync(int personId)
     // Return null or handle the scenario where the person ID is not found
     return null;
 }
-    }
+
+public async Task<USAWCUser> GetUserByEmailAsync(string email)
+        {
+            var emailLookup = await GetEmailLookupAsync();
+
+            if(emailLookup.TryGetValue(email, out USAWCUser user)){
+               return user;
+            }
+            return null;
+        }
+ }
 }

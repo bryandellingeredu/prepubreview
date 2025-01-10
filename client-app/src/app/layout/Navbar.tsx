@@ -59,11 +59,20 @@ export default observer(function Navbar(){
       </>
     )}
     <Dropdown.Divider />
+    {userStore.appUser?.isAdmin &&
+    <>
     <Dropdown.Item
       text="Manage Admins"
       icon="settings"
       onClick={() => navigate('/manageadministrators')}
     />
+    <Dropdown.Item
+    text="Manage Security Officers"
+    icon="settings"
+    onClick={() => navigate('/managesecurityofficers')}
+  />
+  </> 
+   }
     <Dropdown.Item
       text="Logout"
       icon="sign-out"

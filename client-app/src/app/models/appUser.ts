@@ -7,4 +7,5 @@ export interface AppUser{
     eduEmail: string,
     organizationId:  number | null
     organizationDisplay: string,
+    isAdmin: boolean
  }

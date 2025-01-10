@@ -1,6 +1,8 @@
 using Application.Core;
 using MediatR;
 using Application.Repository;
+using Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.AppUsers
 {
@@ -16,10 +18,12 @@ namespace Application.AppUsers
         public class Handler : IRequestHandler<Command, Result<Domain.USAWCUser>>
         {
             private readonly IUSAWCUserService _usawcUserService;
+            private readonly DataContext _context;
 
-            public Handler(IUSAWCUserService usawcUserService)
+            public Handler(IUSAWCUserService usawcUserService, DataContext context)
             {
                 _usawcUserService = usawcUserService;
+                _context = context; 
             }
 
             public async Task<Result<Domain.USAWCUser>> Handle(Command request, CancellationToken cancellationToken)
@@ -31,6 +35,10 @@ namespace Application.AppUsers
                 {
                     return Result<Domain.USAWCUser>.Failure("Email not found in USAWC table.");
                 }
+                var admin = await _context.Administrators.FirstOrDefaultAsync(x => x.PersonId == usawcUser.PersonId );
+                if (admin != null){
+                    usawcUser.IsAdmin = true;
+                }  
 
                 return Result<Domain.USAWCUser>.Success(usawcUser);
             }

@@ -7,6 +7,7 @@ import { AttachmentMetaData } from '../models/attachmentMetaData';
 import { UserSubject } from '../models/userSubject';
 import { Administrator } from '../models/administrator';
 import { AdministratorDTO } from '../models/administratorDTO';
+import { SecurityOfficer } from '../models/securityOfficer';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -72,6 +73,12 @@ axios.interceptors.request.use((config) => {
     delete: (id: string) => requests.del<void>(`/Administrators/${id}`)
   }
 
+  const SecurityOfficers = {
+    list: () => requests.get<SecurityOfficer[]>('/SecurityOfficers'),
+    createUpdate: (securityOfficer: SecurityOfficer) => requests.post<void>('/SecurityOfficers', securityOfficer),
+    delete: (id: string) => requests.del<void>(`/SecurityOfficers/${id}`)
+  }
+
 
   const agent = {
     Publications,
@@ -79,7 +86,8 @@ axios.interceptors.request.use((config) => {
     Uploads,
     AttachmentMetaDatas,
     SubjectMatterExperts,
-    Administrators
+    Administrators,
+    SecurityOfficers
   }
 
   

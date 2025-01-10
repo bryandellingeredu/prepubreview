@@ -100,6 +100,8 @@ export default observer(function ManageAdministrators() {
                     <Icon name='arrow left' />
                         BACK
                     </Button>
+                 
+                    
         </div>
        
       <Divider horizontal>

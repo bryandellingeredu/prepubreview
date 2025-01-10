@@ -6,6 +6,8 @@ import PublicationsMain from '../../features/Publications/PublicationsMain';
 import NewPublicationForm from '../../features/Publications/NewPublicationForm';
 import ThreadsMain from '../../features/Threads/ThreadsMain';
 import ManageAdministrators from '../../features/Administrators/ManageAdministrators';
+import ManageSecurityOfficers from '../../features/Administrators/ManageSecurityOfficers';
+import NewSecurityOfficerForm from '../../features/Administrators/NewSecurityOfficerForm';
 
 
 export const routes: RouteObject[] = [
@@ -16,6 +18,8 @@ export const routes: RouteObject[] = [
             { path: '/', element: <HomePage /> }, // Set HomePage as the default route for '/'
             { path: 'callback', element: <CallbackPage /> },
             { path: 'manageadministrators', element: <ManageAdministrators /> },
+            { path: 'managesecurityofficers', element: <ManageSecurityOfficers /> },
+            { path: 'newsecurityofficerform', element: <NewSecurityOfficerForm />},
             { path: 'publicationsmain', element: <PublicationsMain />},
             { path: 'newpublicationform', element: <NewPublicationForm />},
             { path: 'newpublicationform/:pubid', element: <NewPublicationForm />},

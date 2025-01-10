@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction } from "mobx";
 import { AppUser } from "../models/appUser";
 import agent from "../api/agent";
 import { toast } from "react-toastify";
+import { UsawcUser } from "../models/usawcUser";
 
 export default class USAWCUserStore{
      usawcUserRegistry = new Map<number, AppUser>();
@@ -21,6 +22,8 @@ export default class USAWCUserStore{
                 return a.firstName.localeCompare(b.firstName);
             });
          }
+
+         getUserByPersonId = (personId: number) : AppUser => this.usawcUserRegistry.get(personId)!
 
          loadUSAWCUsers = async () => {
             this.setUSAWCUserLoading(true);

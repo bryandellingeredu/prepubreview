@@ -8,6 +8,7 @@ namespace Application.Repository
         Task<Dictionary<string, USAWCUser>> GetEmailLookupAsync();
         Task<Dictionary<int, USAWCUser>> GetPersonIdLookupAsync();
         Task<USAWCUser> GetUserByPersonIdAsync(int personId);
+        Task<USAWCUser> GetUserByEmailAsync(string email);
 
     }
 }

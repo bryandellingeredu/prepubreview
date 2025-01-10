@@ -14,5 +14,7 @@ namespace Domain
         
          public string  OrganizationDisplay {get; set;}
 
+         public bool IsAdmin {get; set;}    
+
     }
 }

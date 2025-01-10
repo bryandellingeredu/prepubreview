@@ -18,6 +18,10 @@ namespace Domain
 
         public string Title {get; set;}
 
+        public int? OrganizationId { get; set; }   
+
+        public string  OrganizationDisplay {get; set;}
+
 
     }
 }

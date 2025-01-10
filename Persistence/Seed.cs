@@ -100,6 +100,7 @@ namespace Persistence
 
             // Add generated publications to the database context
             await context.Publications.AddRangeAsync(publications);
+            await context.Administrators.AddAsync(new PrePublication_Administrator{ Id = new Guid(), PersonId = 351423, FirstName = "Bryan", MiddleName = "D", LastName = "Dellinger"});
             await context.SaveChangesAsync();
         }
     }
