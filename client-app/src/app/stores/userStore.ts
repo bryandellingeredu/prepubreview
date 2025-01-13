@@ -18,12 +18,12 @@ export default class UserStore {
 
         // Configuration for the OpenIddict server
         const config = {
-            authority: 'https://localhost:7274', // OpenIddict server URL
-            client_id: 'new-client-id', // The client ID registered in OpenIddict
-            redirect_uri: 'https://localhost:3000/prepubreview/callback', // Redirect URI after successful login
+            authority: import.meta.env.VITE_AUTHORITY, // OpenIddict server URL
+            client_id: import.meta.env.VITE_CLIENT_ID, // The client ID registered in OpenIddict
+            redirect_uri: import.meta.env.VITE_REDIRECT_URI, // Redirect URI after successful login
             response_type: 'code', // Authorization Code Flow
             scope: 'openid profile email', // Include required scopes
-            post_logout_redirect_uri: 'https://localhost:3000/prepubreview/homepage',
+            post_logout_redirect_uri: import.meta.env.VITE_POST_LOGOUT_REDIRECT_URI,
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 
@@ -71,18 +71,6 @@ export default class UserStore {
                 console.error("Error loading AppUser on init:", error);
             });
         }
-
-        // Automatically check for user on initialization
-     //   this.userManager.getUser().then(user => {
-          //  if (user && !user.expired) {
-            //    this.token = user.access_token;
-             //   this.startRefreshTokenTimer();
-          //  } else {
-              //  this.token = null;
-          //  }
-      //  }).catch(error => {
-         //   console.error("User loading error:", error);
-      //  });
     }
 
     logout = () => {
@@ -100,11 +88,11 @@ export default class UserStore {
         try {
             // Ensure all parameters are strings, defaulting to an empty string if undefined
             const queryParams = new URLSearchParams({
-                redirect_uri: "https://localhost:3000/prepubreview/callback",
+                redirect_uri: import.meta.env.VITE_REDIRECT_URI,
             }).toString();
     
             // Redirect to the login endpoint with query parameters
-            window.location.href = `https://localhost:7274/login?${queryParams}&buttons=army,edu`;
+            window.location.href = `${import.meta.env.VITE_AUTHORITY}/login?${queryParams}&buttons=army,edu`;
         } catch (error) {
             console.error("Login error:", error);
             toast.error('Login Error');
@@ -166,26 +154,12 @@ export default class UserStore {
         return !!this.token;
     }
 
- /*   getTokenPayload = () => {
-        if (!this.token) return null;
-
-        try {
-            const payload = this.token.split('.')[1]; // JWT structure is header.payload.signature
-            const decodedPayload = JSON.parse(atob(payload));
-            return JSON.stringify(decodedPayload, null, 2); // Format as a pretty JSON string
-        } catch (error) {
-            toast.error('Error in handle callback');
-            console.error("Error decoding token payload:", error);
-            return null;
-        }
-    };*/
-
     refreshToken = async () => {
         console.log('starting refresh token');
         this.stopRefreshTokenTimer(); // Stops any ongoing refresh timers
       
         try {
-          const response = await fetch("https://localhost:7274/setrefreshtoken", {
+          const response = await fetch(`${import.meta.env.VITE_AUTHORITY}/setrefreshtoken`, {
             method: "GET", // HTTP GET method
             credentials: "include", // Include cookies in the request
             headers: {
@@ -215,8 +189,6 @@ export default class UserStore {
             toast.error('Error refreshing token');
           console.error("Error refreshing token:", error);
       
-          // Handle the error, e.g., redirect to login or show a message
-          //this.handleRefreshTokenError(error);
         }
       };
 

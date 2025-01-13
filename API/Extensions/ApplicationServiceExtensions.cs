@@ -37,18 +37,20 @@ namespace API.Extensions
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
+                 var tokenValidationParams = config.GetSection("TokenValidationParameters");
+
                 options.RequireHttpsMetadata = false; // Set to true in production with HTTPS
                 options.SaveToken = true; // Save the token for potential retrieval
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = "https://localhost:7274", // SSO server issuer
-                    ValidAudience = "resource-server-1", // Expected audience
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YourSuperSecureRandomSecretKey123!"))
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidateLifetime = true,
+                     ClockSkew = TimeSpan.Zero,
+                     ValidIssuer = tokenValidationParams["ValidIssuer"],
+                     ValidAudience = tokenValidationParams["ValidAudience"],
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenValidationParams["IssuerSigningKey"]))
                 };
 
                 // Logging for detailed token validation diagnostics
