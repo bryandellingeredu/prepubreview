@@ -34,9 +34,10 @@ namespace Persistence
                     MAX(CASE WHEN e.EmailType = 'army' THEN e.Email END) AS ArmyEmail,
                     MAX(CASE WHEN e.EmailType = 'edu' THEN e.Email END) AS EduEmail
                 FROM [USAWCPersonnel].[Person].[Person] p
-                JOIN e ON p.PersonID = e.PersonID
+                JOIN Security.PersonRole pr ON pr.PersonID = e.PersonID
                 WHERE p.IsActive = 1 
                     AND (p.IsDeceased IS NULL OR p.IsDeceased = 0)
+					AND pr.RoleID IN ( 1, 2, 5, 107 )
                 GROUP BY 
                     p.PersonID, 
                     p.LastName, 
