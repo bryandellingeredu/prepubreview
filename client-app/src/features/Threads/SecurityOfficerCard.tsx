@@ -1,10 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../app/stores/store";
 import { SecurityOfficer } from "../../app/models/securityOfficer";
-import { Card, CardContent, CardDescription, CardHeader, CardMeta, Icon } from "semantic-ui-react";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardMeta, Icon, Popup } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import { AppUser } from "../../app/models/appUser";
 import LoadingComponent from "../../app/layout/LoadingComponent";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 interface Props{
     securityOfficer: SecurityOfficer
@@ -20,9 +22,17 @@ interface Props{
 export default observer(function SecurityOfficerCard (
     {securityOfficer, threadId,  showSelectButton, showRemoveButton, showDeleteButton, showEditButton} : Props
 ){
-    const { usawcUserStore } = useStore();
+    const { usawcUserStore, securityOfficerStore } = useStore();
     const { usawcUsers, usawcUserloading, loadUSAWCUsers, getUserByPersonId } = usawcUserStore;
+    const {deleteSecurityOfficer} = securityOfficerStore
     const [user, setUser] = useState<AppUser | null>(null);
+    const [open, setOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const navigate = useNavigate();
+
+    const handleCancel = () => {
+      setOpen(false);
+  };
 
       useEffect(() => {
         if (usawcUsers.length === 0 && !usawcUserloading) {
@@ -35,6 +45,23 @@ export default observer(function SecurityOfficerCard (
           setUser(getUserByPersonId(securityOfficer.personId))
         } 
       })
+
+      const handleDelete = async () => {
+        setDeleting(true);
+        setOpen(false);
+        try{
+          await deleteSecurityOfficer(securityOfficer.id)
+        }catch(error){
+          console.error("Error deleting security officer:", error);
+          toast.error('Error deleting security officer');
+        }finally{
+          setDeleting(false);
+        }
+      }
+
+      const handleEditClick = () =>{
+        navigate(`/editsecurityofficer/${securityOfficer.id}`)
+      }
 
 
 
@@ -87,6 +114,44 @@ export default observer(function SecurityOfficerCard (
             <span className="industry"> SCIP: </span>
             <span className="gilite">{securityOfficer.scip}</span>
           </CardContent>
+          <CardContent extra>
+          
+          {showEditButton &&
+              <Button basic color='brown' floated="right" icon labelPosition='left' onClick={handleEditClick}>
+              <Icon name='edit' />
+             <span className="industry">EDIT</span> 
+             </Button>
+          }
+
+          {showDeleteButton && 
+                  <Popup
+                        trigger={
+                          <Button basic color='red' floated="right" icon labelPosition='left' onClick={() => setOpen(true)} loading={deleting}>
+                          <Icon name='x' />
+                          <span className="industry">DELETE</span> 
+                        </Button>
+                         }
+                           on="click"
+                          open={open}
+                          onClose={() => setOpen(false)}
+                          position="top center"
+                        content={
+                        <div>
+                           <p>Are you sure you want to delete this Security Officer</p>
+                              <Button color="red" onClick={handleDelete} >
+                                Yes
+                              </Button>
+                            <Button color="grey" onClick={handleCancel}>
+                               No
+                             </Button>
+                        </div>
+                        }
+                        />
+                }
+      
+
+
+            </CardContent>
         </Card>
     )
 })

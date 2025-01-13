@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "../../app/stores/store";
 import { SecurityOfficer } from "../../app/models/securityOfficer";
 import LoadingComponent from "../../app/layout/LoadingComponent";
-import { Button, Divider, Header, Icon } from "semantic-ui-react";
+import { Button, CardGroup, Divider, Header, Icon, Segment, SegmentGroup } from "semantic-ui-react";
+import SecurityOfficerCard from "../Threads/SecurityOfficerCard";
 
 export default observer(function ManageSecurityOfficers() {
     const navigate = useNavigate();
@@ -62,6 +63,29 @@ export default observer(function ManageSecurityOfficers() {
               MANAGE SECURITY OFFICERS
             </Header>
         </Divider>
+
+        <SegmentGroup style={{ marginTop: '40px', padding: '20px' }}>
+          <Segment style={{backgroundColor: '#F1E4C7'}}>
+          <Header textAlign="center"  icon  as="h4" className="industry" >
+                <Icon name="shield" />
+                CURRENT SECURITY OFFICERS
+              </Header>
+              <p></p>
+              <CardGroup itemsPerRow={3}>
+              {securityOfficers.map((securityOfficer) => (
+                 <SecurityOfficerCard
+                 key={securityOfficer.id}
+                 securityOfficer={securityOfficer}
+                 threadId={''}
+                 showSelectButton={false}
+                 showRemoveButton={false}
+                 showDeleteButton={true}
+                 showEditButton={true}
+                  />
+                 ))}
+          </CardGroup>
+          </Segment>
+        </SegmentGroup>
         </>
     )
 
