@@ -12,4 +12,5 @@ export interface Thread{
     type: ThreadType,
     publicationId: string,
     subjectMatterExperts: SubjectMatterExpert[] | null
+    securityOfficerId: string
 }

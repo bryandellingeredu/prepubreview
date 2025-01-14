@@ -79,9 +79,8 @@ export default observer(function ManageAdministrators() {
       };
 
       const handleGoBackClick = () => {
-        navigate(-1); // Go back to the previous page
+        navigate('/publicationsmain'); // Go back to the previous page
     };
-
 
     if(usawcUserloading || administratorLoading) return <LoadingComponent content="loading administrators" />
     

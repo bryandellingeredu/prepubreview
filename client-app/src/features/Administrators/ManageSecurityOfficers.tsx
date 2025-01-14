@@ -29,12 +29,20 @@ export default observer(function ManageSecurityOfficers() {
       }, []);
 
       const handleGoBackClick = () => {
-        navigate(-1); // Go back to the previous page
+        navigate('/publicationsmain'); // Go back to the previous page
     };
 
     const handleNewButtonClick = () => {
       navigate('/newsecurityofficerform'); // Navigate to the newpublicationform route
   };
+
+  const updateSecurityOfficerId = (threadId: string, newSecurityOfficerId: string) => {
+    // do nothing
+   };
+
+const removeSecurityOfficer = (threadId: string) => {
+   // do nothing
+};
 
      if(usawcUserloading || securityOfficerLoading) return <LoadingComponent content="loading security officers" />
 
@@ -72,7 +80,7 @@ export default observer(function ManageSecurityOfficers() {
               </Header>
               <p></p>
               <CardGroup itemsPerRow={3}>
-              {securityOfficers.map((securityOfficer) => (
+              {securityOfficers.filter(x => !x.logicalDeleteIndicator).map((securityOfficer) => (
                  <SecurityOfficerCard
                  key={securityOfficer.id}
                  securityOfficer={securityOfficer}
@@ -81,6 +89,8 @@ export default observer(function ManageSecurityOfficers() {
                  showRemoveButton={false}
                  showDeleteButton={true}
                  showEditButton={true}
+                 updateSecurityOfficerId={updateSecurityOfficerId}
+                 removeSecurityOfficer={removeSecurityOfficer}
                   />
                  ))}
           </CardGroup>

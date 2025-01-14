@@ -19,11 +19,12 @@ import { SubjectMatterExpert } from "../../app/models/subjectMatterExpert";
 export default observer(function ThreadsMain() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { publicationStore, usawcUserStore, userStore, smeStore  } = useStore();
+    const { publicationStore, usawcUserStore, userStore, smeStore, securityOfficerStore  } = useStore();
     const { appUser} = userStore;
     const {publicationloading, getPublicationById} = publicationStore
     const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
-    const {userSubjectLoading, userSubjects, loadUserSubjects} = smeStore
+    const {userSubjectLoading, userSubjects, loadUserSubjects} = smeStore;
+    const {securityOfficerLoading, securityOfficers, loadSecurityOfficers} = securityOfficerStore;
 
     const [publication, setPublication] = useState<Publication>({
         id: '',
@@ -82,7 +83,8 @@ export default observer(function ThreadsMain() {
                                 type: ThreadType.Author,
                                 publicationId: publication.id,
                                 subjectMatterExperts: [],
-                                comments: '',
+                                comments: '{"blocks":[{"key":"4gl4r","text":"I have reviewed this article. It contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":0,"length":143,"style":"ITALIC"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
+                                securityOfficerId: ''
                             };
                             publication.threads = [thread];
                         }
@@ -106,6 +108,10 @@ export default observer(function ThreadsMain() {
       useEffect(() => {
         if (userSubjects.length === 0 && !userSubjectLoading) loadUserSubjects();
       }, [loadUserSubjects, userSubjects, userSubjectLoading]);
+
+      useEffect(() =>{
+        if(securityOfficers.length === 0 && !securityOfficerLoading) loadSecurityOfficers();
+      }, [securityOfficers, securityOfficerLoading, loadSecurityOfficers] )
 
     const getAuthorName = () => 
         publication.authorMiddleName ?
@@ -134,6 +140,7 @@ export default observer(function ThreadsMain() {
     }
 
     const updateThreadComments = (threadId: string, newComments: string) => {
+        console.log(newComments);
         setPublication((prev) => {
           if (!prev.threads) {
             console.error("Threads are null.");
@@ -174,6 +181,29 @@ export default observer(function ThreadsMain() {
         });
     };
 
+    const updateSecurityOfficerId = (threadId: string, newSecurityOfficerId: string) => {
+        setPublication((prev) => ({
+            ...prev,
+            threads: (prev.threads ?? []).map((thread) =>
+                thread.id === threadId
+                    ? { ...thread, securityOfficerId: newSecurityOfficerId }
+                    : thread
+            ),
+        }));
+    };
+
+    const removeSecurityOfficer = (threadId: string) => {
+        setPublication((prev) => ({
+            ...prev,
+            threads: (prev.threads ?? []).map((thread) =>
+                thread.id === threadId
+                    ? { ...thread, securityOfficerId: '' }
+                    : thread
+            ),
+        }));
+    };
+    
+
 
       const addSME = (threadId: string, personId: number) => {
         const newSME: SubjectMatterExpert = { id: uuidv4(), threadId, personId };
@@ -202,7 +232,7 @@ export default observer(function ThreadsMain() {
     };
 
 
-    if(!id || publicationloading || usawcUserloading || loadingMeta || userSubjectLoading) return <LoadingComponent content="loading data..."/>
+    if(!id || publicationloading || usawcUserloading || loadingMeta || userSubjectLoading || securityOfficerLoading) return <LoadingComponent content="loading data..."/>
 
     return(
         <Container fluid>
@@ -265,6 +295,8 @@ export default observer(function ThreadsMain() {
                         authorName={getAuthorName()}
                         updateThreadComments={updateThreadComments}
                         addSME={addSME}
+                        updateSecurityOfficerId={updateSecurityOfficerId}
+                        removeSecurityOfficer={removeSecurityOfficer}
                         removeSME={removeSME}
                         threadId={thread.id}
                         />

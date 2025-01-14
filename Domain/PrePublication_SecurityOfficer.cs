@@ -22,6 +22,8 @@ namespace Domain
 
         public string  OrganizationDisplay {get; set;}
 
+        public bool LogicalDeleteIndicator {get; set;}
+
 
     }
 }

@@ -16,6 +16,8 @@ import LoadingComponent from "../../app/layout/LoadingComponent";
 import RichTextEditor from "./RichTextEditor";
 import SMEPicker from "./SMEPicker";
 import SMECard from "./SMECard";
+import SecurityOfficerPicker from "./SecurityOfficerPicker";
+import SecurityOfficerCard from "./SecurityOfficerCard";
 
 interface Props {
   thread: Thread;
@@ -23,6 +25,8 @@ interface Props {
   updateThreadComments: (threadId: string, newComments: string) => void;
   addSME: (threadId: string, personId: number) => void;
   removeSME: (threadId: string, personId: number) => void;
+  updateSecurityOfficerId: (threadId: string, newSecurityOfficerId: string) => void;
+  removeSecurityOfficer: (threadId: string) => void;
   threadId: string;
 }
 
@@ -32,9 +36,11 @@ export default observer(function ThreadComponent({
   updateThreadComments,
   addSME,
   removeSME,
+  updateSecurityOfficerId,
+  removeSecurityOfficer,
   threadId
 }: Props) {
-  const { usawcUserStore, modalStore, smeStore } = useStore();
+  const { usawcUserStore, modalStore, smeStore, securityOfficerStore } = useStore();
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
   const {openModal} = modalStore;
   useEffect(() => {
@@ -44,6 +50,12 @@ export default observer(function ThreadComponent({
   const handleAddSMEButtonClick = () =>{
     openModal(
       <SMEPicker addSME={addSME} removeSME={removeSME}  threadId={threadId} />, 'fullscreen'
+    )
+  }
+
+  const handleAddSecurityOfficerButtonClick = () => {
+    openModal(
+      <SecurityOfficerPicker threadId={threadId} updateSecurityOfficerId={updateSecurityOfficerId} removeSecurityOfficer={removeSecurityOfficer} />, 'fullscreen'
     )
   }
 
@@ -119,8 +131,35 @@ export default observer(function ThreadComponent({
         </HeaderSubheader>
           </Header>
           <div className="ui clearing" style={{marginBottom: '10px'}}>
-            <Button content='Add OPSEC II' icon='plus' labelPosition='left' color='brown'  />
+            {!thread.securityOfficerId &&
+            <Button
+             content='Add OPSEC II'
+            icon='plus' labelPosition='left'
+            color='brown'
+            onClick={handleAddSecurityOfficerButtonClick} />
+           } 
+            {thread.securityOfficerId &&
+            <Button
+             content='Change OPSEC II'
+            icon='edit' labelPosition='left'
+            color='brown'
+            onClick={handleAddSecurityOfficerButtonClick} />
+           }   
           </div>
+          {thread.securityOfficerId && 
+           <CardGroup itemsPerRow={3}>
+          <SecurityOfficerCard
+           securityOfficer = {securityOfficerStore.getById(thread.securityOfficerId)}
+           threadId={thread.id}
+           showSelectButton={false}
+           showRemoveButton={true}
+           showDeleteButton={false}
+           showEditButton={false}
+           updateSecurityOfficerId={updateSecurityOfficerId}
+           removeSecurityOfficer={removeSecurityOfficer}
+          />
+          </CardGroup>
+          }
       </div>
     </Segment>
   );

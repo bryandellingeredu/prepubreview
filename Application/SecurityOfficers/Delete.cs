@@ -21,8 +21,8 @@ namespace Application.SecurityOfficers
               public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 try{
-                  PrePublication_SecurityOfficer securityOfficer = await _context.SecurityOfficers.FindAsync(request.Id, cancellationToken);  
-                  _context.SecurityOfficers.Remove(securityOfficer);
+                  PrePublication_SecurityOfficer securityOfficer = await _context.SecurityOfficers.FindAsync(request.Id, cancellationToken);
+                  securityOfficer.LogicalDeleteIndicator = true;  
                    await _context.SaveChangesAsync(cancellationToken); 
                    return Result<Unit>.Success(Unit.Value);   
                 }

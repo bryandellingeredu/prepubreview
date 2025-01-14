@@ -15,16 +15,27 @@ interface Props{
     showRemoveButton: boolean,
     showDeleteButton: boolean,
     showEditButton: boolean
+    updateSecurityOfficerId: (threadId: string, newSecurityOfficerId: string) => void;
+    removeSecurityOfficer: (threadId: string) => void;
 }
 
 
 
 export default observer(function SecurityOfficerCard (
-    {securityOfficer, threadId,  showSelectButton, showRemoveButton, showDeleteButton, showEditButton} : Props
+    {securityOfficer,
+    threadId,
+    showSelectButton,
+    showRemoveButton,
+    showDeleteButton,
+    showEditButton,
+    updateSecurityOfficerId,
+    removeSecurityOfficer
+  } : Props
 ){
-    const { usawcUserStore, securityOfficerStore } = useStore();
+    const { usawcUserStore, securityOfficerStore, modalStore } = useStore();
     const { usawcUsers, usawcUserloading, loadUSAWCUsers, getUserByPersonId } = usawcUserStore;
     const {deleteSecurityOfficer} = securityOfficerStore
+    const {closeModal} = modalStore;
     const [user, setUser] = useState<AppUser | null>(null);
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -61,6 +72,15 @@ export default observer(function SecurityOfficerCard (
 
       const handleEditClick = () =>{
         navigate(`/editsecurityofficer/${securityOfficer.id}`)
+      }
+
+      const handleSelectClick = () =>{
+        updateSecurityOfficerId(threadId, securityOfficer.id)
+        closeModal();
+      }
+
+      const handleRemove = () => {
+        removeSecurityOfficer(threadId)
       }
 
 
@@ -139,6 +159,39 @@ export default observer(function SecurityOfficerCard (
                         <div>
                            <p>Are you sure you want to delete this Security Officer</p>
                               <Button color="red" onClick={handleDelete} >
+                                Yes
+                              </Button>
+                            <Button color="grey" onClick={handleCancel}>
+                               No
+                             </Button>
+                        </div>
+                        }
+                        />
+                }
+
+        {showSelectButton &&
+          <Button basic color='brown' floated="right" icon labelPosition='left' onClick={handleSelectClick}>
+            <Icon name='check circle' />
+           <span className="industry">SELECT THIS SECURITY OFFICER</span> 
+          </Button>
+        }
+
+{showRemoveButton && 
+                  <Popup
+                        trigger={
+                          <Button basic color='red' floated="right" icon labelPosition='left' onClick={() => setOpen(true)}>
+                          <Icon name='x' />
+                          <span className="industry">REMOVE THIS SECURITY OFFICER</span> 
+                        </Button>
+                         }
+                           on="click"
+                          open={open}
+                          onClose={() => setOpen(false)}
+                          position="top center"
+                        content={
+                        <div>
+                           <p>Are you sure you want to remove this Security Officer</p>
+                              <Button color="red" onClick={handleRemove}>
                                 Yes
                               </Button>
                             <Button color="grey" onClick={handleCancel}>

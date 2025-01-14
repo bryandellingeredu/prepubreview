@@ -21,6 +21,8 @@ export default class SecurityOfficerStore{
         });
     }
 
+    getById = (id : string) : SecurityOfficer => this.securityOfficerRegistry.get(id)!
+
     loadSecurityOfficers = async () => {
         if (this.securityOfficerLoading) return;
         this.setSecurityOfficerLoading(true);
@@ -41,8 +43,16 @@ export default class SecurityOfficerStore{
 
     deleteSecurityOfficer = async (id: string) => {
         try{
-          await agent.SecurityOfficers.delete(id);
-          this.securityOfficerRegistry.delete(id);
+         const securityOfficer = this.securityOfficerRegistry.get(id);
+         if (!securityOfficer) {
+            toast.error('Security officer not found');
+            return;
+        }
+        runInAction(() => {
+            securityOfficer.logicalDeleteIndicator = true;
+            this.securityOfficerRegistry.set(id, securityOfficer);
+        });
+        await agent.SecurityOfficers.delete(id);
         }
         catch (error) {
           console.error("Error deleting security officer:", error);
@@ -61,7 +71,8 @@ export default class SecurityOfficerStore{
             lastName: user!.lastName,
             middleName: user!.middleName,
             organizationId: user!.organizationId,
-            organizationDisplay: user!.organizationDisplay
+            organizationDisplay: user!.organizationDisplay,
+            logicalDeleteIndicator: false
         }
         try{
           await agent.SecurityOfficers.createUpdate(securityOfficer)
@@ -76,5 +87,25 @@ export default class SecurityOfficerStore{
     setSecurityOfficerLoading = (state: boolean) => {
         this.securityOfficerLoading = state;
     };
+
+    getFilteredSecurityOfficers = (lastName: string, organizationDisplay: string, scip: string) => {
+        let results = this.securityOfficers
+        if(lastName){
+           results = results.filter(x =>
+                x.lastName.toLowerCase().startsWith(lastName.toLowerCase())
+            );
+        }
+        if(organizationDisplay){
+            results = results.filter(x =>
+                x.organizationDisplay.toLowerCase().startsWith(organizationDisplay.toLowerCase())
+            );
+        }
+        if(scip){
+            results = results.filter(x =>
+                x.scip.toLowerCase().startsWith(scip.toLowerCase())
+            ); 
+        }
+      return results;
+    }
 
 }

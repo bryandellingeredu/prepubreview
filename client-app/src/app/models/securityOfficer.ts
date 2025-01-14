@@ -8,4 +8,5 @@ export interface SecurityOfficer{
     title: string
     organizationId : number | null
     organizationDisplay: string
+    logicalDeleteIndicator: boolean
 }

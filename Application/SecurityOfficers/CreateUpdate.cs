@@ -36,6 +36,7 @@ namespace Application.SecurityOfficers
                     existingSecurityOfficer.Title = request.PrePublication_SecurityOfficer.Title;
                     existingSecurityOfficer.OrganizationId =  request.PrePublication_SecurityOfficer.OrganizationId;
                     existingSecurityOfficer.OrganizationDisplay = request.PrePublication_SecurityOfficer.OrganizationDisplay;
+                    existingSecurityOfficer.LogicalDeleteIndicator = false;
                      try{
                         await _context.SaveChangesAsync();
                          return Result<Unit>.Success(Unit.Value);
@@ -54,6 +55,7 @@ namespace Application.SecurityOfficers
                     newSecurityOfficer.Title = request.PrePublication_SecurityOfficer.Title;
                     newSecurityOfficer.OrganizationId =  request.PrePublication_SecurityOfficer.OrganizationId;
                     newSecurityOfficer.OrganizationDisplay = request.PrePublication_SecurityOfficer.OrganizationDisplay;
+                    newSecurityOfficer.LogicalDeleteIndicator = false;
                      _context.SecurityOfficers.Add(newSecurityOfficer);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create security officer"); 
