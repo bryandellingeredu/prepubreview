@@ -8,6 +8,7 @@ import { UserSubject } from '../models/userSubject';
 import { Administrator } from '../models/administrator';
 import { AdministratorDTO } from '../models/administratorDTO';
 import { SecurityOfficer } from '../models/securityOfficer';
+import { InitialThreadDTO } from '../models/initialThreadDTO';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -79,6 +80,10 @@ axios.interceptors.request.use((config) => {
     delete: (id: string) => requests.del<void>(`/SecurityOfficers/${id}`)
   }
 
+  const Threads ={
+    addInitialThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitial', initalThreadDTO )
+  }
+
 
   const agent = {
     Publications,
@@ -87,7 +92,8 @@ axios.interceptors.request.use((config) => {
     AttachmentMetaDatas,
     SubjectMatterExperts,
     Administrators,
-    SecurityOfficers
+    SecurityOfficers,
+    Threads
   }
 
   

@@ -9,6 +9,7 @@ import ManageAdministrators from '../../features/Administrators/ManageAdministra
 import ManageSecurityOfficers from '../../features/Administrators/ManageSecurityOfficers';
 import NewSecurityOfficerForm from '../../features/Administrators/NewSecurityOfficerForm';
 import EditSecurityOfficerForm from '../../features/Administrators/EditSecurityOfficerForm';
+import SentToSMEConfirmation from '../../features/Threads/SentToSMEConfirmation';
 
 
 export const routes: RouteObject[] = [
@@ -25,6 +26,7 @@ export const routes: RouteObject[] = [
             { path: 'newpublicationform', element: <NewPublicationForm />},
             { path: 'newpublicationform/:pubid', element: <NewPublicationForm />},
             { path: 'threads/:id', element: <ThreadsMain />},
+            { path: 'senttosmeconfirmation/:id', element: <SentToSMEConfirmation />},
             { path: 'editsecurityofficer/:id', element: <EditSecurityOfficerForm />},
             { path: '*', element: <HomePage /> }, // Wildcard to redirect any undefined paths to HomePage
         ]

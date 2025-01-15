@@ -29,6 +29,7 @@ namespace Application.Publications
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
                 var author = await _userService.GetUserByPersonIdAsync(request.PublicationDTO.AuthorPersonId);
                 var existingPublication = await _context.Publications
                     .Where(x => x.Id == request.PublicationDTO.Id)
@@ -41,7 +42,7 @@ namespace Application.Publications
                      existingPublication.AuthorLastName = author.LastName;  
                      existingPublication.AuthorMiddleName = author.MiddleName; 
                      existingPublication.UpdatedByPersonId = request.PublicationDTO?.UpdatedByPersonId;
-                     existingPublication.DateUpdated = DateTime.Now;
+                     existingPublication.DateUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);
                      existingPublication.PublicationLink = request.PublicationDTO.PublicationLink;
                      existingPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
                      try{
@@ -60,10 +61,11 @@ namespace Application.Publications
                        newPublication.AuthorFirstName = author.FirstName; 
                        newPublication.AuthorLastName = author.LastName;  
                        newPublication.AuthorMiddleName = author.MiddleName; 
-                       newPublication.DateCreated = DateTime.Now;  
+                       newPublication.DateCreated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);  
                        newPublication.CreatedByPersonId = request.PublicationDTO.CreatedByPersonId;
                        newPublication.PublicationLink = request.PublicationDTO.PublicationLink;
                        newPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
+                       newPublication.Status = StatusType.Pending;
                     _context.Publications.Add(newPublication);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create registration"); 

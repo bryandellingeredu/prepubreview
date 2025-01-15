@@ -20,32 +20,53 @@ namespace Application.Publications
            private readonly DataContext _context;
 
            public Handler(DataContext context) =>   _context = context;
-           public async Task<Result<PrePublication_Publication>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<PrePublication_Publication>> Handle(Query request, CancellationToken cancellationToken)
             {
-                PrePublication_Publication publication = await _context.Publications
-                    .Include(t => t.Threads)
-                    .ThenInclude(s => s.SubjectMatterExperts)
-                    .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
-
-                    if (publication?.Threads != null)
+             
+                var publication = await _context.Publications
+                 .Include(p => p.Threads)
+                 .ThenInclude(t => t.SMEThreadJunctions)
+                 .ThenInclude(j => j.SubjectMatterExpert)
+                 .Where(p => p.Id == request.Id)
+                .Select(p => new PrePublication_Publication
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    Status = p.Status,
+                    AuthorFirstName = p.AuthorFirstName,
+                    AuthorLastName = p.AuthorLastName,  
+                    AuthorMiddleName = p.AuthorMiddleName,
+                    DateCreated = p.DateCreated,
+                    DateUpdated = p.DateUpdated,
+                    CreatedByPersonId = p.CreatedByPersonId,
+                    UpdatedByPersonId = p.UpdatedByPersonId,
+                    PublicationLink = p.PublicationLink,
+                    PublicationLinkName = p.PublicationLinkName,
+                    Threads = p.Threads.Select(t => new PrePublication_Thread
+                    {
+                        Id = t.Id,
+                        PublicationId = t.PublicationId,
+                        Comments = t.Comments,
+                        IsActive = t.IsActive,
+                        DateCreated = t.DateCreated,
+                        CreatedByPersonId = t.CreatedByPersonId,
+                        DateUpdated = t.DateUpdated,
+                        UpdatedByPersonId = t.UpdatedByPersonId,
+                        SecurityOfficerId = t.SecurityOfficerId,
+                        Type = t.Type,
+                       SubjectMatterExperts = t.SMEThreadJunctions.Select(j => new PrePublication_SubjectMatterExpert
                         {
-                            foreach (var thread in publication.Threads)
-                            {
-                                if (thread.SubjectMatterExperts != null)
-                                    {
-                                        foreach (var sme in thread.SubjectMatterExperts)
-                                            {
-                                                sme.Thread = null; // Nullify self-referencing property
-                                            }
-                                     }
-                                thread.Publication = null; // Nullify self-referencing property
-                             }               
-                        }
-                        
+                        Id = j.SubjectMatterExpert.Id,
+                        PersonId = j.SubjectMatterExpert.PersonId,
+                       }).ToList()
+                     }).ToList()
+                  })
+                  .FirstOrDefaultAsync(cancellationToken);
 
-                    return Result<PrePublication_Publication>.Success(publication);
-                }
-                
+
+                return Result<PrePublication_Publication>.Success(publication);
+            }
+
         }
     }
 }

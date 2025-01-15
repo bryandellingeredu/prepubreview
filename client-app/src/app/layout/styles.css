@@ -82,3 +82,9 @@ body{
     margin-bottom: 10px; /* Space between toolbar and typing area */
   }
 
+  .error-border {
+    border: 2px solid red;
+    border-radius: 5px;
+    padding: 10px;
+  }
+

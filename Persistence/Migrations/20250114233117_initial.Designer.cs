@@ -12,8 +12,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250106131236_admin")]
-    partial class admin
+    [Migration("20250114233117_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,29 @@ namespace Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.PrePublication_Administrator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Administrators");
+                });
 
             modelBuilder.Entity("Domain.PrePublication_Attachment", b =>
                 {
@@ -95,6 +118,9 @@ namespace Persistence.Migrations
                     b.Property<string>("PublicationLinkName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
@@ -104,6 +130,27 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Publications");
+                });
+
+            modelBuilder.Entity("Domain.PrePublication_SMEThreadJunction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectMatterExpertId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectMatterExpertId");
+
+                    b.HasIndex("ThreadId");
+
+                    b.ToTable("SMEThreadJunctions");
                 });
 
             modelBuilder.Entity("Domain.PrePublication_SecurityOfficer", b =>
@@ -118,8 +165,17 @@ namespace Persistence.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("LogicalDeleteIndicator")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrganizationDisplay")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
@@ -144,12 +200,7 @@ namespace Persistence.Migrations
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("ThreadId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ThreadId");
 
                     b.ToTable("SubjectMatterExperts");
                 });
@@ -161,6 +212,9 @@ namespace Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CommentsAsHTML")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CreatedByPersonId")
@@ -196,11 +250,21 @@ namespace Persistence.Migrations
                     b.ToTable("Threads");
                 });
 
-            modelBuilder.Entity("Domain.PrePublication_SubjectMatterExpert", b =>
+            modelBuilder.Entity("Domain.PrePublication_SMEThreadJunction", b =>
                 {
+                    b.HasOne("Domain.PrePublication_SubjectMatterExpert", "SubjectMatterExpert")
+                        .WithMany("SMEThreadJunctions")
+                        .HasForeignKey("SubjectMatterExpertId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.PrePublication_Thread", "Thread")
-                        .WithMany("SubjectMatterExperts")
-                        .HasForeignKey("ThreadId");
+                        .WithMany("SMEThreadJunctions")
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SubjectMatterExpert");
 
                     b.Navigation("Thread");
                 });
@@ -225,9 +289,14 @@ namespace Persistence.Migrations
                     b.Navigation("Threads");
                 });
 
+            modelBuilder.Entity("Domain.PrePublication_SubjectMatterExpert", b =>
+                {
+                    b.Navigation("SMEThreadJunctions");
+                });
+
             modelBuilder.Entity("Domain.PrePublication_Thread", b =>
                 {
-                    b.Navigation("SubjectMatterExperts");
+                    b.Navigation("SMEThreadJunctions");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,15 @@
 
 namespace Domain
 {
+    public enum StatusType
+    {
+        Pending,
+        SentToSMEForReview,
+        RejectedBySME,
+        SentToSecurityForReview,
+        RejectedBySecurity,
+        Complete,
+    }
     public class PrePublication_Publication
     {
         public Guid Id { get; set; }
@@ -16,7 +25,7 @@ namespace Domain
         public DateTime? DateUpdated { get; set; } 
         public string PublicationLink {get; set;}
         public string PublicationLinkName {get; set;}
-
+        public StatusType Status { get; set; }
         public ICollection<PrePublication_Thread> Threads { get; set; } = new List<PrePublication_Thread>();
           
     }

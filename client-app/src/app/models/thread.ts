@@ -9,6 +9,7 @@ export interface Thread{
     dateCreated: Date,
     dateUpdated: Date | null,
     comments: string,
+    commentsAsHTML: string,
     type: ThreadType,
     publicationId: string,
     subjectMatterExperts: SubjectMatterExpert[] | null

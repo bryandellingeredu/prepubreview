@@ -5,6 +5,9 @@ import { PublicationDTO } from "../models/publicationDTO";
 import { toast } from "react-toastify";
 import { store } from "./store";
 import { AppUser } from "../models/appUser";
+import { StatusType } from "../models/statusType";
+import { InitialThreadDTO } from "../models/initialThreadDTO";
+
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
@@ -49,13 +52,9 @@ export default class PublicationStore{
     };
 
     getPublicationById = async (id: string) => {
-        let publication = this.publicationRegistry.get(id);
-        if(publication){
-            return publication;
-        }else{
             try{
                 this.setPublicationLoading(true);
-                 publication = await agent.Publications.details(id);
+                 const publication = await agent.Publications.details(id);
                  runInAction(() => {
                     this.publicationRegistry.set(publication!.id, publication!);
                  });
@@ -67,7 +66,7 @@ export default class PublicationStore{
             } finally {
                 this.setPublicationLoading(false); // Always set loading to false after execution
             }
-        }
+        
     }
 
     addPublication = async (publicationDTO: PublicationDTO) => {
@@ -89,7 +88,8 @@ export default class PublicationStore{
                 authorFirstName: author!.firstName,
                 authorLastName: author!.lastName,
                 authorMiddleName: author!.middleName,
-                threads: null
+                threads: null,
+                status: StatusType.Pending
             }
             this.publicationRegistry.set(createdPublication.id, createdPublication);
         }
@@ -99,6 +99,23 @@ export default class PublicationStore{
     } finally {
         this.setPublicationLoading(false); // Reset loading state
     }
+    }
+
+    addInitialThread = async(initialThreadDTO : InitialThreadDTO) => {
+        debugger;
+        try{
+          await agent.Threads.addInitialThread(initialThreadDTO);
+          let publication = this.publicationRegistry.get(initialThreadDTO.publicationId);
+          if(publication){
+            const updatedPublication = await agent.Publications.details(initialThreadDTO.publicationId)
+            runInAction(() => {
+                this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+          }
+        }catch(error){
+            console.error("Error adding initial thread:", error);
+            toast.error('Error adding initial thread');
+        }
     }
 
     resetPublications = () => {

@@ -1,3 +1,4 @@
+import { StatusType } from "./statusType";
 import { Thread } from "./thread";
 
 export interface Publication{
@@ -13,6 +14,7 @@ export interface Publication{
     dateUpdated: Date | null,
     publicationLink: string,
     publicationLinkName: string,
-    threads: Thread[] | null
+    threads: Thread[] | null,
+    status: StatusType
  }
  

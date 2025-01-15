@@ -6,18 +6,26 @@ import {
   HeaderContent,
   HeaderSubheader,
   Icon,
+  Message,
+  MessageHeader,
   Segment,
 } from "semantic-ui-react";
 import { ThreadType } from "../../app/models/threadType";
 import { Thread } from "../../app/models/thread";
 import { useStore } from "../../app/stores/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import RichTextEditor from "./RichTextEditor";
 import SMEPicker from "./SMEPicker";
 import SMECard from "./SMECard";
 import SecurityOfficerPicker from "./SecurityOfficerPicker";
 import SecurityOfficerCard from "./SecurityOfficerCard";
+import { toast } from "react-toastify";
+import { InitialThreadDTO } from "../../app/models/initialThreadDTO";
+import { stateToHTML } from 'draft-js-export-html';
+import { convertFromRaw} from 'draft-js';
+import { v4 as uuidv4 } from "uuid";
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   thread: Thread;
@@ -40,23 +48,66 @@ export default observer(function ThreadComponent({
   removeSecurityOfficer,
   threadId
 }: Props) {
-  const { usawcUserStore, modalStore, smeStore, securityOfficerStore } = useStore();
+  const navigate = useNavigate();
+  const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore } = useStore();
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
   const {openModal} = modalStore;
+  const {addInitialThread} = publicationStore;
   useEffect(() => {
     if (usawcUsers.length === 0 && !usawcUserloading) loadUSAWCUsers();
   }, [loadUSAWCUsers, usawcUsers, usawcUserloading]);
 
   const handleAddSMEButtonClick = () =>{
+    setSmeError(false);
     openModal(
       <SMEPicker addSME={addSME} removeSME={removeSME}  threadId={threadId} />, 'fullscreen'
     )
   }
 
   const handleAddSecurityOfficerButtonClick = () => {
+    setSecurityOfficerError(false);
     openModal(
       <SecurityOfficerPicker threadId={threadId} updateSecurityOfficerId={updateSecurityOfficerId} removeSecurityOfficer={removeSecurityOfficer} />, 'fullscreen'
     )
+  }
+  
+  const [saving, setSaving] = useState(false);
+  const [smeError, setSmeError] = useState(false);
+  const [securityOfficerError, setSecurityOfficerError] = useState(false);
+
+  const handleSendToSMEClick = async () =>{
+    if(!thread.subjectMatterExperts || thread.subjectMatterExperts.length <1 ){
+       setSmeError(true);
+       return;
+    }else{
+      setSmeError(false);
+    }
+    if(!thread.securityOfficerId){
+      setSecurityOfficerError(true);
+      return;
+   }else{
+     setSecurityOfficerError(false);
+   }
+   setSaving(true);
+   try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+     const initalThreadDTO : InitialThreadDTO = {
+      id: thread.id,
+      publicationId: thread.publicationId,
+      comments: thread.comments,
+      commentsAsHTML: stateToHTML(contentState),
+      securityOfficerId: thread.securityOfficerId,
+      subjectMatterExpertIds: thread.subjectMatterExperts.map(x => x.personId),
+      nextThreadId: uuidv4()
+     }
+     await addInitialThread(initalThreadDTO);
+     navigate(`/senttosmeconfirmation/${thread.publicationId}`);
+   }catch(error){
+    toast.error('an error occured during save')
+   }finally{
+    setSaving(false);
+   }
   }
 
   if (usawcUserloading) return <LoadingComponent content="loading data..." />;
@@ -92,7 +143,7 @@ export default observer(function ThreadComponent({
           updateThreadComments={updateThreadComments}
         />
       </div>
-      <div className="editor-container">
+      <div className={`editor-container ${smeError ? 'error-border' : ''}`}>
        <Header as="h4" className="industry">
        <Icon name="graduation cap" />
        <HeaderContent>Subject Matter Expert/s</HeaderContent>
@@ -120,9 +171,14 @@ export default observer(function ThreadComponent({
             ))}
       </CardGroup>
     }
+    {smeError && 
+     <Message negative>
+        <MessageHeader className="industry">YOU MUST CHOOSE AT LEAST ONE SME</MessageHeader>
+     </Message>
+     }
       </div>
 
-      <div className="editor-container">
+      <div className={`editor-container ${securityOfficerError ? 'error-border' : ''}`}>
           <Header as="h4" className="industry">
           <Icon name="shield" />
           <HeaderContent>Operational Security Officer II</HeaderContent>
@@ -160,7 +216,22 @@ export default observer(function ThreadComponent({
           />
           </CardGroup>
           }
+            {securityOfficerError && 
+            <Message negative>
+              <MessageHeader className="industry">YOU MUST CHOOSE A SECURITY OFFICER</MessageHeader>
+            </Message>
+           }
       </div>
+      <div className="ui clearing" style={{marginBottom: '50px'}}>
+        <Button floated="right" size='large'  icon labelPosition="left" color='brown' onClick={handleSendToSMEClick} loading={saving}>
+          <Icon name='graduation cap' />
+          <span className="industry">
+            SEND TO SME FOR REVIEW
+          </span>
+        </Button>
+      </div>
+     
     </Segment>
+    
   );
 });

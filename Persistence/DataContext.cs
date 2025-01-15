@@ -18,5 +18,10 @@ namespace Persistence
         public DbSet<PrePublication_SecurityOfficer> SecurityOfficers{ get; set; }
         public DbSet<PrePublication_Administrator> Administrators{ get; set; }
 
+        public DbSet<PrePublication_SMEThreadJunction> SMEThreadJunctions{ get; set; }
+
+
     }
+
+    
 }

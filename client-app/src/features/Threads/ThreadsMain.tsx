@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ThreadType } from "../../app/models/threadType";
 import ThreadComponent from "./ThreadComponent";
 import { SubjectMatterExpert } from "../../app/models/subjectMatterExpert";
+import { StatusType } from "../../app/models/statusType";
 
 
 export default observer(function ThreadsMain() {
@@ -39,7 +40,8 @@ export default observer(function ThreadsMain() {
         dateUpdated: null,
         publicationLink: '',
         publicationLinkName: '',
-        threads: []
+        threads: [],
+        status: StatusType.Pending
     })
 
     const [loadingMeta, setLoadingMeta] = useState(false);
@@ -72,6 +74,7 @@ export default observer(function ThreadsMain() {
             getPublicationById(id)
                 .then((publication) => {
                     if (publication) {
+                        debugger;
                         if (!publication.threads?.length) {
                             const thread: Thread = {
                                 id: uuidv4(),
@@ -83,6 +86,7 @@ export default observer(function ThreadsMain() {
                                 type: ThreadType.Author,
                                 publicationId: publication.id,
                                 subjectMatterExperts: [],
+                                commentsAsHTML: '',
                                 comments: '{"blocks":[{"key":"4gl4r","text":"I have reviewed this article. It contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":0,"length":143,"style":"ITALIC"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
                                 securityOfficerId: ''
                             };
@@ -99,7 +103,7 @@ export default observer(function ThreadsMain() {
                     console.error('Error fetching publication:', error);
                 });
         }
-    }, [id, getPublicationById, appUser]);
+    }, [id, getPublicationById, appUser, ]);
 
     useEffect(() => {
         if (usawcUsers.length === 0 && !usawcUserloading) loadUSAWCUsers();

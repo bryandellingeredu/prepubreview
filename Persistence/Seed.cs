@@ -15,37 +15,38 @@ namespace Persistence
               var usawcUsers = new List<USAWCUser>();
 
                   var query = @"
-                WITH e AS (
-                    SELECT 
-                        PersonID, 
-                        Email,
-                        CASE 
-                            WHEN Email LIKE '%@army.mil' THEN 'army'
-                            WHEN Email LIKE '%@armywarcollege.edu' THEN 'edu'
-                        END AS EmailType
-                    FROM [USAWCPersonnel].[Person].[Emails]
-                    WHERE Email LIKE '%@army.mil' OR Email LIKE '%@armywarcollege.edu'
-                )
-                SELECT 
-                    p.PersonID, 
-                    p.LastName, 
-                    p.FirstName, 
-                    p.MiddleName, 
-                    MAX(CASE WHEN e.EmailType = 'army' THEN e.Email END) AS ArmyEmail,
-                    MAX(CASE WHEN e.EmailType = 'edu' THEN e.Email END) AS EduEmail
-                FROM [USAWCPersonnel].[Person].[Person] p
-                JOIN Security.PersonRole pr ON pr.PersonID = e.PersonID
-                WHERE p.IsActive = 1 
-                    AND (p.IsDeceased IS NULL OR p.IsDeceased = 0)
-					AND pr.RoleID IN ( 1, 2, 5, 107 )
-                GROUP BY 
-                    p.PersonID, 
-                    p.LastName, 
-                    p.FirstName, 
-                    p.MiddleName
-                HAVING 
-                    MAX(CASE WHEN e.EmailType = 'army' THEN e.Email END) IS NOT NULL
-                    OR MAX(CASE WHEN e.EmailType = 'edu' THEN e.Email END) IS NOT NULL";
+               WITH e AS (
+    SELECT 
+        PersonID, 
+        Email,
+        CASE 
+            WHEN Email LIKE '%@army.mil' THEN 'army'
+            WHEN Email LIKE '%@armywarcollege.edu' THEN 'edu'
+        END AS EmailType
+    FROM [USAWCPersonnel].[Person].[Emails]
+    WHERE Email LIKE '%@army.mil' OR Email LIKE '%@armywarcollege.edu'
+)
+SELECT 
+    p.PersonID, 
+    p.LastName, 
+    p.FirstName, 
+    p.MiddleName, 
+    MAX(CASE WHEN e.EmailType = 'army' THEN e.Email END) AS ArmyEmail,
+    MAX(CASE WHEN e.EmailType = 'edu' THEN e.Email END) AS EduEmail
+FROM [USAWCPersonnel].[Person].[Person] p
+JOIN e ON p.PersonID = e.PersonID  -- ✅ Corrected join condition
+JOIN Security.PersonRole pr ON pr.PersonID = p.PersonID
+WHERE p.IsActive = 1 
+    AND (p.IsDeceased IS NULL OR p.IsDeceased = 0)
+    AND pr.RoleID IN (1, 2, 5, 107)
+GROUP BY 
+    p.PersonID, 
+    p.LastName, 
+    p.FirstName, 
+    p.MiddleName
+HAVING 
+    MAX(CASE WHEN e.EmailType = 'army' THEN e.Email END) IS NOT NULL
+    OR MAX(CASE WHEN e.EmailType = 'edu' THEN e.Email END) IS NOT NULL";
 
 
 
@@ -102,7 +103,7 @@ namespace Persistence
             // Add generated publications to the database context
             await context.Publications.AddRangeAsync(publications);
             await context.Administrators.AddAsync(new PrePublication_Administrator{ Id = new Guid(), PersonId = 351423, FirstName = "Bryan", MiddleName = "D", LastName = "Dellinger"});
-            List<PrePublication_SecurityOfficer> securityOfficers = [
+            List<PrePublication_SecurityOfficer> securityOfficers = new List<PrePublication_SecurityOfficer>{
                 new PrePublication_SecurityOfficer{PersonId = 341733, 
                 FirstName = "Danette",
                 MiddleName = null,
@@ -283,7 +284,8 @@ namespace Persistence
                 OrganizationId = 38,
                 LogicalDeleteIndicator = false
                 },
-            ];
+            };
+              await context.SecurityOfficers.AddRangeAsync(securityOfficers);
             await context.SaveChangesAsync();
         }
     }
