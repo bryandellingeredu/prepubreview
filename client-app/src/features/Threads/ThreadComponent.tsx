@@ -6,8 +6,10 @@ import {
   HeaderContent,
   HeaderSubheader,
   Icon,
+  Label,
   Message,
   MessageHeader,
+  Radio,
   Segment,
 } from "semantic-ui-react";
 import { ThreadType } from "../../app/models/threadType";
@@ -36,6 +38,7 @@ interface Props {
   updateSecurityOfficerId: (threadId: string, newSecurityOfficerId: string) => void;
   removeSecurityOfficer: (threadId: string) => void;
   threadId: string;
+  handleSetReviewStatus: (threadId: string, reviewStatus : string) => void;
 }
 
 export default observer(function ThreadComponent({
@@ -46,7 +49,8 @@ export default observer(function ThreadComponent({
   removeSME,
   updateSecurityOfficerId,
   removeSecurityOfficer,
-  threadId
+  threadId,
+  handleSetReviewStatus
 }: Props) {
   const navigate = useNavigate();
   const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore } = useStore();
@@ -110,6 +114,17 @@ export default observer(function ThreadComponent({
    }
   }
 
+  const getAssignedToName = () => {
+    const person = usawcUserStore.getUserByPersonId(thread.assignedToPersonId!)
+    if (person){
+      return person.middleName ?
+      `${person.firstName} ${person.middleName}  ${person.lastName} ` :
+      `${person.firstName} ${person.lastName} `
+    }
+  }
+
+ const setReviewStatus = (reviewStatus : string) => handleSetReviewStatus(threadId, reviewStatus)
+
   if (usawcUserloading) return <LoadingComponent content="loading data..." />;
 
   return (
@@ -120,40 +135,58 @@ export default observer(function ThreadComponent({
         textAlign="center"
         className="industry"
       >
-        {ThreadType[thread.type]} Information
+        {ThreadType[thread.type] === 'Author' ? 'Author Information' : `${ThreadType[thread.type]} Review `} 
         <Header.Subheader>
-          {new Date(thread.dateCreated).toLocaleString()}
+        {ThreadType[thread.type] !== 'Author' && <strong className="industry">ASSIGNED AT: </strong>} {new Date(thread.dateCreated).toLocaleString()}
         </Header.Subheader>
-        <Header.Subheader>{authorName}</Header.Subheader>
+        {ThreadType[thread.type] === 'Author' && 
+          <Header.Subheader>{authorName}</Header.Subheader>
+        }
+        {ThreadType[thread.type] !== 'Author' && 
+          <Header.Subheader><strong className="industry">ASSIGNED TO: </strong>{getAssignedToName()}</Header.Subheader>
+        }
       </Header>
+
+  
       <div className="editor-container">
         <Header as="h4" className="industry">
           <Icon name="comments" />
           <HeaderContent> {ThreadType[thread.type]} Comments</HeaderContent>
+          {thread.isActive && 
+          <>
           <HeaderSubheader>
             Use the rich text editor to enter comments
           </HeaderSubheader>
           <HeaderSubheader>
             Use Shift + Enter for a line break
           </HeaderSubheader>
+          </>
+         }
         </Header>
         <RichTextEditor
           content={thread.comments}
           threadId={thread.id}
           updateThreadComments={updateThreadComments}
+          disabled={!thread.isActive}
         />
       </div>
+      {ThreadType[thread.type] === "Author" && 
+      <>
       <div className={`editor-container ${smeError ? 'error-border' : ''}`}>
        <Header as="h4" className="industry">
        <Icon name="graduation cap" />
        <HeaderContent>Subject Matter Expert/s</HeaderContent>
+       {thread.isActive &&
        <HeaderSubheader>
             Choose an SME to review your publication. You may choose more than one.
         </HeaderSubheader>
+        }
        </Header>
+       {thread.isActive &&
        <div className="ui clearing" style={{marginBottom: '10px'}}>
         <Button content='Add SME' icon='plus' labelPosition='left' color='brown' onClick={handleAddSMEButtonClick} />
        </div>
+       }
        {thread.subjectMatterExperts &&
         thread.subjectMatterExperts.length > 0 &&
           <CardGroup itemsPerRow={3}>
@@ -165,7 +198,7 @@ export default observer(function ThreadComponent({
                 addSME={addSME}
                 removeSME={removeSME}
                 threadId={thread.id}
-                showRemoveButton={true}
+                showRemoveButton={thread.isActive}
                 showSelectButton={false}
             />
             ))}
@@ -182,10 +215,13 @@ export default observer(function ThreadComponent({
           <Header as="h4" className="industry">
           <Icon name="shield" />
           <HeaderContent>Operational Security Officer II</HeaderContent>
+          {thread.isActive &&
           <HeaderSubheader>
             Choose an OPSEC II Officer to review your publication. Try to choose from your organization if possible.
         </HeaderSubheader>
+         }
           </Header>
+          {thread.isActive &&
           <div className="ui clearing" style={{marginBottom: '10px'}}>
             {!thread.securityOfficerId &&
             <Button
@@ -202,13 +238,14 @@ export default observer(function ThreadComponent({
             onClick={handleAddSecurityOfficerButtonClick} />
            }   
           </div>
+          }
           {thread.securityOfficerId && 
            <CardGroup itemsPerRow={3}>
           <SecurityOfficerCard
            securityOfficer = {securityOfficerStore.getById(thread.securityOfficerId)}
            threadId={thread.id}
            showSelectButton={false}
-           showRemoveButton={true}
+           showRemoveButton={thread.isActive}
            showDeleteButton={false}
            showEditButton={false}
            updateSecurityOfficerId={updateSecurityOfficerId}
@@ -222,6 +259,7 @@ export default observer(function ThreadComponent({
             </Message>
            }
       </div>
+      {thread.isActive && 
       <div className="ui clearing" style={{marginBottom: '50px'}}>
         <Button floated="right" size='large'  icon labelPosition="left" color='brown' onClick={handleSendToSMEClick} loading={saving}>
           <Icon name='graduation cap' />
@@ -230,6 +268,37 @@ export default observer(function ThreadComponent({
           </span>
         </Button>
       </div>
+      }
+      </>
+      }
+    
+    {ThreadType[thread.type] !== "Author" && 
+     <Segment compact style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+      {/* Label */}
+      <Label basic color='black' size='large'><span className="industry" >
+      <Icon name='check' />
+        PUBLICATION REVIEW: </span>
+      </Label>
+
+      {/* I Accept Radio Button */}
+      <Radio
+        label="I have reviewed and recommend release"
+        name={`terms-${thread.id}`}
+        value="accept"
+        checked={thread.reviewStatus === "accept"}
+        onChange={() => setReviewStatus("accept")}
+      />
+
+      {/* I Decline Radio Button */}
+      <Radio
+        label="I have reviewed and DO NOT recommend release (Please update comments if choosing this option)"
+        name={`terms-${thread.id}`}
+        value="decline"
+        checked={thread.reviewStatus === "decline"}
+        onChange={() => setReviewStatus("decline")}
+      />
+    </Segment>
+    }
      
     </Segment>
     

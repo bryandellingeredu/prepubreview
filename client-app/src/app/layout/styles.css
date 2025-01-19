@@ -59,28 +59,48 @@ body{
     width: 100%; /* Ensure it spans the full width */
   }
 
-  /* Wrapper around the entire editor component */
+/* Wrapper around the entire editor component */
 .editor-container {
-    border: 2px solid #ccc; /* Outer border for the editor */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px; /* Padding inside the border */
-    background-color: #f9f9f9; /* Light background color */
-    margin: 20px 0; /* Margin for spacing */
-  }
-  
-  /* Styling for the typing area */
-  .editor-content {
-    background-color: white; /* White background for typing */
-    padding: 10px; /* Inner padding for content */
-    min-height: 200px; /* Minimum height for typing area */
-    border: 1px solid #ddd; /* Inner border around the typing area */
-    border-radius: 4px; /* Rounded corners for the typing area */
-  }
-  
-  /* Styling for the toolbar */
-  .editor-toolbar {
-    margin-bottom: 10px; /* Space between toolbar and typing area */
-  }
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  margin: 20px 0;
+}
+
+/* Disabled state for the wrapper */
+.editor-container.disabled {
+  background-color: #e9ecef; 
+  border-color: #bbb;
+  pointer-events: none; /* Prevent interaction */
+  opacity: 1.0;
+}
+
+/* Styling for the typing area */
+.editor-content {
+  background-color: white;
+  padding: 10px;
+  min-height: 50px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Disabled state for the typing area (without changing text color) */
+.editor-content.disabled {
+  background-color: #f1f3f5;
+  border-color: #ccc;
+  pointer-events: none;
+}
+
+/* Styling for the toolbar */
+.editor-toolbar {
+  margin-bottom: 10px;
+}
+
+/* Hide toolbar when disabled */
+.editor-toolbar.disabled {
+  display: none;
+}
 
   .error-border {
     border: 2px solid red;

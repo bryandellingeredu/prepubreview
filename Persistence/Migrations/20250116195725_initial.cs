@@ -116,10 +116,13 @@ namespace Persistence.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedByPersonId = table.Column<int>(type: "int", nullable: false),
                     UpdatedByPersonId = table.Column<int>(type: "int", nullable: true),
+                    AssignedToPersonId = table.Column<int>(type: "int", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DateUpdated = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Comments = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CommentsAsHTML = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PublicationReview = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReviewStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SecurityOfficerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)

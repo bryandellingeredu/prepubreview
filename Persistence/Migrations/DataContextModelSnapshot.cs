@@ -208,6 +208,9 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("AssignedToPersonId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
 
@@ -228,6 +231,12 @@ namespace Persistence.Migrations
 
                     b.Property<Guid?>("PublicationId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PublicationReview")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReviewStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("SecurityOfficerId")
                         .HasColumnType("uniqueidentifier");

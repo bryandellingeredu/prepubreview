@@ -26,10 +26,13 @@ namespace Application.Threads
                 _userService = userService;
             }
 
-     public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken){
+   public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+{
     try
     {
-         TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+        // Set the time zone to Eastern Standard Time
+        TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+
         // Get the submitter's details
         var submitter = await _userService.GetUserByEmailAsync(request.Email);
         if (submitter == null) return Result<Unit>.Failure("Submitter not found");
@@ -53,47 +56,66 @@ namespace Application.Threads
             .Where(x => request.InitialThreadDTO.SubjectMatterExpertIds.Contains(x.PersonId))
             .ToListAsync();
 
+        // Prepare lists for new SMEs and junctions
         var newSMEs = new List<PrePublication_SubjectMatterExpert>();
         var junctions = new List<PrePublication_SMEThreadJunction>();
 
+        // Iterate through each SME ID from the request
         foreach (var smeId in request.InitialThreadDTO.SubjectMatterExpertIds)
         {
+            // Check if the SME already exists
             var sme = existingSMEs.FirstOrDefault(x => x.PersonId == smeId);
+
+            // If the SME does not exist, create a new SME
+            PrePublication_SubjectMatterExpert newSme = null;
             if (sme == null)
             {
-                var newSme = new PrePublication_SubjectMatterExpert
+                newSme = new PrePublication_SubjectMatterExpert
                 {
                     Id = Guid.NewGuid(),
                     PersonId = smeId
                 };
                 newSMEs.Add(newSme);
 
+                // Create a junction for the new SME and the initial thread
                 junctions.Add(new PrePublication_SMEThreadJunction
                 {
                     SubjectMatterExpertId = newSme.Id,
                     ThreadId = request.InitialThreadDTO.Id
-                });
-
-                junctions.Add(new PrePublication_SMEThreadJunction
-                {
-                    SubjectMatterExpertId = newSme.Id,
-                    ThreadId = request.InitialThreadDTO.NextThreadId
                 });
             }
             else
             {
+                // Create a junction for the existing SME and the initial thread
                 junctions.Add(new PrePublication_SMEThreadJunction
                 {
                     SubjectMatterExpertId = sme.Id,
                     ThreadId = request.InitialThreadDTO.Id
                 });
-
-                junctions.Add(new PrePublication_SMEThreadJunction
-                {
-                    SubjectMatterExpertId = sme.Id,
-                    ThreadId = request.InitialThreadDTO.NextThreadId
-                });
             }
+
+            // Create a new thread for the SME (regardless of whether the SME is new or existing)
+            var smeThread = new PrePublication_Thread
+            {
+                Id = Guid.NewGuid(),
+                Comments =  "{\"blocks\":[{\"key\":\"4gl4r\",\"text\":\"I have reviewed this article. It contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":0,\"length\":143,\"style\":\"ITALIC\"}],\"entityRanges\":[],\"data\":{}}],\"entityMap\":{}}",
+                SecurityOfficerId = request.InitialThreadDTO.SecurityOfficerId,
+                CreatedByPersonId = submitter.PersonId,
+                DateCreated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone),
+                IsActive = true,
+                Type = ThreadType.SME,
+                PublicationId = publication.Id,
+                AssignedToPersonId = smeId,
+                ReviewStatus = string.Empty
+            };
+            _context.Threads.Add(smeThread);
+
+            // Create a junction for the new SME thread
+            junctions.Add(new PrePublication_SMEThreadJunction
+            {
+                SubjectMatterExpertId = sme?.Id ?? newSme.Id,
+                ThreadId = smeThread.Id
+            });
         }
 
         // Add new SMEs and junctions to the context
@@ -108,34 +130,21 @@ namespace Application.Threads
         {
             Id = request.InitialThreadDTO.Id,
             Comments = request.InitialThreadDTO.Comments,
+            CommentsAsHTML = request.InitialThreadDTO.CommentsAsHTML,
             SecurityOfficerId = request.InitialThreadDTO.SecurityOfficerId,
             CreatedByPersonId = submitter.PersonId,
             DateCreated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone),
             IsActive = false,
             Type = ThreadType.Author,
-            PublicationId = publication.Id
+            PublicationId = publication.Id,
+            AssignedToPersonId = publication.CreatedByPersonId,
+            ReviewStatus = string.Empty
         };
-
-        // Create the next thread
-        var nextThread = new PrePublication_Thread
-        {
-            Id = request.InitialThreadDTO.NextThreadId,
-            Comments = string.Empty,
-            SecurityOfficerId = request.InitialThreadDTO.SecurityOfficerId,
-            CreatedByPersonId = submitter.PersonId,
-            DateCreated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone),
-            IsActive = true,
-            Type = ThreadType.SME,
-            PublicationId = publication.Id
-        };
+        _context.Threads.Add(initialThread);
 
         // Update publication status
         publication.Status = StatusType.SentToSMEForReview;
         _context.Publications.Update(publication);
-
-        // Add the threads to the context
-        _context.Threads.Add(initialThread);
-        _context.Threads.Add(nextThread);
 
         // Save changes
         var result = await _context.SaveChangesAsync();
@@ -148,6 +157,7 @@ namespace Application.Threads
         return Result<Unit>.Failure("Concurrency error: " + ex.Message);
     }
 }
+
 
 
         }

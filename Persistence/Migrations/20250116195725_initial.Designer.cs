@@ -12,7 +12,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250114233117_initial")]
+    [Migration("20250116195725_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -211,6 +211,9 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("AssignedToPersonId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Comments")
                         .HasColumnType("nvarchar(max)");
 
@@ -231,6 +234,12 @@ namespace Persistence.Migrations
 
                     b.Property<Guid?>("PublicationId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PublicationReview")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReviewStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("SecurityOfficerId")
                         .HasColumnType("uniqueidentifier");

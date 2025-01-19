@@ -45,6 +45,7 @@ namespace Application.Publications
                     Threads = p.Threads.Select(t => new PrePublication_Thread
                     {
                         Id = t.Id,
+                        ReviewStatus = t.ReviewStatus,
                         PublicationId = t.PublicationId,
                         Comments = t.Comments,
                         IsActive = t.IsActive,
@@ -54,6 +55,7 @@ namespace Application.Publications
                         UpdatedByPersonId = t.UpdatedByPersonId,
                         SecurityOfficerId = t.SecurityOfficerId,
                         Type = t.Type,
+                        AssignedToPersonId = t.AssignedToPersonId,
                        SubjectMatterExperts = t.SMEThreadJunctions.Select(j => new PrePublication_SubjectMatterExpert
                         {
                         Id = j.SubjectMatterExpert.Id,

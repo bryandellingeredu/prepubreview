@@ -88,7 +88,9 @@ export default observer(function ThreadsMain() {
                                 subjectMatterExperts: [],
                                 commentsAsHTML: '',
                                 comments: '{"blocks":[{"key":"4gl4r","text":"I have reviewed this article. It contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":0,"length":143,"style":"ITALIC"}],"entityRanges":[],"data":{}}],"entityMap":{}}',
-                                securityOfficerId: ''
+                                securityOfficerId: '',
+                                assignedToPersonId: appUser.personId,
+                                reviewStatus: ''
                             };
                             publication.threads = [thread];
                         }
@@ -143,8 +145,24 @@ export default observer(function ThreadsMain() {
         window.open(url, "_blank", "noopener,noreferrer");
     }
 
+    const handleSetReviewStatus = (threadId: string, reviewStatus: string) =>{
+        setPublication((prev) => {
+            if (!prev.threads) {
+              console.error("Threads are null.");
+              toast.error('threads are null');
+              return prev; // Return unchanged if threads are null
+            }
+            return {
+              ...prev,
+              threads: prev.threads.map((thread) =>
+                thread.id === threadId ? { ...thread, reviewStatus: reviewStatus } : thread
+              ),
+            };
+          });
+        };
+    
+
     const updateThreadComments = (threadId: string, newComments: string) => {
-        console.log(newComments);
         setPublication((prev) => {
           if (!prev.threads) {
             console.error("Threads are null.");
@@ -235,6 +253,11 @@ export default observer(function ThreadsMain() {
         });
     };
 
+    const getStatus = () => {
+        if (StatusType[publication.status] === 'SentToSMEForReview') return 'Waiting for SME Review';
+        return StatusType[publication.status];
+    }
+
 
     if(!id || publicationloading || usawcUserloading || loadingMeta || userSubjectLoading || securityOfficerLoading) return <LoadingComponent content="loading data..."/>
 
@@ -277,7 +300,7 @@ export default observer(function ThreadsMain() {
                      }
                  </Segment>
                  
-                 <Segment style={{ display: 'flex', alignItems: 'center' }}><strong className="industry">STATUS: &nbsp; </strong> Pending</Segment>
+                 <Segment style={{ display: 'flex', alignItems: 'center' }}><strong className="industry">STATUS: &nbsp; </strong> {getStatus()}</Segment>
 
 
                 <Segment style={{ display: 'flex', alignItems: 'center' }}>
@@ -292,7 +315,16 @@ export default observer(function ThreadsMain() {
             </SegmentGroup>
 
             <SegmentGroup>
-                    {(publication.threads || []).map((thread) => (
+                    {(publication.threads || [])
+                    .sort((a, b) => {
+                        // Sort by isActive first (active threads come first)
+                        if (a.isActive !== b.isActive) {
+                          return a.isActive ? -1 : 1;
+                        }
+                        // Then sort by dateCreated (most recent first)
+                        return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
+                      })
+                    .map((thread) => (
                        <ThreadComponent
                         key={thread.id}
                         thread={thread}
@@ -303,6 +335,7 @@ export default observer(function ThreadsMain() {
                         removeSecurityOfficer={removeSecurityOfficer}
                         removeSME={removeSME}
                         threadId={thread.id}
+                        handleSetReviewStatus={handleSetReviewStatus}
                         />
                      ))}
                      {(!publication.threads || publication.threads.length === 0) && (

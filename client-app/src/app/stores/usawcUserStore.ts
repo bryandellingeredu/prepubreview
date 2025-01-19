@@ -23,7 +23,16 @@ export default class USAWCUserStore{
             });
          }
 
-         getUserByPersonId = (personId: number) : AppUser => this.usawcUserRegistry.get(personId)!
+         getUserByPersonId = (personId: number) : AppUser | undefined => {
+            if(personId){
+            const result = this.usawcUserRegistry.get(personId)
+            if (result) return result;
+            toast.error('person not found');
+            }else{
+                toast.error('personid not provided')
+                return undefined;
+            }
+         } 
 
          loadUSAWCUsers = async () => {
             this.setUSAWCUserLoading(true);

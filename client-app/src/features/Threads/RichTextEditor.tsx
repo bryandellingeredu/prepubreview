@@ -7,12 +7,14 @@ interface Props {
   content: string;
   updateThreadComments: (threadId: string, newComments: string) => void;
   threadId: string;
+  disabled: boolean
 }
 
 export default function RichTextEditor({
   content,
   updateThreadComments,
   threadId,
+  disabled
 }: Props) {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
@@ -74,21 +76,26 @@ export default function RichTextEditor({
       editorState={editorState}
       onEditorStateChange={handleEditorChange}
       handlePastedText={handlePastedText}
-      wrapperClassName="wrapper-class"
-      editorClassName="unique-editor-class"
-      toolbarClassName="toolbar-class"
-      toolbar={{
-        options: [
-          "inline",
-          "blockType",
-          "fontSize",
-          "list",
-          "textAlign",
-          "colorPicker",
-          "link",
-          "history",
-        ],
-      }}
+      wrapperClassName={`editor-container ${disabled ? "disabled" : ""}`}
+      editorClassName={`editor-content ${disabled ? "disabled" : ""}`}
+      toolbarClassName={`editor-toolbar ${disabled ? "disabled" : ""}`}
+      readOnly={disabled}
+      toolbar={
+        disabled
+          ? { options: [] } // Disable the toolbar when disabled is true
+          : {
+              options: [
+                "inline",
+                "blockType",
+                "fontSize",
+                "list",
+                "textAlign",
+                "colorPicker",
+                "link",
+                "history",
+              ],
+            }
+      }
     />
   );
 }

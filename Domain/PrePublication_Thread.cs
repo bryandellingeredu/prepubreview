@@ -14,10 +14,13 @@ namespace Domain
     public bool IsActive { get; set; }
     public int CreatedByPersonId { get; set; }
     public int? UpdatedByPersonId { get; set; }
+    public int? AssignedToPersonId {get; set;}
     public DateTime DateCreated { get; set; }
     public DateTime? DateUpdated { get; set; }
     public string Comments { get; set; }
     public string CommentsAsHTML { get; set; }
+    public string PublicationReview {get; set;}
+    public string ReviewStatus {get; set;}
     public ThreadType Type { get; set; }
 
     public Guid? PublicationId { get; set; }
