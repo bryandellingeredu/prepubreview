@@ -194,7 +194,7 @@ namespace Application.Threads
                         body.Append($"<p> <strong> Assigned To: </strong> {assignedToPerson.FirstName} {assignedToPerson.LastName}</p>");
                         body.Append($"<p> <strong> Publication Title: </strong> {publication.Title} </p>");
                         body.Append($"<p> <strong> Author: </strong> {author.FirstName} {author.LastName} </p>");
-                        if(string.IsNullOrEmpty(publication.PublicationLink)){
+                        if(!string.IsNullOrEmpty(publication.PublicationLink)){
                             string publicationLinkName = "Link To Publication";
                             if (publication.PublicationLinkName != null){
                                 publicationLinkName = publication.PublicationLinkName;
