@@ -4,23 +4,31 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Drives.Item.Items.Item.CreateUploadSession;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+
 
 namespace Application.GraphHelper
 {
     public class GraphHelperService : IGraphHelperService
     {
+        private readonly IHostEnvironment _hostEnvironment;
         private readonly IConfiguration _config;
         private readonly GraphServiceClient _appClient;
         private readonly string driveId;
+        private readonly string serviceAccount;
+        private readonly string[] developerEmails;
 
-        public GraphHelperService(IConfiguration config)
+        public GraphHelperService(IConfiguration config, IHostEnvironment hostEnvironment)
         {
+            _hostEnvironment = hostEnvironment;
             _config = config;
             driveId =  _config["GraphHelper:driveId"];
-            var tenantId = _config["GraphHelper:TenantId"];
-            var clientId = _config["GraphHelper:ClientId"];
-            var clientSecret = _config["GraphHelper:ClientSecret"];
-
+            var tenantId = _config["GraphHelper:tenantId"];
+            var clientId = _config["GraphHelper:clientId"];
+            var clientSecret = _config["GraphHelper:clientSecret"];
+            serviceAccount =_config["GraphHelper:serviceAccount"];
+            developerEmails = [_config["GraphHelper:developerEdu"], _config["GraphHelper:developerArmy"]];
             if (string.IsNullOrEmpty(tenantId) || string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
             {
                 throw new InvalidOperationException("Graph configuration is missing.");
@@ -92,7 +100,74 @@ namespace Application.GraphHelper
     }
 }
 
-     public async Task<string> UploadFile(IFormFile file)
+        public async Task SendEmailWithoutAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients)
+        {
+            // Create the ToRecipients list
+            var toRecipients = recipients.Select(email => new Recipient
+            {
+                EmailAddress = new EmailAddress { Address = email }
+            }).ToList();
+
+            // Override recipients if in Development
+            if (_hostEnvironment.IsDevelopment())
+            {
+                toRecipients = developerEmails.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+            // Create the CC list only if NOT in Development
+            List<Recipient> ccRecipients = null;
+            if (!_hostEnvironment.IsDevelopment() && carbonCopyRecipients != null)
+            {
+                ccRecipients = carbonCopyRecipients.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+            // Create the email message
+            var message = new Message
+            {
+                Subject = title,
+                Body = new ItemBody
+                {
+                    ContentType = BodyType.Html,
+                    Content = body
+                },
+                ToRecipients = toRecipients
+            };
+
+            if (!_hostEnvironment.IsDevelopment() && carbonCopyRecipients != null)
+            {
+                message.CcRecipients = carbonCopyRecipients.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+            var mailbody = new Microsoft.Graph.Users.Item.SendMail.SendMailPostRequestBody
+            {
+                Message = message,
+                SaveToSentItems = false
+            };
+
+            try
+            {
+                // Send the email
+                await _appClient.Users[serviceAccount]
+                    .SendMail
+                    .PostAsync(mailbody);
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception as needed
+                throw;
+            }
+        }
+
+        public async Task<string> UploadFile(IFormFile file)
 {
     try
     {

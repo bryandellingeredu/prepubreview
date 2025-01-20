@@ -14,5 +14,6 @@ namespace Application.GraphHelper
         Task<string> UploadFile(IFormFile file);
         Task<Byte[]> DownloadFile(string itemId);
         Task DeleteFile(string itemId);
+        Task SendEmailWithoutAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients);
     }
 }

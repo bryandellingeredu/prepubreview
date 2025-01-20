@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Domain;
 using Application.Repository;
 using System.Data.Common;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Application.GraphHelper;
 
 namespace Application.Threads
 {
@@ -19,11 +22,23 @@ namespace Application.Threads
         {
             private readonly DataContext _context;
             private readonly IUSAWCUserService _userService;
+            private readonly IConfiguration _config;
+            
+            private readonly IGraphHelperService _graphHelper;
 
-            public Handler(DataContext context, IUSAWCUserService userService)
+             
+
+            public Handler(
+                DataContext context,
+                IUSAWCUserService userService,
+                IConfiguration config,
+                IGraphHelperService graphHelper
+                )   
             {
                 _context = context;
                 _userService = userService;
+                _config = config; 
+                _graphHelper = graphHelper;  
             }
 
    public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
@@ -150,6 +165,8 @@ namespace Application.Threads
         var result = await _context.SaveChangesAsync();
         if (result == 0) return Result<Unit>.Failure("Failed to save threads");
 
+        await SendEmail(publication, request.InitialThreadDTO.CommentsAsHTML);
+
         return Result<Unit>.Success(Unit.Value);
     }
     catch (DbUpdateConcurrencyException ex)
@@ -158,8 +175,54 @@ namespace Application.Threads
     }
 }
 
+            private async Task SendEmail(PrePublication_Publication publication, string comments)
+            {
+                var threads = await _context.Threads
+                .Where(thread => thread.PublicationId == publication.Id)
+                .Where(thread =>  thread.Type == ThreadType.SME)
+                .ToListAsync();
 
-
+                foreach (var thread in threads)
+                {
+                    if(thread.AssignedToPersonId != null){
+                        var assignedToPerson =  await _userService.GetUserByPersonIdAsync(thread.AssignedToPersonId.Value);
+                        var author = await _userService.GetUserByPersonIdAsync(publication.AuthorPersonId);
+                        var creator = await _userService.GetUserByPersonIdAsync(publication.CreatedByPersonId);
+                        string title = $"A Subject Matter Expert review has been assigned for {publication.Title}";
+                        StringBuilder body = new StringBuilder();
+                        body.Append($"<h1> A Subject Matter Expert review has been assigned for {publication.Title} </h1>");
+                        body.Append($"<p> <strong> Assigned To: </strong> {assignedToPerson.FirstName} {assignedToPerson.LastName}</p>");
+                        body.Append($"<p> <strong> Publication Title: </strong> {publication.Title} </p>");
+                        body.Append($"<p> <strong> Author: </strong> {author.FirstName} {author.LastName} </p>");
+                        if(string.IsNullOrEmpty(publication.PublicationLink)){
+                            string publicationLinkName = "Link To Publication";
+                            if (publication.PublicationLinkName != null){
+                                publicationLinkName = publication.PublicationLinkName;
+                            }
+                              body.Append($"<p> <strong> Link To Publication: </strong> <a href='${publication.PublicationLink}'>${publicationLinkName} </p>");
+                        }else{
+                           body.Append("<p>The publication has been attached</p>");
+                        }
+                        body.Append("<h4> Author's Comment's");
+                        body.Append(comments);
+                        string baseUrl =    _config["AppDetails:baseUrl"];
+                        body.Append($"<p> <a href='{baseUrl}/threads/{publication.Id}'> Complete your SME review <a/> </p>");
+                        List<string> recipients = new List<string>();   
+                        if(!string.IsNullOrEmpty(assignedToPerson.EduEmail)) recipients.Add(assignedToPerson.EduEmail);
+                        if(!string.IsNullOrEmpty(assignedToPerson.ArmyEmail)) recipients.Add(assignedToPerson.ArmyEmail);
+                        List<string> carbonCopyRecipients = new List<string>();   
+                        if(!string.IsNullOrEmpty(creator.EduEmail)) carbonCopyRecipients.Add(creator.EduEmail);
+                        if(!string.IsNullOrEmpty(creator.ArmyEmail)) carbonCopyRecipients.Add(creator.ArmyEmail);
+                        if(creator.PersonId != author.PersonId){
+                              if(!string.IsNullOrEmpty(author.EduEmail)) carbonCopyRecipients.Add(author.EduEmail);
+                              if(!string.IsNullOrEmpty(author.ArmyEmail)) carbonCopyRecipients.Add(author.ArmyEmail);
+                        }
+                        if(!string.IsNullOrEmpty(publication.PublicationLink)){
+                          await _graphHelper.SendEmailWithoutAttachmentAsync(title, body.ToString(), recipients.ToArray(), carbonCopyRecipients.ToArray());
+                        }
+                    }
+                }    
+            }
         }
     }
 }
