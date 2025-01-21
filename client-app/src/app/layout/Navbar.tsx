@@ -9,10 +9,12 @@ export default observer(function Navbar(){
       const { userStore } = useStore();
       const navigate = useNavigate();
 
+    
+
       useEffect(() => {
         if (!userStore.loadingUser && userStore.appLoaded) {
             if (!userStore.appUser) {
-                userStore.setRedirectPath(location.pathname);
+              userStore.logout(); 
                 navigate("/"); // Redirect only when user loading is complete and no user is found
             }
         }

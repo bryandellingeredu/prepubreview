@@ -102,7 +102,6 @@ export default class PublicationStore{
     }
 
     addInitialThread = async(initialThreadDTO : InitialThreadDTO) => {
-        debugger;
         try{
           await agent.Threads.addInitialThread(initialThreadDTO);
           let publication = this.publicationRegistry.get(initialThreadDTO.publicationId);

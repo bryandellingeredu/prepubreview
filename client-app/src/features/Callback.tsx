@@ -13,30 +13,25 @@ export default function CallbackPage() {
     useEffect(() => {
         const handleLoginCallback = async () => {
             try {
+                // Handle the login callback (e.g., exchange token, set user)
                 await userStore.handleCallback();
-
-                // Check for redirectPath in userStore or localStorage
-                const redirectPath = userStore.redirectPath || localStorage.getItem('redirectPath');
-                if (redirectPath) {
-                    userStore.clearRedirectPath(); // Clear the redirect path after use
-                    navigate(redirectPath); // Redirect to the intended path
-                } else {
-                    navigate('/publicationsmain'); // Default redirect if no path is set
-                }
+                    navigate('/publicationsmain');  
             } catch (err: unknown) {
                 setLoading(false);
-                // Safely parse the error to extract the message
+                // Handle errors during the callback process
                 if (err instanceof Error) {
                     setError(err.message);
                 } else {
                     setError('An unknown error occurred.');
                 }
                 console.error('Error during callback handling:', err);
+            } finally {
+                setLoading(false);
             }
         };
 
         handleLoginCallback();
-    }, []); // No unnecessary dependencies
+    }, [userStore, navigate]);
 
     if (loading) return <LoadingComponent content="Logging In..." />;
 

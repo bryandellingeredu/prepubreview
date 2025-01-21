@@ -48,6 +48,14 @@ export default observer(function PublicationsMain() {
     };
 
     useEffect(() => {
+        const redirectPath = localStorage.getItem("redirectToPath");
+        if (redirectPath) {
+          localStorage.removeItem("redirectToPath"); // Clear it from local storage
+          navigate(`/${redirectPath}`); // Navigate to the stored path
+        }
+      }, [navigate]);
+
+    useEffect(() => {
         return () => {
             debouncedSearch.cancel();
         };

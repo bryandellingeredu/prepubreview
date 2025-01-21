@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 
 export default class UserStore {
     token: string | null = localStorage.getItem('jwtpub');
-    redirectPath: string | null = localStorage.getItem('redirectPath')
     userManager: UserManager;
     refreshTokenTimeout?: ReturnType<typeof setTimeout>;
     appUser: AppUser | null = null;
@@ -50,16 +49,6 @@ export default class UserStore {
             
         );
 
-        reaction(
-            () => this.redirectPath, // React to changes in the redirectPath
-            (path) => {
-                if (path) {
-                    window.localStorage.setItem('redirectPath', path); // Save the redirect path in localStorage
-                } else {
-                    window.localStorage.removeItem('redirectPath'); // Remove the redirect path if it is null
-                }
-            }
-        );
     
 
         // Load token from local storage if available
@@ -76,9 +65,7 @@ export default class UserStore {
     logout = () => {
         this.token = null; // Clear the token
         this.appUser = null; // Clear the user
-        this.clearRedirectPath(); // Clear the redirect path
         window.localStorage.removeItem('jwtpub'); // Remove token from local storage
-        window.localStorage.removeItem('redirectPath'); // Remove redirect path from local storage
         this.stopRefreshTokenTimer(); // Stop any ongoing refresh token timers
     };
 
@@ -224,13 +211,5 @@ export default class UserStore {
         } finally {
             runInAction(() => this.setLoadingUser(false));
         }
-    };
-
-    setRedirectPath = (path: string) => {
-        this.redirectPath = path;
-    };
-
-    clearRedirectPath = () => {
-        this.redirectPath = null;
     };
 }

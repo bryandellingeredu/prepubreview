@@ -74,7 +74,6 @@ export default observer(function ThreadsMain() {
             getPublicationById(id)
                 .then((publication) => {
                     if (publication) {
-                        debugger;
                         if (!publication.threads?.length) {
                             const thread: Thread = {
                                 id: uuidv4(),
@@ -141,7 +140,6 @@ export default observer(function ThreadsMain() {
 
     const handleLinkClick = () => {
         const url = publication.publicationLink
-        debugger;
         window.open(url, "_blank", "noopener,noreferrer");
     }
 

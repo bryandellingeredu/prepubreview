@@ -100,6 +100,102 @@ namespace Application.GraphHelper
     }
 }
 
+        public async Task SendEmailWithAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients,
+            string fileName, string fileType, string itemId)
+        {
+             if (string.IsNullOrEmpty(driveId) || string.IsNullOrEmpty(itemId))
+            {
+                throw new ArgumentException("Drive ID and Item ID cannot be null or empty.");
+            }
+
+            var toRecipients = recipients.Select(email => new Recipient
+            {
+                EmailAddress = new EmailAddress { Address = email }
+            }).ToList();
+
+            if (_hostEnvironment.IsDevelopment())
+            {
+                toRecipients = developerEmails.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+              // Create the CC list only if NOT in Development
+            List<Recipient> ccRecipients = null;
+            if (!_hostEnvironment.IsDevelopment() && carbonCopyRecipients != null)
+            {
+                ccRecipients = carbonCopyRecipients.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+                 // Create the email message
+            var message = new Message
+            {
+                Subject = title,
+                Body = new ItemBody
+                {
+                    ContentType = BodyType.Html,
+                    Content = body
+                },
+                ToRecipients = toRecipients
+            };
+
+            if (!_hostEnvironment.IsDevelopment() && carbonCopyRecipients != null)
+            {
+                message.CcRecipients = carbonCopyRecipients.Select(email => new Recipient
+                {
+                    EmailAddress = new EmailAddress { Address = email }
+                }).ToList();
+            }
+
+
+               // Get the file content as a stream from the DriveItem
+            using (var stream = await _appClient
+            .Drives[driveId]
+            .Items[itemId]
+            .Content
+            .GetAsync())
+            {
+                // Read the stream into a byte array
+                message.Attachments ??= new List<Attachment>();
+                using (var memoryStream = new MemoryStream())
+                 {
+                    await stream.CopyToAsync(memoryStream);
+                    byte[] contentBytes = memoryStream.ToArray();
+                    var fileAttachment = new FileAttachment
+                    {
+                        // ODataType might not be necessary depending on your Graph SDK version
+                        ContentBytes = contentBytes,
+                        ContentType = fileType,
+                        Name = fileName
+                    };
+                    message.Attachments.Add(fileAttachment);
+
+                    Microsoft.Graph.Users.Item.SendMail.SendMailPostRequestBody mailbody = new()
+                    {
+                        Message = message,
+                        SaveToSentItems = false
+                    };
+                     try
+                     {
+                     // Send the email
+                        await _appClient.Users[serviceAccount]
+                        .SendMail
+                        .PostAsync(mailbody);
+                    }
+                    catch (Exception ex)
+                    {
+                    // Handle the exception as needed
+                    throw;
+                    }
+                 }
+            }
+
+        }
+
         public async Task SendEmailWithoutAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients)
         {
             // Create the ToRecipients list

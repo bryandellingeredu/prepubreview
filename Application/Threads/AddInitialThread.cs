@@ -199,14 +199,14 @@ namespace Application.Threads
                             if (publication.PublicationLinkName != null){
                                 publicationLinkName = publication.PublicationLinkName;
                             }
-                              body.Append($"<p> <strong> Link To Publication: </strong> <a href='${publication.PublicationLink}'>${publicationLinkName} </p>");
+                              body.Append($"<p> <strong> Link To Publication: </strong> <a href='{publication.PublicationLink}'>{publicationLinkName}</a></p>");
                         }else{
                            body.Append("<p>The publication has been attached</p>");
                         }
                         body.Append("<h4> Author's Comment's");
                         body.Append(comments);
                         string baseUrl =    _config["AppDetails:baseUrl"];
-                        body.Append($"<p> <a href='{baseUrl}/threads/{publication.Id}'> Complete your SME review <a/> </p>");
+                        body.Append($"<p> <a href='{baseUrl}?redirecttopath=threads/{publication.Id}'> Complete your SME review <a/> </p>");
                         List<string> recipients = new List<string>();   
                         if(!string.IsNullOrEmpty(assignedToPerson.EduEmail)) recipients.Add(assignedToPerson.EduEmail);
                         if(!string.IsNullOrEmpty(assignedToPerson.ArmyEmail)) recipients.Add(assignedToPerson.ArmyEmail);
@@ -220,6 +220,18 @@ namespace Application.Threads
                         if(!string.IsNullOrEmpty(publication.PublicationLink)){
                           await _graphHelper.SendEmailWithoutAttachmentAsync(title, body.ToString(), recipients.ToArray(), carbonCopyRecipients.ToArray());
                         }
+                        else
+                        {
+                          var attachmentMeta = _context.AttachmentMetaDatas.FirstOrDefault(x => x.LookupId == publication.Id);
+                          var attachment = _context.Attachments.FirstOrDefault(x => x.Id == attachmentMeta.AttachmentLookupId);
+                          if(attachment != null) {
+                                await _graphHelper.SendEmailWithAttachmentAsync(
+                                   title, body.ToString(), recipients.ToArray(), carbonCopyRecipients.ToArray(),
+                                   attachmentMeta.FileName, attachmentMeta.FileType, attachment.ItemId);
+                            }
+                        }
+
+                        
                     }
                 }    
             }
