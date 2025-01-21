@@ -18,5 +18,13 @@ namespace API.Controllers
            return   HandleResult(await Mediator.Send(
                 new AddUpdateInitialThread.Command { InitialThreadDTO = initialThreadDTO, Email = email }));
         }
+
+        [AuthorizeUSAWCEmail]
+        [HttpPost("addSMEReviewThread")]
+        public async Task<IActionResult> addSMEReviewThread([FromBody] SMEReviewThreadDTO smeReviewThreadDTO){
+            var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+           return   HandleResult(await Mediator.Send(
+                new AddSMEReviewThread.Command { smeReviewThreadDTO = smeReviewThreadDTO, Email = email }));
+        }
     }
 }

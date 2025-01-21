@@ -6,7 +6,9 @@ namespace Domain
     {
         Author,
         SME,
-        OPSEC
+        OPSEC,
+        AuthorRevisionForSME,
+        AuthorRevisionForOPSEC, 
     }
     public class PrePublication_Thread
 {

@@ -117,6 +117,22 @@ export default class PublicationStore{
         }
     }
 
+    addSMEReviewThread = async( threadId: string, comments: string, commentsAsHTML: string, reviewStatus: string, publicationId: string) =>{
+     try{
+        await agent.Threads.addSMEReviewThread(threadId, comments, commentsAsHTML, reviewStatus);
+        let publication = this.publicationRegistry.get(publicationId);
+        if(publication){
+            const updatedPublication = await agent.Publications.details(publicationId)
+            runInAction(() => {
+                this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+          }
+        }catch(error){
+            console.error("Error adding initial thread:", error);
+            toast.error('Error adding initial thread');
+        }
+    }
+
     resetPublications = () => {
         this.publicationRegistry.clear();
         this.offset = 0;

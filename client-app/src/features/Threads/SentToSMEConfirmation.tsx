@@ -13,6 +13,7 @@ export default function SentToSMEConfirmation() {
           <Message.Header className='industry'>Your Publication Has Been Sent!</Message.Header>
           Your publication has been sent to your Subject Matter Expert(s) for review.
           <p>They will review your submission and get back to you shortly.</p>
+          <p><i>Check your junk and spam email folder just in case.</i></p>
         </Message.Content>
       </Message>
 

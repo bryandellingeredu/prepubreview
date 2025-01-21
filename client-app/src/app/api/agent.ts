@@ -81,7 +81,9 @@ axios.interceptors.request.use((config) => {
   }
 
   const Threads ={
-    addInitialThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitial', initalThreadDTO )
+    addInitialThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitial', initalThreadDTO ),
+    addSMEReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addSMEReviewThread', {threadId, comments, commentsAsHTML, reviewStatus})
+
   }
 
 

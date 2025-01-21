@@ -125,6 +125,32 @@ export default observer(function ThreadComponent({
 
  const setReviewStatus = (reviewStatus : string) => handleSetReviewStatus(threadId, reviewStatus)
 
+const [smeReviewError, setSMEReviewError] = useState(false);
+
+ const handleSMESaveClick = async () =>{
+  if(!thread.reviewStatus){
+    setSMEReviewError(true);
+    return;
+  }
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    setSaving(true);
+    await publicationStore.addSMEReviewThread(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.reviewStatus,
+      thread.publicationId)
+  }catch(error){
+    console.log(error);
+    toast.error('an error occured saving sme review')
+  }finally{
+    setSaving(false);
+  }
+
+ }
+
   if (usawcUserloading) return <LoadingComponent content="loading data..." />;
 
   return (
@@ -275,10 +301,19 @@ export default observer(function ThreadComponent({
     {ThreadType[thread.type] !== "Author" && 
      <Segment compact style={{ display: "flex", alignItems: "center", gap: "20px" }}>
       {/* Label */}
+      {!smeReviewError && 
       <Label basic color='black' size='large'><span className="industry" >
       <Icon name='check' />
         PUBLICATION REVIEW: </span>
       </Label>
+      }
+
+     {smeReviewError && 
+      <Label basic color='red' size='large'><span className="industry" >
+      <Icon name='exclamation' />
+        PUBLICATION REVIEW IS REQUIRED: </span>
+      </Label>
+      }
 
       {/* I Accept Radio Button */}
       <Radio
@@ -286,7 +321,7 @@ export default observer(function ThreadComponent({
         name={`terms-${thread.id}`}
         value="accept"
         checked={thread.reviewStatus === "accept"}
-        onChange={() => setReviewStatus("accept")}
+        onChange={() => {setReviewStatus("accept"); setSMEReviewError(false);}}
       />
 
       {/* I Decline Radio Button */}
@@ -295,8 +330,27 @@ export default observer(function ThreadComponent({
         name={`terms-${thread.id}`}
         value="decline"
         checked={thread.reviewStatus === "decline"}
-        onChange={() => setReviewStatus("decline")}
+        onChange={() => {setReviewStatus("decline"); setSMEReviewError(false);}}
       />
+
+        <Button 
+          icon 
+          labelPosition='left' 
+          color='brown' 
+          type='button' 
+          style={{ marginLeft: "auto" }}
+          onClick={handleSMESaveClick}
+          loading={saving}
+        >
+          <Icon name='save' />
+           SAVE
+           {thread.reviewStatus === "accept" &&
+           <span> AND SEND TO SECURITY OFFICER FOR REVIEW </span>
+           }
+          {thread.reviewStatus === "decline" &&
+           <span> AND RETURN TO AUTHOR FOR REVISION</span>
+           }
+        </Button>
     </Segment>
     }
      
