@@ -229,6 +229,9 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("PublicationId")
                         .HasColumnType("uniqueidentifier");
 

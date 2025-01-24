@@ -93,7 +93,9 @@ export default function RichTextEditor({
                 "colorPicker",
                 "link",
                 "history",
+                "emoji",
               ],
+              
             }
       }
     />

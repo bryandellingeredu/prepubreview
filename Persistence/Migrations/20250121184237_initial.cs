@@ -113,6 +113,7 @@ namespace Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedByPersonId = table.Column<int>(type: "int", nullable: false),
                     UpdatedByPersonId = table.Column<int>(type: "int", nullable: true),

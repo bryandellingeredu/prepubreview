@@ -13,6 +13,7 @@ namespace Domain
     public class PrePublication_Thread
 {
     public Guid Id { get; set; }
+    public int Order {get; set;}
     public bool IsActive { get; set; }
     public int CreatedByPersonId { get; set; }
     public int? UpdatedByPersonId { get; set; }

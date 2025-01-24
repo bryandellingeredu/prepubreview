@@ -113,6 +113,7 @@ namespace Application.Threads
             var smeThread = new PrePublication_Thread
             {
                 Id = Guid.NewGuid(),
+                Order = 2,
                 Comments =  "{\"blocks\":[{\"key\":\"4gl4r\",\"text\":\"I have reviewed this article. It contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":0,\"length\":143,\"style\":\"ITALIC\"}],\"entityRanges\":[],\"data\":{}}],\"entityMap\":{}}",
                 SecurityOfficerId = request.InitialThreadDTO.SecurityOfficerId,
                 CreatedByPersonId = submitter.PersonId,
@@ -144,6 +145,7 @@ namespace Application.Threads
         var initialThread = new PrePublication_Thread
         {
             Id = request.InitialThreadDTO.Id,
+            Order = 1,
             Comments = request.InitialThreadDTO.Comments,
             CommentsAsHTML = request.InitialThreadDTO.CommentsAsHTML,
             SecurityOfficerId = request.InitialThreadDTO.SecurityOfficerId,
@@ -203,7 +205,7 @@ namespace Application.Threads
                         }else{
                            body.Append("<p>The publication has been attached</p>");
                         }
-                        body.Append("<h4> Author's Comment's");
+                        body.Append("<h4> Author's Comment's </h4>");
                         body.Append(comments);
                         string baseUrl =    _config["AppDetails:baseUrl"];
                         body.Append($"<p> <a href='{baseUrl}?redirecttopath=threads/{publication.Id}'> Complete your SME review <a/> </p>");

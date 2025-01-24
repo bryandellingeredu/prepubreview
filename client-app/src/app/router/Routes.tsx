@@ -10,6 +10,9 @@ import ManageSecurityOfficers from '../../features/Administrators/ManageSecurity
 import NewSecurityOfficerForm from '../../features/Administrators/NewSecurityOfficerForm';
 import EditSecurityOfficerForm from '../../features/Administrators/EditSecurityOfficerForm';
 import SentToSMEConfirmation from '../../features/Threads/SentToSMEConfirmation';
+import SentFromSMEConfirmation from '../../features/Threads/SentFromSMEConfirmation';
+import SentFromOPSECConfirmation from '../../features/Threads/SentFromOPSECConfirmation';
+import SentToOPSECConfirmation from '../../features/Threads/SentToOPSECConfirmation';
 
 
 export const routes: RouteObject[] = [
@@ -25,9 +28,13 @@ export const routes: RouteObject[] = [
             { path: 'publicationsmain', element: <PublicationsMain />},
             { path: 'newpublicationform', element: <NewPublicationForm />},
             { path: 'newpublicationform/:pubid', element: <NewPublicationForm />},
+            { path: 'newpublicationform/:pubid/:isRevision', element: <NewPublicationForm />},
             { path: 'threads/:id', element: <ThreadsMain />},
             { path: 'senttosmeconfirmation/:id', element: <SentToSMEConfirmation />},
             { path: 'editsecurityofficer/:id', element: <EditSecurityOfficerForm />},
+            { path: 'sentfromsmeconfirmation/:id/:status', element: <SentFromSMEConfirmation />},
+            { path: 'sentfromopsecconfirmation/:id/:status', element: <SentFromOPSECConfirmation />},
+            { path: 'senttoopsecconfirmation/:id', element: <SentToOPSECConfirmation />},
             { path: '*', element: <HomePage /> }, // Wildcard to redirect any undefined paths to HomePage
         ]
     }

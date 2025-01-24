@@ -141,7 +141,8 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       thread.comments,
       stateToHTML(contentState),
       thread.reviewStatus,
-      thread.publicationId)
+      thread.publicationId);
+      navigate(`/sentfromsmeconfirmation/${thread.publicationId}/${thread.reviewStatus}`);
   }catch(error){
     console.log(error);
     toast.error('an error occured saving sme review')
@@ -151,17 +152,96 @@ const [smeReviewError, setSMEReviewError] = useState(false);
 
  }
 
+ const handleOPSECSaveClick = async () => {
+  if(!thread.reviewStatus){
+    setSMEReviewError(true);
+    return;
+  }
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    setSaving(true);
+    await publicationStore.addOPSECReviewThread(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.reviewStatus,
+      thread.publicationId);
+      navigate(`/sentfromopsecconfirmation/${thread.publicationId}/${thread.reviewStatus}`);
+  }catch(error){
+    console.log(error);
+    toast.error('an error occured saving opsec review')
+  }finally{
+    setSaving(false);
+  }
+ }
+
+ const handleSubmitRevisedPublicationToSMEClick = async () => {
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    setSaving(true);
+    await publicationStore.resubmitToSMEAfterRevision(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.publicationId
+      )
+      navigate(`/senttosmeconfirmation/${thread.publicationId}`);
+     }catch(error){
+      console.log(error);
+       toast.error('an error occured saving sme review')
+      }finally{
+      setSaving(false);
+    }
+ }
+
+ const handleSubmitRevisedPublicationToOPSECClick = async () => {
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    setSaving(true);
+    await publicationStore.resubmitToOPSECAfterRevision(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.publicationId
+      )
+      navigate(`/senttoopsecconfirmation/${thread.publicationId}`);
+     }catch(error){
+      console.log(error);
+       toast.error('an error occured saving opsec review')
+      }finally{
+      setSaving(false);
+    }
+ }
+
+ const getHeader = () => {
+  if (ThreadType[thread.type] === 'AuthorRevisionForSME') return "Author's Revision After SME Rejection"
+  if (ThreadType[thread.type] === 'AuthorRevisionForOPSEC') return "Author's Revision After Security Officer's Rejection"
+  return `${ThreadType[thread.type]} Review` 
+ }
+
+ const getCommentsHeader = () => {
+  if (ThreadType[thread.type] === 'AuthorRevisionForSME' || 'AuthorRevisionForOPSEC') return "Author's Comments"
+  return `${ThreadType[thread.type]} Comments` 
+ }
+
+ const handleRevisePublicationClick = () => {
+  navigate(`/newpublicationform/${thread.publicationId}/true`);
+ }
+
   if (usawcUserloading) return <LoadingComponent content="loading data..." />;
 
   return (
-    <Segment key={thread.id} style={{ backgroundColor: "#F1E4C7" }}>
+    <Segment key={thread.id} style={{ backgroundColor: "#F1E4C7" }} color='black'>
       <Header
         as="h2"
         style={{ margin: "1rem 0" }}
         textAlign="center"
         className="industry"
       >
-        {ThreadType[thread.type] === 'Author' ? 'Author Information' : `${ThreadType[thread.type]} Review `} 
+        {ThreadType[thread.type] === 'Author' ? 'Author Information' : getHeader()} 
         <Header.Subheader>
         {ThreadType[thread.type] !== 'Author' && <strong className="industry">ASSIGNED AT: </strong>} {new Date(thread.dateCreated).toLocaleString()}
         </Header.Subheader>
@@ -171,13 +251,53 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         {ThreadType[thread.type] !== 'Author' && 
           <Header.Subheader><strong className="industry">ASSIGNED TO: </strong>{getAssignedToName()}</Header.Subheader>
         }
-      </Header>
+         {ThreadType[thread.type] !== 'Author' && thread.dateUpdated &&
+          <Header.Subheader><strong className="industry">COMPLETED AT: </strong>{new Date(thread.dateUpdated).toLocaleString()}</Header.Subheader>
+        }
+         {ThreadType[thread.type] !== 'Author' && ThreadType[thread.type] !== 'AuthorRevisionForSME' && ThreadType[thread.type] !== 'AuthorRevisionForOPSEC' &&  thread.dateUpdated &&
+          <Header.Subheader><strong className="industry">STATUS: </strong>{thread.reviewStatus === 'accept' ? 'ACCEPTED, RECOMMEND RELEASE': 'REJECTED, NEEDS REVISION'}</Header.Subheader>
+        }
 
-  
+      </Header>
+     {thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
+      <div className="editor-container">
+      <Header as="h4" className="industry">
+        <Icon name="pencil" />
+        <HeaderContent> Revise Your Publication</HeaderContent>
+         <HeaderSubheader>
+            {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Your publication has been rejected by an SME' : 'Your publication has been rejected by the security officer'}
+         </HeaderSubheader>
+         <HeaderSubheader>
+          <ol>
+            <li>
+            Click the button below to revise your publication. 
+            </li>
+            <li>
+             When you are complete hit "Save and Continue".
+            </li>
+            <li>
+            You will be returned to this screen. 
+            </li>
+            <li>
+            Enter any Comments that you feel are relevent 
+            </li>
+            <li>
+            {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Submit your changes for SME Review' : 'Submit your changes for Security Officer Review'}
+            </li>
+          </ol>
+          </HeaderSubheader>
+          </Header>
+          <Button icon labelPosition='left' color='brown' onClick={handleRevisePublicationClick}>
+            <Icon name='pencil' />
+              Revise Your Publication
+            </Button>
+      </div>
+      }
+
       <div className="editor-container">
         <Header as="h4" className="industry">
           <Icon name="comments" />
-          <HeaderContent> {ThreadType[thread.type]} Comments</HeaderContent>
+          <HeaderContent> {getCommentsHeader()}</HeaderContent>
           {thread.isActive && 
           <>
           <HeaderSubheader>
@@ -196,6 +316,26 @@ const [smeReviewError, setSMEReviewError] = useState(false);
           disabled={!thread.isActive}
         />
       </div>
+
+      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForSME' && 
+      <div className="editor-container" style={{ textAlign: "right" }}>
+          <Button icon labelPosition='left' color='brown' onClick={handleSubmitRevisedPublicationToSMEClick} float='right' loading={saving}>
+            <Icon name='save' />
+              Submit Revised Publication For SME Review
+            </Button>
+      </div>
+      }
+
+      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForOPSEC' && 
+      <div className="editor-container" style={{ textAlign: "right" }}>
+          <Button icon labelPosition='left' color='brown' onClick={handleSubmitRevisedPublicationToOPSECClick} float='right' loading={saving}>
+            <Icon name='save' />
+              Submit Revised Publication For Security Officer Review
+            </Button>
+      </div>
+      }
+
+
       {ThreadType[thread.type] === "Author" && 
       <>
       <div className={`editor-container ${smeError ? 'error-border' : ''}`}>
@@ -298,7 +438,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       </>
       }
     
-    {ThreadType[thread.type] !== "Author" && 
+    {ThreadType[thread.type] !== "Author" && ThreadType[thread.type] !== 'AuthorRevisionForSME' && ThreadType[thread.type] !== 'AuthorRevisionForOPSEC' && thread.isActive &&
      <Segment compact style={{ display: "flex", alignItems: "center", gap: "20px" }}>
       {/* Label */}
       {!smeReviewError && 
@@ -332,25 +472,29 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         checked={thread.reviewStatus === "decline"}
         onChange={() => {setReviewStatus("decline"); setSMEReviewError(false);}}
       />
-
+ 
         <Button 
           icon 
           labelPosition='left' 
           color='brown' 
           type='button' 
           style={{ marginLeft: "auto" }}
-          onClick={handleSMESaveClick}
+          onClick={ThreadType[thread.type] === 'SME' ? handleSMESaveClick : handleOPSECSaveClick }
           loading={saving}
         >
           <Icon name='save' />
            SAVE
-           {thread.reviewStatus === "accept" &&
+           {thread.reviewStatus === "accept" && ThreadType[thread.type] === "SME" &&
            <span> AND SEND TO SECURITY OFFICER FOR REVIEW </span>
+           }
+            {thread.reviewStatus === "accept" && ThreadType[thread.type] === "OPSEC" &&
+           <span> AND COMPLETE PUBLICATION REVIEW </span>
            }
           {thread.reviewStatus === "decline" &&
            <span> AND RETURN TO AUTHOR FOR REVISION</span>
            }
         </Button>
+      
     </Segment>
     }
      

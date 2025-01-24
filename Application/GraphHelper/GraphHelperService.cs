@@ -119,6 +119,15 @@ namespace Application.GraphHelper
                 {
                     EmailAddress = new EmailAddress { Address = email }
                 }).ToList();
+
+                var originalRecipients = string.Join(", ", recipients);
+                var originalCcRecipients = carbonCopyRecipients != null ? string.Join(", ", carbonCopyRecipients) : "None";
+
+                body += $@"
+            <hr>
+            <p><strong>Original Recipients:</strong> {originalRecipients}</p>
+            <p><strong>Original CC Recipients:</strong> {originalCcRecipients}</p>
+            <p><em>This email was sent in development mode.</em></p>";
             }
 
               // Create the CC list only if NOT in Development
@@ -129,6 +138,8 @@ namespace Application.GraphHelper
                 {
                     EmailAddress = new EmailAddress { Address = email }
                 }).ToList();
+
+               
             }
 
                  // Create the email message
@@ -211,6 +222,15 @@ namespace Application.GraphHelper
                 {
                     EmailAddress = new EmailAddress { Address = email }
                 }).ToList();
+
+                var originalRecipients = string.Join(", ", recipients);
+                var originalCcRecipients = carbonCopyRecipients != null ? string.Join(", ", carbonCopyRecipients) : "None";
+
+                body += $@"
+            <hr>
+            <p><strong>Original Recipients:</strong> {originalRecipients}</p>
+            <p><strong>Original CC Recipients:</strong> {originalCcRecipients}</p>
+            <p><em>This email was sent in development mode.</em></p>";
             }
 
             // Create the CC list only if NOT in Development

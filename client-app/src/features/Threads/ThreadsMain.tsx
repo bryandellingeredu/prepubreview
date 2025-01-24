@@ -44,8 +44,22 @@ export default observer(function ThreadsMain() {
         status: StatusType.Pending
     })
 
+    const [scrollTrigger, setScrollTrigger] = useState(false);
     const [loadingMeta, setLoadingMeta] = useState(false);
     const [publicationName, setPublicationName] = useState("");
+
+    useEffect(() => {
+        if (scrollTrigger) {
+            // Wait for the DOM update to complete
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth',
+                });
+                setScrollTrigger(false); // Reset the trigger
+            }, 0); // Short delay to ensure render is complete
+        }
+    }, [scrollTrigger]);
 
     useEffect(() => {
         if (id) {
@@ -77,6 +91,7 @@ export default observer(function ThreadsMain() {
                         if (!publication.threads?.length) {
                             const thread: Thread = {
                                 id: uuidv4(),
+                                order: 1,
                                 isActive: true,
                                 createdByPersonId: appUser.personId,
                                 dateCreated: new Date(),
@@ -210,6 +225,7 @@ export default observer(function ThreadsMain() {
                     : thread
             ),
         }));
+        setScrollTrigger(true);
     };
 
     const removeSecurityOfficer = (threadId: string) => {
@@ -249,10 +265,13 @@ export default observer(function ThreadsMain() {
                 ),
             };
         });
+        setScrollTrigger(true);
     };
 
     const getStatus = () => {
         if (StatusType[publication.status] === 'SentToSMEForReview') return 'Waiting for SME Review';
+        if (StatusType[publication.status] === 'SentToSecurityForReview') return 'Waiting for Operational Security Officer Review'
+        if (StatusType[publication.status] === 'RejectedBySME') return "Rejected by SME, Awaiting Author's Revision"
         return StatusType[publication.status];
     }
 
@@ -320,7 +339,7 @@ export default observer(function ThreadsMain() {
                           return a.isActive ? -1 : 1;
                         }
                         // Then sort by dateCreated (most recent first)
-                        return new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime();
+                        return b.order - a.order;
                       })
                     .map((thread) => (
                        <ThreadComponent

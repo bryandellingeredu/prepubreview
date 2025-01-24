@@ -82,8 +82,10 @@ axios.interceptors.request.use((config) => {
 
   const Threads ={
     addInitialThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitial', initalThreadDTO ),
-    addSMEReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addSMEReviewThread', {threadId, comments, commentsAsHTML, reviewStatus})
-
+    addSMEReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addSMEReviewThread', {threadId, comments, commentsAsHTML, reviewStatus}),
+    resubmitToSMEAfterRevision: (threadId :string, comments : string, commentsAsHTML : string) =>  requests.post<void>('/Threads/resubmitToSMEAfterRevision', {threadId, comments, commentsAsHTML, reviewStatus: ''}),
+    resubmitToOPSECAfterRevision: (threadId :string, comments : string, commentsAsHTML : string) =>  requests.post<void>('/Threads/resubmitToOPSECAfterRevision', {threadId, comments, commentsAsHTML, reviewStatus: ''}),
+    addOPSECReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addOPSECReviewThread', {threadId, comments, commentsAsHTML, reviewStatus}),
   }
 
 

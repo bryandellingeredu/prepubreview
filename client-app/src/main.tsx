@@ -8,9 +8,9 @@ import { store, StoreContext } from './app/stores/store.ts'
 
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ 
       <StoreContext.Provider value={store}>
         <RouterProvider router={router}/>
     </StoreContext.Provider>
-  </StrictMode>,
+
 )

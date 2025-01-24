@@ -3,6 +3,7 @@ import { ThreadType } from "./threadType";
 
 export interface Thread{
     id: string,
+    order: number,
     isActive: boolean,
     createdByPersonId : number,
     updatedByPersonId : number | null,

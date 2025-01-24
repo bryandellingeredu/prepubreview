@@ -30,6 +30,7 @@ import DocumentDownloadWidget from "../../app/common/documentDownload/documentDo
 
 export default observer(function NewPublicationForm() {
   const { pubid } = useParams();
+  const {isRevision} = useParams();
   const { publicationStore, userStore, usawcUserStore } = useStore();
   const { addPublication, publicationloading, uploading, uploadPublication, getPublicationById } = publicationStore;
   const { appUser} = userStore;
@@ -90,7 +91,7 @@ export default observer(function NewPublicationForm() {
   const[loadingPub, setLoadingPub] = useState(false);
 
   useEffect(() => {
-    if (pubid) {
+    if (pubid && usawcUsers.length > 0) {
       setLoadingPub(true);
         getPublicationById(pubid).then((publication) => {
             // Handle the publication object here
@@ -109,7 +110,7 @@ export default observer(function NewPublicationForm() {
             setLoadingPub(false);
         });
     }
-}, [pubid]);
+}, [pubid, usawcUsers]);
 
   useEffect(() => {
     if (usawcUsers.length === 0 && !usawcUserloading) {
@@ -124,7 +125,10 @@ export default observer(function NewPublicationForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const title = formData.get("title")?.toString().trim() || "";
+    let title = formData.get("title")?.toString().trim() || "";
+    if(isRevision){
+      title = existingTitle
+    }
     const publicationLinkName = formData.get("publicationlinkname")?.toString().trim() || "";
     const errors = {
       title: title.trim() === "",
@@ -199,12 +203,14 @@ const handleCancel = () => {
   if (usawcUserloading || loadingMeta || loadingPub) return <LoadingComponent content="loading..." />;
 
   return (
+
     <Container fluid>
       <Navbar />
       <Divider horizontal>
         <Header as="h1" className="industry">
-          <Icon name="plus" />
-          ADD A PUBLICATION FOR REVIEW
+          {isRevision  ?   <Icon name="pencil" /> :   <Icon name="plus" />}
+        
+         {isRevision ? 'REVISE YOUR PUBLICATION' : 'ADD A PUBLICATION FOR REVIEW' } 
         </Header>
       </Divider>
       <Container>
@@ -219,6 +225,7 @@ const handleCancel = () => {
             placeholder="Enter publication title"
             error={formErrors.title && { content: "Title is required" }}
             defaultValue={existingTitle || ""}
+            disabled={isRevision === 'true'}
           />
           <Form.Dropdown
             label={
@@ -226,6 +233,7 @@ const handleCancel = () => {
                 <span style={{ color: "red", fontSize: "2em" }}>*</span> AUTHOR
               </label>
             }
+            disabled={isRevision === 'true'}
             placeholder="Select an author"
             fluid
             search
@@ -241,7 +249,7 @@ const handleCancel = () => {
               <Header as="h5" className="industry">
                  PUBLICATION 
                 <Header.Subheader>
-                  COPY AND PASTE A LINK TO YOUR PUBLICATION, OR UPLOAD IT
+                  {isRevision ? 'COPY AND PASTE A LINK TO YOUR REVISED PUBLICATION, OR CLICK THE BROWN UPLOAD BUTTON TO UPLOAD IT' : 'COPY AND PASTE A LINK TO YOUR PUBLICATION, OR UPLOAD IT'}
                 </Header.Subheader>
               </Header>
             </Divider>
@@ -350,6 +358,7 @@ const handleCancel = () => {
             )}
           </FormField>
           <ButtonGroup floated="right" size="big">
+            {!isRevision && 
             <Button
               type="button"
               color="black"
@@ -360,6 +369,7 @@ const handleCancel = () => {
               <Icon name="cancel" size="large" />
               CANCEL
             </Button>
+           }
             <Button
               type="submit"
               color="brown"

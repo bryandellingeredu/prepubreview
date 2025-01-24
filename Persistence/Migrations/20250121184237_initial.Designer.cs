@@ -12,7 +12,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250116195725_initial")]
+    [Migration("20250121184237_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -231,6 +231,9 @@ namespace Persistence.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("PublicationId")
                         .HasColumnType("uniqueidentifier");

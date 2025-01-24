@@ -33,6 +33,7 @@ namespace Application.Publications
                     Id = p.Id,
                     Title = p.Title,
                     Status = p.Status,
+                    AuthorPersonId = p.AuthorPersonId,
                     AuthorFirstName = p.AuthorFirstName,
                     AuthorLastName = p.AuthorLastName,  
                     AuthorMiddleName = p.AuthorMiddleName,
@@ -45,6 +46,7 @@ namespace Application.Publications
                     Threads = p.Threads.Select(t => new PrePublication_Thread
                     {
                         Id = t.Id,
+                        Order = t.Order,
                         ReviewStatus = t.ReviewStatus,
                         PublicationId = t.PublicationId,
                         Comments = t.Comments,

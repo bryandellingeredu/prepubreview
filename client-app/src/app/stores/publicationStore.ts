@@ -128,8 +128,58 @@ export default class PublicationStore{
               });
           }
         }catch(error){
-            console.error("Error adding initial thread:", error);
-            toast.error('Error adding initial thread');
+            console.error("Error adding sme review thread:", error);
+            toast.error('Error adding sme review thread');
+        }
+    }
+
+    addOPSECReviewThread = async( threadId: string, comments: string, commentsAsHTML: string, reviewStatus: string, publicationId: string) =>{
+        try{
+           await agent.Threads.addOPSECReviewThread(threadId, comments, commentsAsHTML, reviewStatus);
+           let publication = this.publicationRegistry.get(publicationId);
+           if(publication){
+               const updatedPublication = await agent.Publications.details(publicationId)
+               runInAction(() => {
+                   this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+                 });
+             }
+           }catch(error){
+               console.error("Error adding opsec review thread:", error);
+               toast.error('Error adding opsec review thread');
+           }
+       }
+
+    resubmitToSMEAfterRevision = async (threadId: string, comments: string, commentsAsHTML: string, publicationId: string) => {
+        try{
+          await agent.Threads.resubmitToSMEAfterRevision(threadId, comments, commentsAsHTML);
+          let publication = this.publicationRegistry.get(publicationId);
+          if(publication){
+            const updatedPublication = await agent.Publications.details(publicationId)
+            runInAction(() => {
+                this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+          }
+
+        }catch(error){
+            console.error("Error adding sme review thread:", error);
+            toast.error('Error adding sme review thread');
+        }
+    }
+
+    resubmitToOPSECAfterRevision = async (threadId: string, comments: string, commentsAsHTML: string, publicationId: string) => {
+        try{
+          await agent.Threads.resubmitToOPSECAfterRevision(threadId, comments, commentsAsHTML);
+          let publication = this.publicationRegistry.get(publicationId);
+          if(publication){
+            const updatedPublication = await agent.Publications.details(publicationId)
+            runInAction(() => {
+                this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+          }
+
+        }catch(error){
+            console.error("Error adding opsec review thread:", error);
+            toast.error('Error adding opsec review thread');
         }
     }
 
