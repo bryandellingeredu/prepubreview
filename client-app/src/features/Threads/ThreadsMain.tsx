@@ -321,13 +321,17 @@ export default observer(function ThreadsMain() {
 
 
                 <Segment style={{ display: 'flex', alignItems: 'center' }}>
-                    
+
+                {appUser?.isAdmin || appUser?.personId === publication.authorPersonId || appUser?.personId === publication.authorPersonId &&   
                 <Button animated='vertical' color='brown' floated="right" onClick={handleEditButtonClick}>
                     <ButtonContent hidden>EDIT</ButtonContent>
                         <ButtonContent visible>
                             <Icon name='edit' />
                         </ButtonContent>
                 </Button>
+               }
+
+
                 </Segment>
             </SegmentGroup>
 
