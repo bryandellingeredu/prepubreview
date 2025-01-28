@@ -32,6 +32,8 @@ import { useNavigate } from 'react-router-dom';
 interface Props {
   thread: Thread;
   authorName: string;
+  authorPersonId: number;
+  creatorPersonId: number;
   updateThreadComments: (threadId: string, newComments: string) => void;
   addSME: (threadId: string, personId: number) => void;
   removeSME: (threadId: string, personId: number) => void;
@@ -50,10 +52,13 @@ export default observer(function ThreadComponent({
   updateSecurityOfficerId,
   removeSecurityOfficer,
   threadId,
-  handleSetReviewStatus
+  handleSetReviewStatus,
+  authorPersonId,
+  creatorPersonId
 }: Props) {
   const navigate = useNavigate();
-  const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore } = useStore();
+  const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore, userStore } = useStore();
+  const {appUser} = userStore
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
   const {openModal} = modalStore;
   const {addInitialThread} = publicationStore;
@@ -223,12 +228,27 @@ const [smeReviewError, setSMEReviewError] = useState(false);
  }
 
  const getCommentsHeader = () => {
-  if (ThreadType[thread.type] === 'AuthorRevisionForSME' || 'AuthorRevisionForOPSEC') return "Author's Comments"
+  if (ThreadType[thread.type] ===  'AuthorRevisionForSME') return "Author's Comments"
+  if (ThreadType[thread.type] ===   'AuthorRevisionForOPSEC') return "Author's Comments"
   return `${ThreadType[thread.type]} Comments` 
  }
 
  const handleRevisePublicationClick = () => {
   navigate(`/newpublicationform/${thread.publicationId}/true`);
+ }
+
+ const isAllowedToEdit = () => {
+ if (appUser?.isAdmin) return true;
+   if (appUser?.personId === thread.assignedToPersonId) return true
+   if (
+    (ThreadType[thread.type] === 'AuthorRevisionForSME' || 
+     ThreadType[thread.type] === 'AuthorRevisionForOPSEC' || 
+     ThreadType[thread.type] === 'Author') &&
+    (appUser?.personId === authorPersonId || appUser?.personId === creatorPersonId)
+  ) {
+    return true;
+  }
+  return false;
  }
 
   if (usawcUserloading) return <LoadingComponent content="loading data..." />;
@@ -259,7 +279,14 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         }
 
       </Header>
-     {thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
+    { !isAllowedToEdit() && thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
+        <Message info>
+          <Message.Header>
+          {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Awaiting Author Revision, the Publication has been rejected by an SME' : 'Awaiting Author Revision, the publication has been rejected by the security officer'}
+          </Message.Header>
+        </Message>
+    }
+     {isAllowedToEdit() && thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
       <div className="editor-container">
       <Header as="h4" className="industry">
         <Icon name="pencil" />
@@ -298,7 +325,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         <Header as="h4" className="industry">
           <Icon name="comments" />
           <HeaderContent> {getCommentsHeader()}</HeaderContent>
-          {thread.isActive && 
+          {thread.isActive && isAllowedToEdit() &&
           <>
           <HeaderSubheader>
             Use the rich text editor to enter comments
@@ -309,15 +336,18 @@ const [smeReviewError, setSMEReviewError] = useState(false);
           </>
          }
         </Header>
+        {thread.isActive && !isAllowedToEdit() ? <h5 className="industry"> NO COMMENTS HAVE BEEN ENTERED YET</h5> :
         <RichTextEditor
           content={thread.comments}
           threadId={thread.id}
           updateThreadComments={updateThreadComments}
           disabled={!thread.isActive}
         />
+        }
+        
       </div>
 
-      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForSME' && 
+      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForSME' && isAllowedToEdit() &&
       <div className="editor-container" style={{ textAlign: "right" }}>
           <Button icon labelPosition='left' color='brown' onClick={handleSubmitRevisedPublicationToSMEClick} float='right' loading={saving}>
             <Icon name='save' />
@@ -326,7 +356,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       </div>
       }
 
-      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForOPSEC' && 
+      {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForOPSEC' && isAllowedToEdit() &&
       <div className="editor-container" style={{ textAlign: "right" }}>
           <Button icon labelPosition='left' color='brown' onClick={handleSubmitRevisedPublicationToOPSECClick} float='right' loading={saving}>
             <Icon name='save' />
@@ -342,13 +372,18 @@ const [smeReviewError, setSMEReviewError] = useState(false);
        <Header as="h4" className="industry">
        <Icon name="graduation cap" />
        <HeaderContent>Subject Matter Expert/s</HeaderContent>
-       {thread.isActive &&
+       {thread.isActive && isAllowedToEdit() &&
        <HeaderSubheader>
             Choose an SME to review your publication. You may choose more than one.
         </HeaderSubheader>
         }
+        {thread.isActive && !isAllowedToEdit() && (!thread.subjectMatterExperts || thread.subjectMatterExperts.length < 1) &&
+       <HeaderSubheader>
+            No Subject Matter Experts have been chosen yet
+        </HeaderSubheader>
+        }
        </Header>
-       {thread.isActive &&
+       {thread.isActive && isAllowedToEdit() && 
        <div className="ui clearing" style={{marginBottom: '10px'}}>
         <Button content='Add SME' icon='plus' labelPosition='left' color='brown' onClick={handleAddSMEButtonClick} />
        </div>
@@ -381,13 +416,18 @@ const [smeReviewError, setSMEReviewError] = useState(false);
           <Header as="h4" className="industry">
           <Icon name="shield" />
           <HeaderContent>Operational Security Officer II</HeaderContent>
-          {thread.isActive &&
+          {thread.isActive && isAllowedToEdit() &&
           <HeaderSubheader>
             Choose an OPSEC II Officer to review your publication. Try to choose from your organization if possible.
         </HeaderSubheader>
          }
+        {thread.isActive && !isAllowedToEdit() && (!thread.securityOfficerId) &&
+       <HeaderSubheader>
+            No Security Officers have been chosen yet
+        </HeaderSubheader>
+        }
           </Header>
-          {thread.isActive &&
+          {thread.isActive && isAllowedToEdit() &&
           <div className="ui clearing" style={{marginBottom: '10px'}}>
             {!thread.securityOfficerId &&
             <Button
@@ -425,7 +465,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
             </Message>
            }
       </div>
-      {thread.isActive && 
+      {thread.isActive && isAllowedToEdit() &&
       <div className="ui clearing" style={{marginBottom: '50px'}}>
         <Button floated="right" size='large'  icon labelPosition="left" color='brown' onClick={handleSendToSMEClick} loading={saving}>
           <Icon name='graduation cap' />
@@ -438,7 +478,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       </>
       }
     
-    {ThreadType[thread.type] !== "Author" && ThreadType[thread.type] !== 'AuthorRevisionForSME' && ThreadType[thread.type] !== 'AuthorRevisionForOPSEC' && thread.isActive &&
+    {ThreadType[thread.type] !== "Author" && ThreadType[thread.type] !== 'AuthorRevisionForSME' && ThreadType[thread.type] !== 'AuthorRevisionForOPSEC' && thread.isActive && isAllowedToEdit() &&
      <Segment compact style={{ display: "flex", alignItems: "center", gap: "20px" }}>
       {/* Label */}
       {!smeReviewError && 

@@ -353,6 +353,8 @@ export default observer(function ThreadsMain() {
                         removeSME={removeSME}
                         threadId={thread.id}
                         handleSetReviewStatus={handleSetReviewStatus}
+                        authorPersonId={publication.authorPersonId}
+                        creatorPersonId={publication.createdByPersonId}
                         />
                      ))}
                      {(!publication.threads || publication.threads.length === 0) && (

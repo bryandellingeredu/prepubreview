@@ -104,7 +104,7 @@ namespace Application.Threads
                         Order = orderNumber + 1,
                         IsActive = true,
                         Comments = "{\"blocks\":[{\"key\":\"4gl4r\",\"text\":\"I have revised my article. It now contains no classified or sensitive information. It does not misrepresent current US policy. Recommend Release\",\"type\":\"unstyled\",\"depth\":0,\"inlineStyleRanges\":[{\"offset\":0,\"length\":143,\"style\":\"ITALIC\"}],\"entityRanges\":[],\"data\":{}}],\"entityMap\":{}}",
-                        AssignedToPersonId = securityOfficer.PersonId,
+                        AssignedToPersonId = publication.CreatedByPersonId,
                         Type = ThreadType.AuthorRevisionForOPSEC
                     };
 
@@ -156,7 +156,7 @@ namespace Application.Threads
                 body.Append($"<h1>{title}</h1>");
                 if (reviewStatus == "decline")
                 {
-                    body.Append($"<p> <strong> Assigned To: </strong> {securityOfficerPerson.FirstName} {securityOfficerPerson.LastName}</p>");
+                    body.Append($"<p> <strong> Assigned To: </strong> {creator.FirstName} {creator.LastName}</p>");
                 }
 
                     body.Append($"<p> <strong> Publication Title: </strong> {publication.Title} </p>");
