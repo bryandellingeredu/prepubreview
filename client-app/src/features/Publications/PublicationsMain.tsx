@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
-import { Button, Container, Divider, Header, Icon, Loader, Search, SearchProps } from "semantic-ui-react";
+import { Button, Container, Divider, Header, Icon, Loader, Radio, Search, SearchProps } from "semantic-ui-react";
 import { useStore } from "../../app/stores/store";
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
@@ -9,10 +9,16 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { Publication } from "../../app/models/publication";
 import agent from "../../app/api/agent";
+import LoadingComponent from "../../app/layout/LoadingComponent";
 
 export default observer(function PublicationsMain() {
     const { publicationStore } = useStore();
-    const { loadPublications,  publications, hasMore, publicationloading } = publicationStore;
+    const { loadPublications,  publications, hasMore, publicationloading, loadMyPublications, myPublications, mypublicationloading } = publicationStore;
+
+    useEffect(() => {
+       loadMyPublications();
+      }, []);
+    
 
     const navigate = useNavigate();
 
@@ -20,6 +26,8 @@ export default observer(function PublicationsMain() {
         navigate('/newpublicationform'); // Navigate to the newpublicationform route
     };
 
+    const [showAllData, setShowAllData] = useState<boolean>(false);
+    
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState<Publication[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +69,8 @@ export default observer(function PublicationsMain() {
         };
     }, []);
 
+   if (mypublicationloading) return <LoadingComponent content='loading data' />
+
     return (
         <Container fluid>
             <Navbar />
@@ -88,14 +98,23 @@ export default observer(function PublicationsMain() {
                         }
                     }}
                 />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <strong className="industry"  onClick={() => setShowAllData(false)}>SHOW MY PUBLICATIONS</strong>
+                    <Radio toggle   checked={showAllData}  onChange={() => setShowAllData(!showAllData)}/>
+                    <strong className="industry" onClick={() => setShowAllData(true)}>SHOW ALL PUBLICATIONS</strong>
+                </div>
+
                 <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick}/>
             </div>
+
             <Divider horizontal>
                 <Header as="h1" className="industry">
                     <Icon name="book" />
                     PRE-PUBLICATION SECURITY & POLICY REVIEW
                 </Header>
             </Divider>
+            {showAllData && 
+            <>
             <InfiniteScroll
                 pageStart={0}
                 loadMore={loadPublications} // Directly pass the loadPublications function
@@ -105,6 +124,11 @@ export default observer(function PublicationsMain() {
             </InfiniteScroll>
             {publicationloading  &&
             <Loader active inline='centered' />}
+            </>
+            }
+            {!showAllData &&
+                <PublicationTable publications={myPublications} />
+            } 
         </Container>
     );
 });

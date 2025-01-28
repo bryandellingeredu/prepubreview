@@ -272,6 +272,7 @@ export default observer(function ThreadsMain() {
         if (StatusType[publication.status] === 'SentToSMEForReview') return 'Waiting for SME Review';
         if (StatusType[publication.status] === 'SentToSecurityForReview') return 'Waiting for Operational Security Officer Review'
         if (StatusType[publication.status] === 'RejectedBySME') return "Rejected by SME, Awaiting Author's Revision"
+        if (StatusType[publication.status] === 'RejectedBySecurity') return "Rejected by Security Officer, Awaiting Author's Revision" 
         return StatusType[publication.status];
     }
 
@@ -321,15 +322,16 @@ export default observer(function ThreadsMain() {
 
 
                 <Segment style={{ display: 'flex', alignItems: 'center' }}>
-
-                {appUser?.isAdmin || appUser?.personId === publication.authorPersonId || appUser?.personId === publication.authorPersonId &&   
+                
+                {(appUser?.isAdmin || appUser?.personId === publication.authorPersonId || appUser?.personId === publication.createdByPersonId) && 
                 <Button animated='vertical' color='brown' floated="right" onClick={handleEditButtonClick}>
                     <ButtonContent hidden>EDIT</ButtonContent>
                         <ButtonContent visible>
                             <Icon name='edit' />
                         </ButtonContent>
                 </Button>
-               }
+                }
+               
 
 
                 </Segment>

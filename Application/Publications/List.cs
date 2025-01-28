@@ -26,7 +26,8 @@ namespace Application.Publications
             public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var publications = await _context.Publications
-                    .OrderByDescending(p => p.DateCreated)
+                    .OrderBy(s => s.Status == StatusType.Complete ? 1 : 0)
+                    .ThenByDescending(p => p.DateCreated)
                     .Skip(request.Offset)
                     .Take(request.Limit)
                     .ToListAsync(cancellationToken);

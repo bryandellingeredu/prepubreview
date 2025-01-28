@@ -4,6 +4,7 @@ using Application.Publications;
 using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 
 namespace API.Controllers
@@ -15,7 +16,16 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PrePublication_Publication>>> GetPublications([FromQuery] int offset = 0, [FromQuery] int limit = 100) =>
             HandleResult(await Mediator.Send(new List.Query { Offset = offset, Limit = limit }));
-        
+
+        [AuthorizeUSAWCEmail]
+        [HttpGet("mine")]
+        public async Task<ActionResult<List<PrePublication_Publication>>> GetMyPublications()
+        {
+            var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+            return HandleResult(await Mediator.Send(new ListMine.Query { Email = email }));
+        }
+
+
         [AuthorizeUSAWCEmail]
         [HttpGet("{id}")]
         public async Task<ActionResult<PrePublication_Publication>> GetPublications(Guid id) => 

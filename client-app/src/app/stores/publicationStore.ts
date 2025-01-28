@@ -11,7 +11,9 @@ import { InitialThreadDTO } from "../models/initialThreadDTO";
 
 export default class PublicationStore{
     publicationRegistry = new Map<string, Publication>()
+    myPublicationRegistry = new Map<string, Publication>()
     publicationloading = false;
+    mypublicationloading = false;
     uploading = false;
     offset = 0; // Start offset
     limit = 25; // Number of items to fetch per page
@@ -25,6 +27,30 @@ export default class PublicationStore{
         return Array.from(this.publicationRegistry.values())
     }
 
+    get myPublications() {
+        return Array.from(this.myPublicationRegistry.values())
+    }
+
+    loadMyPublications = async () => {
+        this.setMyPublicationLoading(true); // Setting loading state (outside runInAction is fine here)
+        try {
+          const publications = await agent.Publications.listMine();
+          runInAction(() => {
+            publications.forEach((publication) => {
+              this.myPublicationRegistry.set(publication.id, publication); // Observable state change
+            });
+          });
+        } catch (error) {
+          console.error("Error loading publications:", error);
+          toast.error('An error occurred while loading publications');
+        } finally {
+          runInAction(() => {
+            this.setMyPublicationLoading(false); // Ensure loading state is updated in an observable way
+          });
+        }
+      };
+
+
     loadPublications = async () => {
         if (!this.hasMore || this.publicationloading ) return; // Prevent unnecessary requests
         this.setPublicationLoading(true); // Set loading to true
@@ -37,9 +63,11 @@ export default class PublicationStore{
             }
     
             // Add publications to the registry
+            runInAction(() => {
             publications.forEach((publication) => {
                 this.publicationRegistry.set(publication.id, publication);
             });
+        });
     
             // Increment the offset for the next batch
             this.offset += this.limit;
@@ -191,6 +219,10 @@ export default class PublicationStore{
 
     setPublicationLoading = (state : boolean) => {
         this. publicationloading  = state;
+      };
+
+      setMyPublicationLoading = (state : boolean) => {
+        this.mypublicationloading  = state;
       };
 
       uploadPublication = async (file: Blob, lookupId: string) => {
