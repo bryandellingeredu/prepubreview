@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
-import { Button, Container, Divider, Header, Icon, Loader, Radio, Search, SearchProps } from "semantic-ui-react";
+import { Button, Container, Divider, Header, Icon, Loader, Menu, Radio, Search, SearchProps, Sidebar } from "semantic-ui-react";
 import { useStore } from "../../app/stores/store";
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
@@ -12,7 +12,8 @@ import agent from "../../app/api/agent";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 
 export default observer(function PublicationsMain() {
-    const { publicationStore } = useStore();
+    const { publicationStore, responsiveStore } = useStore();
+    const {isMobile} = responsiveStore
     const { loadPublications,  publications, hasMore, publicationloading, loadMyPublications, myPublications, mypublicationloading } = publicationStore;
 
     useEffect(() => {
@@ -69,11 +70,17 @@ export default observer(function PublicationsMain() {
         };
     }, []);
 
+    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
    if (mypublicationloading) return <LoadingComponent content='loading data' />
 
     return (
         <Container fluid>
             <Navbar />
+
+
+
+            {!isMobile && 
             <div style={{ display: "flex",
                           justifyContent: "space-between",
                           alignItems:"center",
@@ -106,11 +113,73 @@ export default observer(function PublicationsMain() {
 
                 <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick}/>
             </div>
+           }
+
+
+{isMobile && (
+        <>
+          <Button
+            icon
+            color="grey"
+            onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+            style={{ margin: "1rem" }}
+          >
+            <Icon name="settings" />
+          </Button>
+
+          {/* Slide-Out Sidebar */}
+          <Sidebar
+            as={Menu}
+            animation="overlay"
+            icon="labeled"
+            inverted
+            onHide={() => setIsSidebarVisible(false)}
+            vertical
+            visible={isSidebarVisible}
+            width="wide"
+          >
+            <Menu.Item>
+              <Search
+                loading={loading}
+                results={
+                  results.length > 0
+                    ? results.map((result) => ({
+                        title: result.title,
+                        description: `Author: ${result.authorFirstName} ${result.authorLastName}`,
+                        key: result.id,
+                      }))
+                    : [{ title: "No Results Found", description: "", key: "no-results" }]
+                }
+                value={searchQuery}
+                placeholder="Search publications..."
+                onSearchChange={handleSearchChange}
+                onResultSelect={(e, data) => {
+                  const selectedResult = results.find((result) => result.id === data.result.key);
+                  if (selectedResult) {
+                    navigate(`/threads/${selectedResult.id}`);
+                  }
+                }}
+              />
+            </Menu.Item>
+            <Menu.Item>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <strong onClick={() => setShowAllData(false)}>SHOW MY PUBLICATIONS</strong>
+                <Radio toggle checked={showAllData} onChange={() => setShowAllData(!showAllData)} />
+                <strong onClick={() => setShowAllData(true)}>SHOW ALL PUBLICATIONS</strong>
+              </div>
+            </Menu.Item>
+            <Menu.Item>
+              <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick} />
+            </Menu.Item>
+          </Sidebar>
+        </>
+      )}
+           
 
             <Divider horizontal>
                 <Header as="h1" className="industry">
                     <Icon name="book" />
-                    PRE-PUBLICATION SECURITY & POLICY REVIEW
+                    {isMobile ? 'PRE PUB REVIEW' : 'PRE-PUBLICATION SECURITY & POLICY REVIEW'}
                 </Header>
             </Divider>
             {showAllData && 

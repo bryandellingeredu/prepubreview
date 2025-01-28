@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import LoadingComponent from './LoadingComponent';
 export default observer(function Navbar(){
 
-      const { userStore } = useStore();
+      const { userStore, responsiveStore } = useStore();
+      const {isMobile} = responsiveStore
       const navigate = useNavigate();
 
     
@@ -32,7 +33,9 @@ export default observer(function Navbar(){
         <img src="/prepubreview/star.svg" alt="Logo"  />
         </MenuItem>
         <MenuItem>
+          {!isMobile && 
           <h2 className='industry'>PRE PUBLICATION REVIEW</h2>
+          }
         </MenuItem>
         <MenuItem position="right">
         <Menu.Menu >
