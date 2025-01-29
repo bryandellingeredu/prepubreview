@@ -1,6 +1,7 @@
 import { Button, Grid, Header, Icon } from "semantic-ui-react";
 import DocumentWidgetDropzone from "./documentWidgetDropzone";
 import { useState } from "react";
+import { useStore } from "../../stores/store";
 
 interface Props{
     loading: boolean
@@ -9,6 +10,9 @@ interface Props{
 }
 
 export default function DocumentUploadWidget({loading, uploadPublication, setFileName} : Props) {
+
+    const { responsiveStore } = useStore();
+    const {isMobile} = responsiveStore
     
     const handleUploadPublication = () => {
           uploadPublication(files[0]);
@@ -82,7 +86,7 @@ export default function DocumentUploadWidget({loading, uploadPublication, setFil
                  <Header  sub content='STEP 2 - UPLOAD PUBLICATION' />
                  {files && files.length > 0 && (
             <div style={{marginTop: '60px', textAlign: 'center'}}>
-            <Button type='button' size='big' icon labelPosition='left' primary onClick = {handleUploadPublication}  loading={loading} >
+            <Button type='button' size={isMobile ? 'small' : 'big'} icon labelPosition='left' primary onClick = {handleUploadPublication}  loading={loading} >
           
       <Icon name='upload' />
       Upload

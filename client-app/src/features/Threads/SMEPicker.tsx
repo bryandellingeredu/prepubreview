@@ -13,7 +13,8 @@ interface Props{
 }
 
 export default observer(function SMEPicker({addSME, removeSME, threadId}: Props) {
-    const { modalStore, smeStore } = useStore();
+    const { modalStore, smeStore, responsiveStore } = useStore();
+    const {isMobile} = responsiveStore
     const { userSubjectLoading, loadMoreSubjects, userSubjects } = smeStore;
     const { closeModal } = modalStore;
 
@@ -148,17 +149,18 @@ useEffect(() => {
             <Divider horizontal>
                 <Header as="h2" className="industry">
                     <Icon name="graduation cap" />
-                    CHOOSE AN SME TO REVIEW YOUR PUBLICATION
+                  {isMobile ? 'CHOOSE AN SME' : 'CHOOSE AN SME TO REVIEW YOUR PUBLICATION'}  
                 </Header>
             </Divider>
 
-            <div style={{ display: "flex",
-                          justifyContent: "space-between",
-                          alignItems:"center",
-                          marginTop: "1rem",
-                          paddingLeft: '10px',
-                          paddingRight: '10px',
-                          }}>
+            <div style={ !isMobile ? { 
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: "1rem",
+                paddingLeft: "10px",
+                paddingRight: "10px"
+            } : {} }>
                  <Input
                     icon='search'
                     iconPosition='left'
@@ -194,7 +196,7 @@ useEffect(() => {
             >
             {!isFiltered &&
              <>
-                <CardGroup itemsPerRow={3}>
+                <CardGroup itemsPerRow={isMobile ? 1 : 3}>
                     {displayedSubjects.map((userSubject) => (
                         <SMECard key={userSubject.usawcUser.personId}
                          userSubject={userSubject}
@@ -211,7 +213,7 @@ useEffect(() => {
               </>
             }
             {isFiltered &&
-                    <CardGroup itemsPerRow={3}>
+                    <CardGroup itemsPerRow={isMobile ? 1 : 3}>
                     {filteredSubjects.map((userSubject) => (
                         <SMECard key={userSubject.usawcUser.personId}
                          userSubject={userSubject}

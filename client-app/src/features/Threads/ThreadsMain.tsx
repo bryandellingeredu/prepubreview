@@ -20,7 +20,8 @@ import { StatusType } from "../../app/models/statusType";
 export default observer(function ThreadsMain() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const { publicationStore, usawcUserStore, userStore, smeStore, securityOfficerStore  } = useStore();
+    const { publicationStore, usawcUserStore, userStore, smeStore, securityOfficerStore, responsiveStore  } = useStore();
+    const {isMobile} = responsiveStore;
     const { appUser} = userStore;
     const {publicationloading, getPublicationById} = publicationStore
     const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
@@ -299,7 +300,7 @@ export default observer(function ThreadsMain() {
                     {publication.title}
                 </Header>
             </Divider>
-            <SegmentGroup horizontal style={{backgroundColor: '#F1E4C7'}}>
+            <SegmentGroup horizontal={!isMobile} style={{backgroundColor: '#F1E4C7'}}>
                 <Segment style={{ display: 'flex', alignItems: 'center' }}>
                     <strong className="industry">ENTERED BY: &nbsp; </strong> {getCreatorName()} </Segment>
                 <Segment style={{ display: 'flex', alignItems: 'center' }}><strong className="industry">AUTHOR: &nbsp; </strong> {getAuthorName()}</Segment>

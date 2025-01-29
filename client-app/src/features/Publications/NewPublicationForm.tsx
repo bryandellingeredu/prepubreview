@@ -31,7 +31,8 @@ import DocumentDownloadWidget from "../../app/common/documentDownload/documentDo
 export default observer(function NewPublicationForm() {
   const { pubid } = useParams();
   const {isRevision} = useParams();
-  const { publicationStore, userStore, usawcUserStore } = useStore();
+  const { publicationStore, userStore, usawcUserStore, responsiveStore } = useStore();
+  const {isMobile} = responsiveStore
   const { addPublication, publicationloading, uploading, uploadPublication, getPublicationById } = publicationStore;
   const { appUser} = userStore;
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
@@ -207,11 +208,20 @@ const handleCancel = () => {
     <Container fluid>
       <Navbar />
       <Divider horizontal>
+        {!isMobile && 
         <Header as="h1" className="industry">
           {isRevision  ?   <Icon name="pencil" /> :   <Icon name="plus" />}
         
          {isRevision ? 'REVISE YOUR PUBLICATION' : 'ADD A PUBLICATION FOR REVIEW' } 
         </Header>
+      }
+         {isMobile && 
+        <Header as="h1" className="industry">
+          {isRevision  ?   <Icon name="pencil" /> :   <Icon name="plus" />}
+        
+         {isRevision ? 'REVISE PUBLICATION' : 'ADD PUBLICATION' } 
+        </Header>
+      }
       </Divider>
       <Container>
         <Form onSubmit={handleSubmit}>

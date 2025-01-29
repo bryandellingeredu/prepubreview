@@ -13,7 +13,8 @@ interface Props{
 }
 
 export default observer(function SecurityOfficerPicker({threadId, updateSecurityOfficerId, removeSecurityOfficer} :Props){
-    const { modalStore, securityOfficerStore } = useStore();
+    const { modalStore, securityOfficerStore, responsiveStore } = useStore();
+    const {isMobile} = responsiveStore
     const {securityOfficerLoading, securityOfficers, loadSecurityOfficers} = securityOfficerStore
     const { closeModal } = modalStore;
     const [lastNameFilter, setLastNameFilter] = useState('');
@@ -66,18 +67,19 @@ export default observer(function SecurityOfficerPicker({threadId, updateSecurity
             <Divider horizontal>
                 <Header as="h2" className="industry">
                     <Icon name="shield" />
-                    CHOOSE A SECURITY OFFICER TO REVIEW YOUR PUBLICATION
+                    {isMobile ? 'CHOOSE A SO' : 'CHOOSE A SECURITY OFFICER TO REVIEW YOUR PUBLICATION'}  
+                   
                 </Header>
             </Divider>
 
-            <div style={{ display: "flex",
+            <div style={ !isMobile ? { display: "flex",
                           justifyContent: "space-between",
                           alignItems:"center",
                           marginTop: "1rem",
                           paddingLeft: '10px',
                           paddingRight: '10px',
                           marginBottom: '10px'
-                          }}>
+                          } : {}}>
 
                <Input
                     icon='search'
@@ -138,7 +140,7 @@ export default observer(function SecurityOfficerPicker({threadId, updateSecurity
 
             </div>
 
-            <CardGroup itemsPerRow={3}>
+            <CardGroup itemsPerRow={isMobile ? 1 : 3}>
                 {filteredSecurityOfficers.filter(x => !x.logicalDeleteIndicator).map((securityOfficer) => (
                     <SecurityOfficerCard
                     key={securityOfficer.id}

@@ -57,7 +57,8 @@ export default observer(function ThreadComponent({
   creatorPersonId
 }: Props) {
   const navigate = useNavigate();
-  const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore, userStore } = useStore();
+  const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore, userStore, responsiveStore } = useStore();
+  const {isMobile} = responsiveStore
   const {appUser} = userStore
   const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
   const {openModal} = modalStore;
@@ -390,7 +391,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
        }
        {thread.subjectMatterExperts &&
         thread.subjectMatterExperts.length > 0 &&
-          <CardGroup itemsPerRow={3}>
+          <CardGroup itemsPerRow={isMobile ? 1 : 3}>
           {
             thread.subjectMatterExperts.map((subjectMatterExpert) => (
             <SMECard
@@ -446,7 +447,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
           </div>
           }
           {thread.securityOfficerId && 
-           <CardGroup itemsPerRow={3}>
+           <CardGroup itemsPerRow={isMobile ? 1 : 3}>
           <SecurityOfficerCard
            securityOfficer = {securityOfficerStore.getById(thread.securityOfficerId)}
            threadId={thread.id}

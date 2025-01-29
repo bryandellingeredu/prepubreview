@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { Header, Icon } from 'semantic-ui-react';
+import { useStore } from '../../stores/store';
 
 interface Props {
     setFiles: (files: any) => void;
@@ -9,6 +10,9 @@ interface Props {
 }
 
 export default function DocumentWidgetDropzone({ setFiles, setFileName }: Props) {
+
+        const { responsiveStore } = useStore();
+        const {isMobile} = responsiveStore;
 
     const dzStyles = {
         border: 'dashed 3px black',
@@ -69,7 +73,9 @@ export default function DocumentWidgetDropzone({ setFiles, setFileName }: Props)
         <div {...getRootProps()} style={isDragActive ? { ...dzStyles, ...dzActive } : dzStyles}>
             <input {...getInputProps()} />
             <Icon name='hand point down' size='huge' />
+            {!isMobile && 
             <Header content='Drag And Drop Here, Or Click To Browse' />
+            }
         </div>
     );
 }
