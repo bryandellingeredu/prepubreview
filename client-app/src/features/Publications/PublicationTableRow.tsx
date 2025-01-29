@@ -6,6 +6,7 @@ import LoadingComponent from "../../app/layout/LoadingComponent";
 import { StatusType } from "../../app/models/statusType";
 
 
+
 interface Props {
     publication: Publication;
 }

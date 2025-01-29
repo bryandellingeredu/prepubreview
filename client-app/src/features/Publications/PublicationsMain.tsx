@@ -72,6 +72,88 @@ export default observer(function PublicationsMain() {
 
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
+    const [selectedFromDate, setSelectedFromDate] = useState<Date | null>(null);
+    const [selectedToDate, setSelectedToDate] = useState<Date | null>(null);
+    const [title, setTitle] = useState('');
+    const [author, setAuthor] = useState('');
+
+    const statusOptions = [
+      { key: 1, text: 'Pending', value: 0 },
+      { key: 2, text: 'Waiting for SME Review', value: 1},
+      { key: 3, text: "Rejected by SME, Awaiting Author's Revision", value: 2},
+      { key: 4, text: "Waiting for Operational Security Officer Review", value: 3},
+      { key: 5, text: "Rejected by Security Officer, Awaiting Author's Revision", value: 4},
+      { key: 6, text: "Completed", value: 5},
+    ];
+
+    const [status, setStatus] = useState<number | null>(null); 
+
+    const  handleStatusChange = (newStatus: number | null) => {
+      setStatus(newStatus)
+    }
+
+    const handleAuthorChange = (newAuthor: string) => {
+      setAuthor(newAuthor)
+    }
+
+    const handleTitleChange = (newTitle: string) => {
+      setTitle(newTitle)
+    }
+
+    const handleFromDateChange = (newDate: Date | null) =>{
+      setSelectedFromDate(newDate);
+    }
+
+    const handleToDateChange = (newDate: Date | null) => {
+      setSelectedToDate(newDate);
+    }
+
+    const getMyPublicationsFiltered = () => {
+      let filteredPublications = myPublications;
+    
+      if (selectedFromDate) {
+        filteredPublications = filteredPublications.filter((x) => {
+          // Convert both dates to "date only" by zeroing out the time
+          const createdDate = new Date(x.dateCreated);
+          const fromDate = new Date(selectedFromDate);
+          
+          // Reset hours, minutes, seconds, and milliseconds to zero
+          createdDate.setHours(0, 0, 0, 0);
+          fromDate.setHours(0, 0, 0, 0);
+          
+          return createdDate >= fromDate;
+        });
+      }
+
+      if (selectedToDate) {
+        filteredPublications = filteredPublications.filter((x) => {
+          // Convert both dates to "date only" by zeroing out the time
+          const createdDate = new Date(x.dateCreated);
+          const toDate = new Date(selectedToDate);
+          
+          // Reset hours, minutes, seconds, and milliseconds to zero
+          createdDate.setHours(0, 0, 0, 0);
+          toDate.setHours(0, 0, 0, 0);
+          
+          return createdDate <= toDate;
+        });
+      }
+
+      if(title){
+        filteredPublications = filteredPublications.filter(x => x.title.toLowerCase().includes(title.toLowerCase()))
+      }
+
+      if(author){
+        filteredPublications = filteredPublications.filter(x => x.authorLastName.toLowerCase().includes(author.toLowerCase())  || x.authorFirstName.toLowerCase().includes(author.toLowerCase()))
+      }
+
+      if(status !== null && status !== undefined){
+        filteredPublications = filteredPublications.filter(x => x.status === status)
+      }
+    
+      return filteredPublications;
+    };
+
    if (mypublicationloading) return <LoadingComponent content='loading data' />
 
     return (
@@ -189,14 +271,17 @@ export default observer(function PublicationsMain() {
                 loadMore={loadPublications} // Directly pass the loadPublications function
                 hasMore={hasMore}
             >
-                <PublicationTable publications={publications} />
+                <PublicationTable publications={publications} selectedFromDate={selectedFromDate} selectedToDate={selectedToDate} handleFromDateChange={handleFromDateChange} handleToDateChange={handleToDateChange}
+                title={title} handleTitleChange={handleTitleChange} author={author} handleAuthorChange={handleAuthorChange} statusOptions={statusOptions} status={status} handleStatusChange={handleStatusChange} />
             </InfiniteScroll>
             {publicationloading  &&
             <Loader active inline='centered' />}
             </>
             }
             {!showAllData &&
-                <PublicationTable publications={myPublications} />
+                <PublicationTable publications={getMyPublicationsFiltered()}  selectedFromDate={selectedFromDate} selectedToDate={selectedToDate} handleFromDateChange={handleFromDateChange} handleToDateChange={handleToDateChange}
+                title={title} handleTitleChange={handleTitleChange} author={author} handleAuthorChange={handleAuthorChange} statusOptions={statusOptions} status={status} handleStatusChange={handleStatusChange} 
+                />
             } 
         </Container>
     );
