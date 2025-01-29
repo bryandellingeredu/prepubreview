@@ -1,4 +1,5 @@
 ﻿using Application.Core;
+using Azure.Core;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +11,7 @@ namespace Application.Publications
     {
         public class Query : IRequest<Result<List<PrePublication_Publication>>>
         {
-            public int Offset { get; set; } // Number of rows to skip
-            public int Limit { get; set; } // Number of rows to return
+          public PublicationListDTO PublicationListDTO { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, Result<List<PrePublication_Publication>>>
@@ -23,28 +23,60 @@ namespace Application.Publications
                 _context = context;
             }
 
-            public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken)
-            {
-                var publications = await _context.Publications
-                    .OrderBy(s => s.Status == StatusType.Complete ? 1 : 0)
-                    .ThenByDescending(p => p.DateCreated)
-                    .Skip(request.Offset)
-                    .Take(request.Limit)
-                    .ToListAsync(cancellationToken);
+          public async Task<Result<List<PrePublication_Publication>>> Handle(Query request, CancellationToken cancellationToken)
+{
+    IQueryable<PrePublication_Publication> query = _context.Publications.AsQueryable();
 
-                // If no data, add a single empty publication
-                if (!publications.Any())
-                {
-                    publications.Add(new PrePublication_Publication
-                    {
-                        Id = Guid.Empty,
-                        Title = "No Data Found",
-                        DateCreated = DateTime.Now
-                    });
-                }
+    if (request.PublicationListDTO.FromDate.HasValue)
+    {
+        DateTime fromDate = request.PublicationListDTO.FromDate.Value.Date; // Strip time
+        query = query.Where(p => p.DateCreated.Date >= fromDate);
+    }
 
-                return Result<List<PrePublication_Publication>>.Success(publications);
-            }
+    if (request.PublicationListDTO.ToDate.HasValue)
+    {
+    DateTime toDate = request.PublicationListDTO.ToDate.Value.Date; // Strip time
+    query = query.Where(p => p.DateCreated.Date <= toDate);
+    }
+
+    if (!string.IsNullOrEmpty(request.PublicationListDTO.Title))
+        query = query.Where(p => EF.Functions.Like(p.Title.ToLower(), $"%{request.PublicationListDTO.Title.ToLower()}%"));
+
+    if (!string.IsNullOrEmpty(request.PublicationListDTO.Author))
+    {
+        string searchAuthor = request.PublicationListDTO.Author.ToLower();
+        query = query.Where(p =>
+            EF.Functions.Like(p.AuthorFirstName.ToLower(), $"%{searchAuthor}%") ||
+            EF.Functions.Like(p.AuthorLastName.ToLower(), $"%{searchAuthor}%"));
+    }
+
+    if (request.PublicationListDTO.Status.HasValue)
+    {
+        StatusType statusEnum = (StatusType)request.PublicationListDTO.Status.Value;
+        query = query.Where(p => p.Status == statusEnum);
+    }
+
+    query = query
+        .OrderBy(s => s.Status == StatusType.Complete ? 1 : 0)
+        .ThenByDescending(p => p.DateCreated)
+        .Skip(request.PublicationListDTO.Offset)
+        .Take(request.PublicationListDTO.Limit);
+
+    var results = await query.ToListAsync();
+
+    // If no data, add a single empty publication
+    if (!results.Any())
+    {
+        results.Add(new PrePublication_Publication
+        {
+            Id = Guid.Empty,
+            Title = "No Data Found",
+            DateCreated = DateTime.Now
+        });
+    }
+
+    return Result<List<PrePublication_Publication>>.Success(results);
+}
         }
     }
 }

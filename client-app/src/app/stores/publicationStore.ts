@@ -15,7 +15,6 @@ export default class PublicationStore{
     publicationloading = false;
     mypublicationloading = false;
     uploading = false;
-    offset = 0; // Start offset
     limit = 25; // Number of items to fetch per page
     hasMore = true;
 
@@ -51,34 +50,48 @@ export default class PublicationStore{
       };
 
 
-    loadPublications = async () => {
-        if (!this.hasMore || this.publicationloading ) return; // Prevent unnecessary requests
-        this.setPublicationLoading(true); // Set loading to true
+      loadPublications = async (
+        fromDate?: Date | null,
+        toDate?: Date | null,
+        title?: string,
+        author?: string,
+        status?: number | null,
+        offset?: number // Optional parameter
+      ) => {
+        // Use the passed offset if available; otherwise, use the internal offset
+    
+      
+        if (!this.hasMore || this.publicationloading) return;
+      
+        this.setPublicationLoading(true);
+      
         try {
-            const publications = await agent.Publications.list(this.offset, this.limit);
-    
-            // If fewer than `limit` items are returned, we assume there are no more items
-            if (publications.length < this.limit) {
-                this.hasMore = false;
-            }
-    
-            // Add publications to the registry
-            runInAction(() => {
+          const publications = await agent.Publications.list(offset || 0, this.limit, {
+            fromDate: fromDate ? fromDate.toISOString() : null,
+            toDate: toDate ? toDate.toISOString() : null,
+            title: title || null,
+            author: author || null,
+            status: status !== null && status !== undefined ? status : null,
+          });
+      
+          if (publications.length < this.limit) {
+            this.hasMore = false;
+          }
+      
+          runInAction(() => {
             publications.forEach((publication) => {
-                this.publicationRegistry.set(publication.id, publication);
+              this.publicationRegistry.set(publication.id, publication);
             });
-        });
-    
-            // Increment the offset for the next batch
-            this.offset += this.limit;
+          });
         } catch (error) {
-            console.error("Error loading publications:", error);
-            toast.error('an error occured loading publications');
+          console.error("Error loading publications:", error);
+          toast.error("An error occurred while loading publications");
         } finally {
-            this.setPublicationLoading(false); // Always set loading to false after execution
+          this.setPublicationLoading(false);
         }
-    };
+      };
 
+      
     getPublicationById = async (id: string) => {
             try{
                 this.setPublicationLoading(true);
@@ -213,7 +226,6 @@ export default class PublicationStore{
 
     resetPublications = () => {
         this.publicationRegistry.clear();
-        this.offset = 0;
         this.hasMore = true;
     };
 

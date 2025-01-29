@@ -11,14 +11,16 @@ import { Publication } from "../../app/models/publication";
 import agent from "../../app/api/agent";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 
+
 export default observer(function PublicationsMain() {
     const { publicationStore, responsiveStore } = useStore();
     const {isMobile} = responsiveStore
-    const { loadPublications,  publications, hasMore, publicationloading, loadMyPublications, myPublications, mypublicationloading } = publicationStore;
+    const {   publications,  publicationloading, loadMyPublications, myPublications, mypublicationloading } = publicationStore;
 
     useEffect(() => {
        loadMyPublications();
       }, []);
+
     
 
     const navigate = useNavigate();
@@ -76,6 +78,19 @@ export default observer(function PublicationsMain() {
     const [selectedToDate, setSelectedToDate] = useState<Date | null>(null);
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
+    const [debouncedTitle, setDebouncedTitle] = useState(title);
+    const [debouncedAuthor, setDebouncedAuthor] = useState(author);
+
+    useEffect(() => {
+      const handler = setTimeout(() => setDebouncedTitle(title), 600);
+      return () => clearTimeout(handler);
+  }, [title]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedAuthor(author), 600);
+    return () => clearTimeout(handler);
+}, [author]);
+
 
     const statusOptions = [
       { key: 1, text: 'Pending', value: 0 },
@@ -153,6 +168,28 @@ export default observer(function PublicationsMain() {
     
       return filteredPublications;
     };
+
+    const [infiniteKey, setInfiniteKey] = useState(0);
+    const [firstLoadDone, setFirstLoadDone] = useState(false);
+
+
+    useEffect(() => {
+      publicationStore.resetPublications();
+      setInfiniteKey(prev => prev + 1);
+      setFirstLoadDone(false);
+
+      if (showAllData) {
+          publicationStore.loadPublications(
+              selectedFromDate,
+              selectedToDate,
+              debouncedTitle,
+              debouncedAuthor,
+              status,
+              0
+          ).then(() => setFirstLoadDone(true));
+      }
+  }, [showAllData, selectedFromDate, selectedToDate, debouncedTitle, debouncedAuthor, status]);
+
 
    if (mypublicationloading) return <LoadingComponent content='loading data' />
 
@@ -266,11 +303,25 @@ export default observer(function PublicationsMain() {
             </Divider>
             {showAllData && 
             <>
-            <InfiniteScroll
-                pageStart={0}
-                loadMore={loadPublications} // Directly pass the loadPublications function
-                hasMore={hasMore}
-            >
+               <InfiniteScroll
+                      key={infiniteKey} // 🔥 Forces re-render when filters change
+                      pageStart={0} // ✅ Ensures first call starts at 0
+                      loadMore={(page) => {
+                        const actualPage = firstLoadDone ? page : 0; // ✅ Ensure first offset is 0
+                        const offset = actualPage * publicationStore.limit; // ✅ Correctly calculates offset
+                        console.log("Loading page:", actualPage, "Offset:", offset); // Debugging log
+                    
+                        publicationStore.loadPublications(
+                          selectedFromDate,
+                          selectedToDate,
+                          debouncedTitle,
+                          debouncedAuthor,
+                          status,
+                          offset
+                        );
+                      }}
+                      hasMore={publicationStore.hasMore}
+                >       
                 <PublicationTable publications={publications} selectedFromDate={selectedFromDate} selectedToDate={selectedToDate} handleFromDateChange={handleFromDateChange} handleToDateChange={handleToDateChange}
                 title={title} handleTitleChange={handleTitleChange} author={author} handleAuthorChange={handleAuthorChange} statusOptions={statusOptions} status={status} handleStatusChange={handleStatusChange} />
             </InfiniteScroll>

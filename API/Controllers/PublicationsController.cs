@@ -13,9 +13,9 @@ namespace API.Controllers
     {
 
         [AuthorizeUSAWCEmail]
-        [HttpGet]
-        public async Task<ActionResult<List<PrePublication_Publication>>> GetPublications([FromQuery] int offset = 0, [FromQuery] int limit = 100) =>
-            HandleResult(await Mediator.Send(new List.Query { Offset = offset, Limit = limit }));
+        [HttpPost("filterlist")]
+        public async Task<ActionResult<List<PrePublication_Publication>>> GetPublications([FromBody] PublicationListDTO publicationListDTO) =>
+            HandleResult(await Mediator.Send(new List.Query { PublicationListDTO = publicationListDTO}));
 
         [AuthorizeUSAWCEmail]
         [HttpGet("mine")]
