@@ -27,6 +27,8 @@ namespace Application.Publications
 {
     IQueryable<PrePublication_Publication> query = _context.Publications.AsQueryable();
 
+    query = query.Where(x => x.LogicalDeleteIn == false);
+
     if (request.PublicationListDTO.FromDate.HasValue)
     {
         DateTime fromDate = request.PublicationListDTO.FromDate.Value.Date; // Strip time

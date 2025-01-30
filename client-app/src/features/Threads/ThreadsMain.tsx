@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
 import { useStore } from "../../app/stores/store";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, ButtonContent, Container, Divider, Header, Icon, Segment, SegmentGroup } from "semantic-ui-react";
+import { Button, ButtonContent, ButtonGroup, Container, Divider, Header, Icon, Message, Popup, Segment, SegmentGroup } from "semantic-ui-react";
 import { useEffect, useState } from "react";
 import { Publication } from "../../app/models/publication";
 import LoadingComponent from "../../app/layout/LoadingComponent";
@@ -42,7 +42,10 @@ export default observer(function ThreadsMain() {
         publicationLink: '',
         publicationLinkName: '',
         threads: [],
-        status: StatusType.Pending
+        status: StatusType.Pending,
+        logicalDeleteIn: false,
+        deletedByPersonId: null,
+        dateDeleted: null
     })
 
     const [scrollTrigger, setScrollTrigger] = useState(false);
@@ -277,9 +280,31 @@ export default observer(function ThreadsMain() {
         return StatusType[publication.status];
     }
 
+    const [open, setOpen] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [deleted, setDeleted] = useState(false);
+
+    const handleCancel = () => {
+        setOpen(false);
+    };
+
+    const handleDelete = async () =>{
+        setDeleting(true)
+        try{
+           await publicationStore.deletePublication(publication.id);
+           setPublication({ ...publication, logicalDeleteIn: true });
+        }catch(error){
+            toast.error('an error occured during delete')
+        }finally{
+            setDeleting(false);
+        }
+    }
+
 
     if(!id || publicationloading || usawcUserloading || loadingMeta || userSubjectLoading || securityOfficerLoading) return <LoadingComponent content="loading data..."/>
 
+
+    
     return(
         <Container fluid>
              <Navbar />
@@ -295,6 +320,17 @@ export default observer(function ThreadsMain() {
                         BACK
                     </Button>
             </div>
+            {publication.logicalDeleteIn &&
+               <Message negative>
+               <Message.Header>
+                   <span className="industry">
+                       THIS PUBLICATION HAS BEEN DELETED
+                   </span>
+               </Message.Header>
+           </Message>
+            }
+            {!publication.logicalDeleteIn && 
+            <>
              <Divider horizontal>
                 <Header as="h1" className="industry">
                     {publication.title}
@@ -325,12 +361,46 @@ export default observer(function ThreadsMain() {
                 <Segment style={{ display: 'flex', alignItems: 'center' }}>
                 
                 {(appUser?.isAdmin || appUser?.personId === publication.authorPersonId || appUser?.personId === publication.createdByPersonId) && 
-                <Button animated='vertical' color='brown' floated="right" onClick={handleEditButtonClick}>
+                <ButtonGroup>
+                <Button animated='vertical' color='brown'  onClick={handleEditButtonClick}>
                     <ButtonContent hidden>EDIT</ButtonContent>
                         <ButtonContent visible>
                             <Icon name='edit' />
                         </ButtonContent>
                 </Button>
+            
+                <Popup
+                
+                trigger={
+                  <Button animated='vertical'
+                   color='red' icon  onClick={() => setOpen(true)}>
+                      <ButtonContent hidden>DELETE</ButtonContent>
+                        <ButtonContent visible>
+                            <Icon name='x' />
+                        </ButtonContent>
+                </Button>
+                 }
+                   on="click"
+                  open={open}
+                  onClose={() => setOpen(false)}
+                  position="top center"
+                content={
+                <div>
+                   <p>Are you sure you want to delete this Publication</p>
+                      <Button color="red" onClick={handleDelete} loading={deleting}>
+                        Yes
+                      </Button>
+                    <Button color="grey" onClick={handleCancel}>
+                       No
+                     </Button>
+                </div>
+                }
+              
+                />
+                
+               
+
+                </ButtonGroup>
                 }
                
 
@@ -368,6 +438,8 @@ export default observer(function ThreadsMain() {
                         <Segment>No threads available.</Segment>
                      )}
                 </SegmentGroup>
+                </>
+           }
 
 
         </Container>

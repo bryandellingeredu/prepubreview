@@ -40,6 +40,10 @@ namespace API.Controllers
         [HttpPost("search")] 
                public async Task<ActionResult<List<PrePublication_Publication>>> Search([FromBody]  PublicationSearchDTO publicationSearchDTO) =>
          HandleResult(await Mediator.Send(new Search.Query { PublicationSearchDTO = publicationSearchDTO }));
+
+          [HttpDelete("{id}")]
+          public async Task<IActionResult> Delete(Guid id) =>
+           HandleResult(await Mediator.Send(new Delete.Command { Id = id, Email =  User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")}));
         
     } 
 }

@@ -52,10 +52,10 @@ export default observer(function SecurityOfficerCard (
       }, [loadUSAWCUsers, usawcUsers, usawcUserloading]);
 
       useEffect(() => {
-        if (usawcUsers.length > 0 && !usawcUserloading){
-          setUser(getUserByPersonId(securityOfficer.personId))
-        } 
-      })
+        if (usawcUsers.length > 0 && !usawcUserloading) {
+          setUser(getUserByPersonId(securityOfficer.personId) || null);
+        }
+      }, [usawcUsers, usawcUserloading, securityOfficer.personId, getUserByPersonId]);
 
       const handleDelete = async () => {
         setDeleting(true);

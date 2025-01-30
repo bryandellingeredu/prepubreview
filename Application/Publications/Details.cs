@@ -43,6 +43,9 @@ namespace Application.Publications
                     UpdatedByPersonId = p.UpdatedByPersonId,
                     PublicationLink = p.PublicationLink,
                     PublicationLinkName = p.PublicationLinkName,
+                    LogicalDeleteIn = p.LogicalDeleteIn,
+                    DeletedByPersonId = p.DeletedByPersonId,
+                    DateDeleted = p.DateDeleted,    
                     Threads = p.Threads.Select(t => new PrePublication_Thread
                     {
                         Id = t.Id,

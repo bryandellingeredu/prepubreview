@@ -15,6 +15,9 @@ export interface Publication{
     publicationLink: string,
     publicationLinkName: string,
     threads: Thread[] | null,
-    status: StatusType
+    status: StatusType,
+    logicalDeleteIn: boolean,
+    dateDeleted: Date | null,
+    deletedByPersonId: number | null
  }
  

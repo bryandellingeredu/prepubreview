@@ -35,6 +35,7 @@ namespace Application.Publications
             {
                 var requestor = await _userService.GetUserByEmailAsync(request.Email);
                 var publications = await _context.Publications
+                                    .Where(x => x.LogicalDeleteIn == false)
                                     .Where(
                                             x => x.AuthorPersonId == requestor.PersonId ||
                                             x.CreatedByPersonId == requestor.PersonId ||

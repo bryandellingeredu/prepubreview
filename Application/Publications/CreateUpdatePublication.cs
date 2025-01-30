@@ -66,6 +66,7 @@ namespace Application.Publications
                        newPublication.PublicationLink = request.PublicationDTO.PublicationLink;
                        newPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
                        newPublication.Status = StatusType.Pending;
+                       newPublication.LogicalDeleteIn = false;
                     _context.Publications.Add(newPublication);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create registration"); 

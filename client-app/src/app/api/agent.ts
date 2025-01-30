@@ -45,7 +45,8 @@ axios.interceptors.request.use((config) => {
     listMine: () => requests.get<Publication[]>('/publications/mine'),
     details: (id: string) => requests.get<Publication>(`/publications/${id}`),
     createUpdate: (publicationDTO: PublicationDTO) => requests.post<void>('/publications', publicationDTO),
-    search: (searchQuery: string) => requests.post<Publication[]>('/publications/search', {searchQuery})
+    search: (searchQuery: string) => requests.post<Publication[]>('/publications/search', {searchQuery}),
+    delete: (id: string) => requests.del<void>(`/publications/${id}`)
   }
 
   const AppUsers = {

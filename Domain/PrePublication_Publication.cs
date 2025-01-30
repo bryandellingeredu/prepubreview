@@ -26,6 +26,9 @@ namespace Domain
         public string PublicationLink {get; set;}
         public string PublicationLinkName {get; set;}
         public StatusType Status { get; set; }
+        public bool LogicalDeleteIn {get; set;}
+         public DateTime? DateDeleted { get; set; } 
+        public int? DeletedByPersonId { get; set; } 
         public ICollection<PrePublication_Thread> Threads { get; set; } = new List<PrePublication_Thread>();
           
     }

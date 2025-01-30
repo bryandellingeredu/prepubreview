@@ -34,6 +34,7 @@ namespace Application.Publications
                 var query = request.PublicationSearchDTO.SearchQuery.ToLower();
 
                 var publications = await _context.Publications
+                     .Where(x => x.LogicalDeleteIn == false)
                     .Where(x => x.Title.ToLower().Contains(query) ||
                                 x.AuthorLastName.ToLower().Contains(query) ||
                                 x.AuthorFirstName.ToLower().Contains(query))

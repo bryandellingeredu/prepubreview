@@ -91,6 +91,21 @@ export default class PublicationStore{
         }
       };
 
+    deletePublication = async (id: string) => {
+      try{
+          await agent.Publications.delete(id);
+          runInAction(() => {
+            this.publicationRegistry.delete(id);
+         });
+         runInAction(() => {
+          this.myPublicationRegistry.delete(id);
+       });
+      }  catch (error) {
+                console.error("Error deleting publication:", error);
+                toast.error('an error deleting publication');
+      } 
+    }
+
       
     getPublicationById = async (id: string) => {
             try{
@@ -130,9 +145,17 @@ export default class PublicationStore{
                 authorLastName: author!.lastName,
                 authorMiddleName: author!.middleName,
                 threads: null,
-                status: StatusType.Pending
+                status: StatusType.Pending,
+                logicalDeleteIn: false,
+                deletedByPersonId: null,
+                dateDeleted: null
             }
-            this.publicationRegistry.set(createdPublication.id, createdPublication);
+            runInAction(() => {
+              this.publicationRegistry.set(createdPublication.id, createdPublication);
+            });
+            runInAction(() => {
+              this.myPublicationRegistry.set(createdPublication.id, createdPublication);
+            });
         }
      catch (error) {
         console.error("Error adding publication:", error);
@@ -151,6 +174,9 @@ export default class PublicationStore{
             runInAction(() => {
                 this.publicationRegistry.set(updatedPublication.id, updatedPublication)
               });
+              runInAction(() => {
+                this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
           }
         }catch(error){
             console.error("Error adding initial thread:", error);
@@ -166,6 +192,9 @@ export default class PublicationStore{
             const updatedPublication = await agent.Publications.details(publicationId)
             runInAction(() => {
                 this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+              runInAction(() => {
+                this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
               });
           }
         }catch(error){
@@ -183,6 +212,9 @@ export default class PublicationStore{
                runInAction(() => {
                    this.publicationRegistry.set(updatedPublication.id, updatedPublication)
                  });
+                 runInAction(() => {
+                  this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
+                });
              }
            }catch(error){
                console.error("Error adding opsec review thread:", error);
@@ -198,6 +230,9 @@ export default class PublicationStore{
             const updatedPublication = await agent.Publications.details(publicationId)
             runInAction(() => {
                 this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+              runInAction(() => {
+                this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
               });
           }
 
@@ -215,6 +250,9 @@ export default class PublicationStore{
             const updatedPublication = await agent.Publications.details(publicationId)
             runInAction(() => {
                 this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+              });
+              runInAction(() => {
+                this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
               });
           }
 
