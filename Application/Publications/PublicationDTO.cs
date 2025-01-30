@@ -14,5 +14,8 @@ namespace Application.Publications
          public int AuthorPersonId { get; set; }  
          public string PublicationLink {get; set;}  
          public string PublicationLinkName {get; set;}
+        public bool PromotedToWeb {get; set;}
+        public bool PromotedToSocial {get; set;}
+        public bool PromotedToPress {get; set;}
     }
 }

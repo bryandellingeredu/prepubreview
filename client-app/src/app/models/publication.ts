@@ -18,6 +18,9 @@ export interface Publication{
     status: StatusType,
     logicalDeleteIn: boolean,
     dateDeleted: Date | null,
-    deletedByPersonId: number | null
+    deletedByPersonId: number | null,
+    promotedToWeb : boolean,
+    promotedToSocial : boolean,
+    promotedToPress : boolean,
  }
  

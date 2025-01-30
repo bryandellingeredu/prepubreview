@@ -148,7 +148,11 @@ export default class PublicationStore{
                 status: StatusType.Pending,
                 logicalDeleteIn: false,
                 deletedByPersonId: null,
-                dateDeleted: null
+                dateDeleted: null,
+                promotedToPress: publicationDTO.promotedToPress,
+                promotedToWeb: publicationDTO.promotedToWeb,
+                promotedToSocial: publicationDTO.promotedToSocial
+
             }
             runInAction(() => {
               this.publicationRegistry.set(createdPublication.id, createdPublication);

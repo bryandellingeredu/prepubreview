@@ -46,6 +46,9 @@ namespace Application.Publications
                     LogicalDeleteIn = p.LogicalDeleteIn,
                     DeletedByPersonId = p.DeletedByPersonId,
                     DateDeleted = p.DateDeleted,    
+                    PromotedToPress = p.PromotedToPress,
+                    PromotedToSocial = p.PromotedToSocial,
+                    PromotedToWeb = p.PromotedToWeb,
                     Threads = p.Threads.Select(t => new PrePublication_Thread
                     {
                         Id = t.Id,

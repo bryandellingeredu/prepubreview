@@ -45,6 +45,9 @@ namespace Application.Publications
                      existingPublication.DateUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, easternZone);
                      existingPublication.PublicationLink = request.PublicationDTO.PublicationLink;
                      existingPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
+                     existingPublication.PromotedToPress = request.PublicationDTO.PromotedToPress;
+                     existingPublication.PromotedToSocial = request.PublicationDTO.PromotedToSocial;
+                     existingPublication.PromotedToWeb = request.PublicationDTO.PromotedToWeb;
                      try{
                         await _context.SaveChangesAsync();
                          return Result<Unit>.Success(Unit.Value);
@@ -67,6 +70,9 @@ namespace Application.Publications
                        newPublication.PublicationLinkName = request.PublicationDTO.PublicationLinkName;
                        newPublication.Status = StatusType.Pending;
                        newPublication.LogicalDeleteIn = false;
+                       newPublication.PromotedToPress = request.PublicationDTO.PromotedToPress;
+                       newPublication.PromotedToSocial = request.PublicationDTO.PromotedToSocial;
+                       newPublication.PromotedToWeb = request.PublicationDTO.PromotedToWeb;
                     _context.Publications.Add(newPublication);
                         var result = await _context.SaveChangesAsync() > 0;
                         if (!result) return Result<Unit>.Failure("Failed to create registration"); 

@@ -6,4 +6,7 @@ export interface PublicationDTO{
     authorPersonId: number 
     publicationLink: string
     publicationLinkName: string
+    promotedToWeb : boolean
+    promotedToSocial : boolean
+    promotedToPress : boolean
  }

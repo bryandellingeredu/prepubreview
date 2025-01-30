@@ -16,6 +16,8 @@ import {
   TextArea,
   Message,
   Popup,
+  SegmentGroup,
+  Checkbox,
 } from "semantic-ui-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,6 +42,9 @@ export default observer(function NewPublicationForm() {
   const navigate = useNavigate();
   const [id] = useState(pubid || uuidv4());
   const [author, setAuthor] = useState<number | null>(appUser!.personId); // Selected author
+  const [promotedToPress, setPromotedToPress] = useState(false);
+  const [promotedToWeb, setPromotedToWeb] = useState(false);
+  const [promotedToSocial, setPromotedToSocial] = useState(false);
   const [publicationLink, setPublicationLink] = useState("");
   const [formErrors, setFormErrors] = useState({
     title: false,
@@ -98,10 +103,14 @@ export default observer(function NewPublicationForm() {
             // Handle the publication object here
             console.log(publication);
             if (publication) {
+              debugger;
               setExistingTitle(publication.title);
               setAuthor(publication.authorPersonId);
               setPublicationLink(publication.publicationLink);
               setExistingPublicationLinkName(publication.publicationLinkName);
+              setPromotedToPress(publication.promotedToPress);
+              setPromotedToWeb(publication.promotedToWeb);
+              setPromotedToSocial(publication.promotedToSocial);
               setLoadingPub(false);
           }
         }).catch((error) => {
@@ -150,6 +159,9 @@ export default observer(function NewPublicationForm() {
         authorPersonId: author!,
         publicationLink,
         publicationLinkName,
+        promotedToPress,
+        promotedToSocial,
+        promotedToWeb
       };
       try {
         await addPublication(publicationDTO);
@@ -254,6 +266,22 @@ const handleCancel = () => {
             onChange={(e, { value }) => setAuthor(value as number || null)}
             error={formErrors.author && { content: "Author is required" }}
           />
+          <FormField>
+              <label>
+                PROMOTE YOUR PUBLICATION
+              </label>
+          <SegmentGroup  horizontal>
+            <Segment>
+                <Checkbox label='USAWC WEBSITE' checked={promotedToWeb} onClick={() => setPromotedToWeb(!promotedToWeb)}  disabled={isRevision === 'true'}/>
+            </Segment>
+            <Segment>
+            <Checkbox label='USAWC SOCIAL MEDIA'  checked={promotedToSocial} onClick={() => setPromotedToSocial(!promotedToSocial)}  disabled={isRevision === 'true'}/>
+            </Segment>
+            <Segment>
+            <Checkbox label='USAWC PRESS RELEASE' checked={promotedToPress} onClick={() => setPromotedToSocial(!promotedToPress)}  disabled={isRevision === 'true'} />
+            </Segment>
+          </SegmentGroup>
+          </FormField>
           <FormField>
             <Divider horizontal>
               <Header as="h5" className="industry">

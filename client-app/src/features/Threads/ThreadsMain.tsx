@@ -45,7 +45,10 @@ export default observer(function ThreadsMain() {
         status: StatusType.Pending,
         logicalDeleteIn: false,
         deletedByPersonId: null,
-        dateDeleted: null
+        dateDeleted: null,
+        promotedToPress: false,
+        promotedToWeb: false,
+        promotedToSocial: false
     })
 
     const [scrollTrigger, setScrollTrigger] = useState(false);
@@ -282,7 +285,6 @@ export default observer(function ThreadsMain() {
 
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [deleted, setDeleted] = useState(false);
 
     const handleCancel = () => {
         setOpen(false);
@@ -354,6 +356,21 @@ export default observer(function ThreadsMain() {
                          </Button>
                      }
                  </Segment>
+             
+
+                 {(publication.promotedToPress || publication.promotedToSocial || publication.promotedToWeb) && (
+                            <Segment style={{ display: 'flex', alignItems: 'center' }}>
+                                <strong className="industry">PUB WILL BE PROMOTED TO: &nbsp;</strong>
+                                {[
+                                    publication.promotedToPress && "USAWC Press",
+                                    publication.promotedToSocial && "USAWC Social Media",
+                                    publication.promotedToWeb && "USAWC Website"
+                                ]
+                                .filter(Boolean) // Remove falsy values (e.g., false, null, undefined)
+                                .join(", ") // Join with a comma and space
+                                }
+                            </Segment>
+                        )}
                  
                  <Segment style={{ display: 'flex', alignItems: 'center' }}><strong className="industry">STATUS: &nbsp; </strong> {getStatus()}</Segment>
 

@@ -29,6 +29,9 @@ namespace Domain
         public bool LogicalDeleteIn {get; set;}
          public DateTime? DateDeleted { get; set; } 
         public int? DeletedByPersonId { get; set; } 
+        public bool PromotedToWeb {get; set;}
+        public bool PromotedToSocial {get; set;}
+        public bool PromotedToPress {get; set;}
         public ICollection<PrePublication_Thread> Threads { get; set; } = new List<PrePublication_Thread>();
           
     }
