@@ -76,6 +76,11 @@ export default observer(function Navbar(){
     icon="settings"
     onClick={() => navigate('/managesecurityofficers')}
   />
+   <Dropdown.Item
+      text="Manage Pre Pub Team Members"
+      icon="settings"
+      onClick={() => navigate('/manageteammembers')}
+    />
   </> 
    }
     <Dropdown.Item

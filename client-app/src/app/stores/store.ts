@@ -7,6 +7,7 @@ import SMEStore from "./smeStore";
 import AdministratorStore from "./administratorStore";
 import SecurityOfficerStore from "./securityOfficerStore";
 import ResponsiveStore from "./responsiveStore";
+import TeamMemberStore from "./teamMemberStore";
 
 interface Store{
     userStore: UserStore;
@@ -17,6 +18,7 @@ interface Store{
     administratorStore: AdministratorStore;
     securityOfficerStore: SecurityOfficerStore;
     responsiveStore: ResponsiveStore;
+    teamMemberStore: TeamMemberStore;
 }
 
 export const store: Store ={
@@ -27,7 +29,8 @@ export const store: Store ={
     smeStore: new SMEStore(),
     administratorStore: new AdministratorStore(),
     securityOfficerStore: new SecurityOfficerStore(),
-    responsiveStore: new ResponsiveStore()
+    responsiveStore: new ResponsiveStore(),
+    teamMemberStore: new TeamMemberStore()
 }
 
 export const StoreContext = createContext(store);

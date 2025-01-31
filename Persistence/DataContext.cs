@@ -20,6 +20,8 @@ namespace Persistence
 
         public DbSet<PrePublication_SMEThreadJunction> SMEThreadJunctions{ get; set; }
 
+        public DbSet<PrePublication_TeamMember> TeamMembers{ get; set; }
+
 
     }
 

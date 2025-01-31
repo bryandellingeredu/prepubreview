@@ -9,6 +9,8 @@ import { Administrator } from '../models/administrator';
 import { AdministratorDTO } from '../models/administratorDTO';
 import { SecurityOfficer } from '../models/securityOfficer';
 import { InitialThreadDTO } from '../models/initialThreadDTO';
+import { TeamMember } from '../models/teammember';
+import { TeammemberDTO } from '../models/teamMemberDTO';
 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -80,6 +82,13 @@ axios.interceptors.request.use((config) => {
     delete: (id: string) => requests.del<void>(`/Administrators/${id}`)
   }
 
+  const TeamMembers =  {
+    list: () => requests.get<TeamMember[]>('/TeamMembers'),
+    create: (teamMemberDTO: TeammemberDTO) => requests.post<void>('/TeamMembers', teamMemberDTO),
+    delete: (id: string) => requests.del<void>(`/TeamMembers/${id}`)
+  }
+
+
   const SecurityOfficers = {
     list: () => requests.get<SecurityOfficer[]>('/SecurityOfficers'),
     createUpdate: (securityOfficer: SecurityOfficer) => requests.post<void>('/SecurityOfficers', securityOfficer),
@@ -103,7 +112,8 @@ axios.interceptors.request.use((config) => {
     SubjectMatterExperts,
     Administrators,
     SecurityOfficers,
-    Threads
+    Threads,
+    TeamMembers
   }
 
   

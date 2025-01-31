@@ -13,6 +13,7 @@ import SentToSMEConfirmation from '../../features/Threads/SentToSMEConfirmation'
 import SentFromSMEConfirmation from '../../features/Threads/SentFromSMEConfirmation';
 import SentFromOPSECConfirmation from '../../features/Threads/SentFromOPSECConfirmation';
 import SentToOPSECConfirmation from '../../features/Threads/SentToOPSECConfirmation';
+import ManageTeamMembers from '../../features/Administrators/ManageTeamMembers';
 
 
 export const routes: RouteObject[] = [
@@ -23,6 +24,7 @@ export const routes: RouteObject[] = [
             { path: '/', element: <HomePage /> }, // Set HomePage as the default route for '/'
             { path: 'callback', element: <CallbackPage /> },
             { path: 'manageadministrators', element: <ManageAdministrators /> },
+            { path: 'manageteammembers', element: <ManageTeamMembers /> },
             { path: 'managesecurityofficers', element: <ManageSecurityOfficers /> },
             { path: 'newsecurityofficerform', element: <NewSecurityOfficerForm />},
             { path: 'publicationsmain', element: <PublicationsMain />},
