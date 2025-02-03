@@ -18,5 +18,7 @@ namespace Application.GraphHelper
 
         Task SendEmailWithAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients,
             string fileName, string fileType, string itemId);
+        
+        Task SendChatWithAdaptiveCardAsync(string recipientEmail, string cardJson);
     }
 }

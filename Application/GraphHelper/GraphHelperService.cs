@@ -100,6 +100,100 @@ namespace Application.GraphHelper
     }
 }
 
+public async Task SendChatWithAdaptiveCardAsync(string recipientEmail, string cardJson)
+{
+    try
+    {
+        // Step 1: Get the service account user ID
+        var serviceAccountUser = await _appClient.Users[serviceAccount].GetAsync();
+        if (serviceAccountUser == null || string.IsNullOrEmpty(serviceAccountUser.Id))
+        {
+            Console.WriteLine("Error: Could not retrieve service account ID.");
+            return;
+        }
+        string serviceAccountId = serviceAccountUser.Id;
+
+        // Step 2: Create the chat (if not already created)
+        var chatRequest = new Chat
+        {
+            ChatType = ChatType.OneOnOne,
+            Members = new List<ConversationMember>
+            {
+                new ConversationMember
+                {
+                    OdataType = "#microsoft.graph.aadUserConversationMember",
+                    Roles = new List<string> { "owner" },
+                    AdditionalData = new Dictionary<string, object>
+                    {
+                        { "user@odata.bind", $"https://graph.microsoft.com/v1.0/users('{recipientEmail}')" }
+                    }
+                },
+                new ConversationMember
+                {
+                    OdataType = "#microsoft.graph.aadUserConversationMember",
+                    Roles = new List<string> { "owner" },
+                    AdditionalData = new Dictionary<string, object>
+                    {
+                        { "user@odata.bind", $"https://graph.microsoft.com/v1.0/users('{serviceAccount}')" }
+                    }
+                }
+            }
+        };
+
+        var chat = await _appClient.Chats.PostAsync(chatRequest);
+
+        // Step 3: Generate a unique attachment ID
+        string attachmentId = Guid.NewGuid().ToString();
+
+        // Step 4: Prepare the adaptive card message with import properties
+        var chatMessage = new ChatMessage
+        {
+            Body = new ItemBody
+            {
+                ContentType = BodyType.Html, // Required for attachment reference
+                Content = $"A Message from Pre Publication Review<br><attachment id=\"{attachmentId}\"></attachment>"
+            },
+            Attachments = new List<ChatMessageAttachment>
+            {
+                new ChatMessageAttachment
+                {
+                    Id = attachmentId, // REQUIRED for import
+                    ContentType = "application/vnd.microsoft.card.adaptive",
+                    Content = cardJson
+                }
+            },
+            From = new ChatMessageFromIdentitySet
+            {
+                User = new Identity
+                {
+                    Id = serviceAccountId, // Now retrieved dynamically
+                    DisplayName = "Pre Publication Review Bot"
+                }
+            },
+            CreatedDateTime = DateTime.UtcNow.AddMinutes(-5), // Must be in the past
+            AdditionalData = new Dictionary<string, object>
+            {
+                { "migration", true } // Necessary for importing messages
+            }
+        };
+
+        // Step 5: Use the import method with proper request configuration
+        await _appClient.Chats[chat.Id].Messages.PostAsync(chatMessage, requestConfig =>
+        {
+            requestConfig.Headers.Add("ChatMigrationMode", "true");
+        });
+
+        Console.WriteLine("Adaptive card message sent successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error sending adaptive card message: {ex.Message}");
+        throw;
+    }
+}
+
+
+
         public async Task SendEmailWithAttachmentAsync(string title, string body, string[] recipients, string[] carbonCopyRecipients,
             string fileName, string fileType, string itemId)
         {

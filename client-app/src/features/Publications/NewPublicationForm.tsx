@@ -278,7 +278,7 @@ const handleCancel = () => {
             <Checkbox label='USAWC SOCIAL MEDIA'  checked={promotedToSocial} onClick={() => setPromotedToSocial(!promotedToSocial)}  disabled={isRevision === 'true'}/>
             </Segment>
             <Segment>
-            <Checkbox label='USAWC PRESS RELEASE' checked={promotedToPress} onClick={() => setPromotedToSocial(!promotedToPress)}  disabled={isRevision === 'true'} />
+            <Checkbox label='USAWC PRESS RELEASE' checked={promotedToPress} onClick={() => setPromotedToPress(!promotedToPress)}  disabled={isRevision === 'true'} />
             </Segment>
           </SegmentGroup>
           </FormField>

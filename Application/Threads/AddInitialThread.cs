@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Application.GraphHelper;
+using System.Text.Json;
 
 namespace Application.Threads
 {
@@ -168,6 +169,7 @@ namespace Application.Threads
         if (result == 0) return Result<Unit>.Failure("Failed to save threads");
 
         await SendEmail(publication, request.InitialThreadDTO.CommentsAsHTML);
+       // await SendAdaptiveCard(publication, request.InitialThreadDTO.CommentsAsHTML);
 
         return Result<Unit>.Success(Unit.Value);
     }
@@ -237,6 +239,82 @@ namespace Application.Threads
                     }
                 }    
             }
+
+                private async Task SendAdaptiveCard(PrePublication_Publication publication, string comments)
+                {
+                    var threads = await _context.Threads
+                        .Where(thread => thread.PublicationId == publication.Id && thread.Type == ThreadType.SME)
+                        .ToListAsync();
+
+                    foreach (var thread in threads)
+                    {
+                        if (thread.AssignedToPersonId != null)
+                        {
+                            var assignedToPerson = await _userService.GetUserByPersonIdAsync(thread.AssignedToPersonId.Value);
+                            var author = await _userService.GetUserByPersonIdAsync(publication.AuthorPersonId);
+                            var creator = await _userService.GetUserByPersonIdAsync(publication.CreatedByPersonId);
+                            string title = $"A Subject Matter Expert review has been assigned for {publication.Title}";
+
+                            var adaptiveCardJson = new
+                            {
+                                type = "AdaptiveCard",
+                                version = "1.4",
+                                body = new object[]
+                                {
+                                    new
+                                    {
+                                        type = "TextBlock",
+                                        text = title,
+                                        weight = "Bolder",
+                                        size = "Medium"
+                                    },
+                                    new
+                                    {
+                                        type = "FactSet",
+                                        facts = new[]
+                                        {
+                                            new { title = "Assigned To:", value = $"{assignedToPerson.FirstName} {assignedToPerson.LastName}" },
+                                            new { title = "Publication Title:", value = publication.Title },
+                                            new { title = "Author:", value = $"{author.FirstName} {author.LastName}" },
+                                            new { title = "Comments:", value = comments }
+                                        }
+                                    },
+                                    new
+                                    {
+                                        type = "TextBlock",
+                                        text = !string.IsNullOrEmpty(publication.PublicationLink)
+                                            ? $"[Link To Publication]({publication.PublicationLink})"
+                                            : "The publication has been attached",
+                                        wrap = true
+                                    },
+                                    new
+                                    {
+                                        type = "ActionSet",
+                                        actions = new object[]
+                                        {
+                                            new
+                                            {
+                                                type = "Action.OpenUrl",
+                                                title = "Complete your SME review",
+                                                url = $"{_config["AppDetails:baseUrl"]}?redirecttopath=threads/{publication.Id}"
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+
+                            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                            var adaptiveCardPayload = JsonSerializer.Serialize(adaptiveCardJson, options);
+
+                            if (!string.IsNullOrEmpty(assignedToPerson.EduEmail))
+                            {
+                                await _graphHelper.SendChatWithAdaptiveCardAsync(assignedToPerson.EduEmail, adaptiveCardPayload);
+                            }
+                        }
+                    }
+                }
+        
+
         }
     }
 }

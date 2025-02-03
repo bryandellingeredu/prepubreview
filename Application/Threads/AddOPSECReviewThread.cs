@@ -183,7 +183,21 @@ namespace Application.Threads
                    if (reviewStatus == "accept")
                    {
                     body.Append("<p> Congragulations! your publication has successfully completed the review process and is ready for publication </p>");
+                     if(publication.PromotedToPress || publication.PromotedToSocial || publication.PromotedToWeb)   {
+                          body.Append("<p><strong> Attention Pre Publication Team </strong></p>");
+                        if(publication.PromotedToPress){
+                             body.Append("<p> This publication should be promoted to USAWC Press </p>");
+                        }
+                        if(publication.PromotedToSocial){
+                             body.Append("<p> This publication should be promoted to USAWC Social Media </p>");
+                        }
+                        if(publication.PromotedToWeb){
+                             body.Append("<p> This publication should be promoted to the USAWC Web Page </p>");
+                        }
+                      }
+                    
                     body.Append($"<p> <a href='{baseUrl}?redirecttopath=threads/{publication.Id}'> view your publication workflow history <a/> </p>");
+                  
                     }
                     else
                    {
@@ -198,6 +212,17 @@ namespace Application.Threads
                     if (!string.IsNullOrEmpty(author.EduEmail)) recipients.Add(author.EduEmail);
 
                 }
+                 if (reviewStatus == "accept"){
+                       if(publication.PromotedToPress || publication.PromotedToSocial || publication.PromotedToWeb){
+                        var prePubTeamMembers = await _context.TeamMembers.ToListAsync();
+                        foreach(var member in prePubTeamMembers){
+                           var teamMember = await _userService.GetUserByPersonIdAsync(member.PersonId);
+                           if(!string.IsNullOrEmpty(teamMember.ArmyEmail)) recipients.Add(teamMember.ArmyEmail);
+                           if(!string.IsNullOrEmpty(teamMember.EduEmail)) recipients.Add(teamMember.EduEmail);
+                        }
+                        
+                       }
+                 } 
                 List<string> carbonCopyRecipients = new List<string>();
                 if (!string.IsNullOrEmpty(securityOfficerPerson.EduEmail)) carbonCopyRecipients.Add(securityOfficerPerson.EduEmail);
                 if (!string.IsNullOrEmpty(securityOfficerPerson.ArmyEmail)) carbonCopyRecipients.Add(securityOfficerPerson.ArmyEmail);
