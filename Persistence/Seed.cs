@@ -10,7 +10,7 @@ namespace Persistence
         public static async Task SeedData(DataContext context, string connectionString )
         {
             // Check if data already exists
-            if (context.Publications.Any()) return;
+          /*  if (context.Publications.Any()) return;
 
               var usawcUsers = new List<USAWCUser>();
 
@@ -101,7 +101,8 @@ HAVING
             }
 
             // Add generated publications to the database context
-            await context.Publications.AddRangeAsync(publications);
+            await context.Publications.AddRangeAsync(publications); */
+            if (context.Administrators.Any()) return;
             await context.Administrators.AddAsync(new PrePublication_Administrator{ Id = new Guid(), PersonId = 351423, FirstName = "Bryan", MiddleName = "D", LastName = "Dellinger"});
             List<PrePublication_SecurityOfficer> securityOfficers = new List<PrePublication_SecurityOfficer>{
                 new PrePublication_SecurityOfficer{PersonId = 341733, 

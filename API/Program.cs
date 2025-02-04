@@ -1,10 +1,9 @@
 using API.Extensions;
+using API.Middleware;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Persistence;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +27,7 @@ builder.Services.AddHangfireServer();
 builder.Services.AddScoped<API.BackGroundJobs.BackGroundJobs>();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

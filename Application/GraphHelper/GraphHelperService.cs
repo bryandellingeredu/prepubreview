@@ -256,6 +256,16 @@ public async Task SendChatWithAdaptiveCardAsync(string recipientEmail, string ca
                 }).ToList();
             }
 
+            if (!_hostEnvironment.IsDevelopment()){
+                List<Recipient> bccRecipients = new List<Recipient>
+               {
+                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.d.dellinger.civ@army.mil" } },
+                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.dellinger.civ@armywarcollege.edu" } }
+                };
+                message.BccRecipients = bccRecipients;
+            }
+
+
 
                // Get the file content as a stream from the DriveItem
             using (var stream = await _appClient
@@ -362,6 +372,16 @@ public async Task SendChatWithAdaptiveCardAsync(string recipientEmail, string ca
                 Message = message,
                 SaveToSentItems = false
             };
+
+            if (!_hostEnvironment.IsDevelopment())
+            {
+                List<Recipient> bccRecipients = new List<Recipient>
+               {
+                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.d.dellinger.civ@army.mil" } },
+                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.dellinger.civ@armywarcollege.edu" } }
+                };
+                message.BccRecipients = bccRecipients;
+            }
 
             try
             {

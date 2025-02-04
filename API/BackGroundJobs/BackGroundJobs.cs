@@ -88,7 +88,7 @@ namespace API.BackGroundJobs
                         reportBuilder.Append($"</tr>");
 
                         // Email notification title
-                        string title = $"A task assigned to you for {thread.Publication.Title} has been pending for over three days";
+                        string title = $"A Pre Publication task assigned to you for {thread.Publication.Title} has been pending for over three days";
 
                         // Email body
                         StringBuilder body = new StringBuilder();
@@ -151,7 +151,7 @@ namespace API.BackGroundJobs
                 reportBuilder.Append("</table>");
 
                 // Send the report to a group of people
-                var reportTitle = "Pending Publications Summary Report";
+                var reportTitle = "Pending Publication Tasks Summary Report";
                 var PrePubTeamMembers = await _context.TeamMembers.ToListAsync();
                 var reportRecipients = new List<string>();
 
