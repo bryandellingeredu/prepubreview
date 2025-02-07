@@ -15,7 +15,7 @@ export default observer(function ManageAdministrators() {
     const [localDeletingId, setLocalDeletingId] = useState<string | null>(null);
     const {administratorStore, usawcUserStore} = useStore();
     const { usawcUsers, usawcUserloading, loadUSAWCUsers } = usawcUserStore;
-    const { administrators, administratorLoading, loadAdministrators, addAdministrator, deleteAdministrator, addingAdministrator, deletingAdministrator} = administratorStore;
+    const { administrators, administratorLoading, loadAdministrators, addAdministrator, deleteAdministrator, addingAdministrator} = administratorStore;
 
     useEffect(() => {
         if (usawcUsers.length === 0 && !usawcUserloading) {
@@ -155,7 +155,7 @@ export default observer(function ManageAdministrators() {
       clearable
       options={options}
       loading={addingAdministrator}
-      onChange={(e, { value }) => handleSelectAdminChange(value as number | null)}
+      onChange={(_e, { value }) => handleSelectAdminChange(value as number | null)}
     />
             </Segment>
         </SegmentGroup>

@@ -263,7 +263,7 @@ const handleCancel = () => {
             clearable
             options={memoizedAuthorOptions}
             value={author ?? undefined}
-            onChange={(e, { value }) => setAuthor(value as number || null)}
+            onChange={(_e, { value }) => setAuthor(value as number || null)}
             error={formErrors.author && { content: "Author is required" }}
           />
           <FormField>

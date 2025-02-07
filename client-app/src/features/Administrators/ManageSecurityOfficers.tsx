@@ -1,14 +1,11 @@
 import { observer } from "mobx-react-lite";
 import Navbar from "../../app/layout/Navbar";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../app/stores/store";
-import { SecurityOfficer } from "../../app/models/securityOfficer";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { Button, CardGroup, Divider, Header, Icon, Segment, SegmentGroup } from "semantic-ui-react";
 import SecurityOfficerCard from "../Threads/SecurityOfficerCard";
+import { useEffect } from "react";
 
 export default observer(function ManageSecurityOfficers() {
     const navigate = useNavigate();
@@ -36,11 +33,11 @@ export default observer(function ManageSecurityOfficers() {
       navigate('/newsecurityofficerform'); // Navigate to the newpublicationform route
   };
 
-  const updateSecurityOfficerId = (threadId: string, newSecurityOfficerId: string) => {
+  const updateSecurityOfficerId = (_threadId: string, _newSecurityOfficerId: string) => {
     // do nothing
    };
 
-const removeSecurityOfficer = (threadId: string) => {
+const removeSecurityOfficer = (_threadId: string) => {
    // do nothing
 };
 

@@ -155,7 +155,7 @@ export default observer(function ManageTeamMembers() {
       clearable
       options={options}
       loading={addingTeamMember}
-      onChange={(e, { value }) => handleSelectTeamMemberChange(value as number | null)}
+      onChange={(_e, { value }) => handleSelectTeamMemberChange(value as number | null)}
     />
             </Segment>
         </SegmentGroup>

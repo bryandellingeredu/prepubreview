@@ -30,6 +30,7 @@ var app = builder.Build();
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {

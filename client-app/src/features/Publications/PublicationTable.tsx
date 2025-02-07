@@ -89,7 +89,7 @@ export default function PublicationTable(
             clearable
             options={statusOptions}
             value={status ?? undefined}
-            onChange={(e, { value }) => handleStatusChange(value as number || null)}
+            onChange={(_e, { value }) => handleStatusChange(value as number || null)}
           />
         </TableHeaderCell>
       </TableRow>

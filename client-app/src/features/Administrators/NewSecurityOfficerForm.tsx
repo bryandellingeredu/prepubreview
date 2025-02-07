@@ -101,7 +101,7 @@ export default observer(function NewSecurityOfficerForm() {
                             clearable
                             options={memoizedSecurityOfficerOptions}
                             value={usawcUser ?? undefined}
-                            onChange={(e, { value }) => setUsawcUser(value as number || null)}
+                            onChange={(_e, { value }) => setUsawcUser(value as number || null)}
                             error={formErrors.usawcUser && { content: "required" }}
                           />
                    <Form.Input

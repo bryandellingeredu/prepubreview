@@ -53,7 +53,7 @@ export default observer(function PublicationsMain() {
         }
     }, 300);
 
-    const handleSearchChange = (event: React.MouseEvent<HTMLElement>, data: SearchProps) => {
+    const handleSearchChange = (_event: React.MouseEvent<HTMLElement>, data: SearchProps) => {
         setSearchQuery(data.value as string);
         debouncedSearch(data.value as string);
     };
@@ -217,7 +217,7 @@ export default observer(function PublicationsMain() {
                     value={searchQuery}
                     placeholder="Search publications..."
                     onSearchChange={handleSearchChange}
-                    onResultSelect={(e, data) => {
+                    onResultSelect={(_e, data) => {
                         const selectedResult = results.find(result => result.id === data.result.key);
                         if (selectedResult) {
                             navigate(`/threads/${selectedResult.id}`); // Navigate to the details page
@@ -272,7 +272,7 @@ export default observer(function PublicationsMain() {
                 value={searchQuery}
                 placeholder="Search publications..."
                 onSearchChange={handleSearchChange}
-                onResultSelect={(e, data) => {
+                onResultSelect={(_e, data) => {
                   const selectedResult = results.find((result) => result.id === data.result.key);
                   if (selectedResult) {
                     navigate(`/threads/${selectedResult.id}`);
