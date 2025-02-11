@@ -37,8 +37,20 @@ export default observer(function Navbar(){
           <h2 className='industry'>PRE PUBLICATION REVIEW</h2>
           }
         </MenuItem>
+        <MenuItem
+            position='right'
+            as="a"
+            href="https://www.youtube.com/watch?v=UjqVqbFykHU"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'white' }}
+          >
+            <Icon name="video" />
+            Watch the Tutorial
+          </MenuItem>
         <MenuItem position="right">
         <Menu.Menu >
+       
         <Dropdown
   trigger={
     <span style={{ color: 'white' }}>

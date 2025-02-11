@@ -289,7 +289,7 @@ export default class PublicationStore{
           })
           return attachment;
         } catch(error){
-          toast.error('Error uploading publication');
+        //  toast.error('Error uploading publication');
           console.log(error);
           runInAction(() => {
             this.uploading = false;
