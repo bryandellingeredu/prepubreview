@@ -40,7 +40,7 @@ export default observer(function Navbar(){
         <MenuItem
             position='right'
             as="a"
-            href="https://www.youtube.com/watch?v=UjqVqbFykHU"
+            href="https://www.youtube.com/watch?v=9pffmxHHGtk"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'white' }}
