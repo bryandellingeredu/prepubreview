@@ -5,6 +5,7 @@ export interface Publication{
     id: string,
     createdByPersonId : number, 
     updatedByPersonId: number | null,
+    supervisorPersonId: number | null,
     authorPersonId : number,  
     authorFirstName: string,
     authorMiddleName: string,

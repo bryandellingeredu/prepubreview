@@ -9,6 +9,7 @@ import {
   Label,
   Message,
   MessageHeader,
+  Popup,
   Radio,
   Segment,
 } from "semantic-ui-react";
@@ -28,16 +29,20 @@ import { stateToHTML } from 'draft-js-export-html';
 import { convertFromRaw} from 'draft-js';
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from 'react-router-dom';
+import SupervisorPicker from "./SupervisorPicker";
+import SupervisorCard from "./SupervisorCard";
 
 interface Props {
   thread: Thread;
   authorName: string;
   authorPersonId: number;
   creatorPersonId: number;
+  supervisorPersonId: number | null;
   updateThreadComments: (threadId: string, newComments: string) => void;
   addSME: (threadId: string, personId: number) => void;
   removeSME: (threadId: string, personId: number) => void;
   updateSecurityOfficerId: (threadId: string, newSecurityOfficerId: string) => void;
+  updateSupervisorPersonId: (newSupervisorPersonId: number | null) => void;
   removeSecurityOfficer: (threadId: string) => void;
   threadId: string;
   handleSetReviewStatus: (threadId: string, reviewStatus : string) => void;
@@ -50,13 +55,16 @@ export default observer(function ThreadComponent({
   addSME,
   removeSME,
   updateSecurityOfficerId,
+  updateSupervisorPersonId,
   removeSecurityOfficer,
   threadId,
   handleSetReviewStatus,
   authorPersonId,
-  creatorPersonId
+  creatorPersonId,
+  supervisorPersonId
 }: Props) {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const { usawcUserStore, modalStore, smeStore, securityOfficerStore, publicationStore, userStore, responsiveStore } = useStore();
   const {isMobile} = responsiveStore
   const {appUser} = userStore
@@ -71,6 +79,13 @@ export default observer(function ThreadComponent({
     setSmeError(false);
     openModal(
       <SMEPicker addSME={addSME} removeSME={removeSME}  threadId={threadId} />, 'fullscreen'
+    )
+  }
+
+  const handleAddSupervisorClick = () => {
+    setOpen(false);
+    openModal(
+      <SupervisorPicker updateSupervisorPersonId={updateSupervisorPersonId} />
     )
   }
 
@@ -109,10 +124,16 @@ export default observer(function ThreadComponent({
       commentsAsHTML: stateToHTML(contentState),
       securityOfficerId: thread.securityOfficerId,
       subjectMatterExpertIds: thread.subjectMatterExperts.map(x => x.personId),
-      nextThreadId: uuidv4()
+      nextThreadId: uuidv4(),
+      supervisorPersonId
      }
      await addInitialThread(initalThreadDTO);
-     navigate(`/senttosmeconfirmation/${thread.publicationId}`);
+     if(supervisorPersonId){
+      navigate(`/senttosupervisorconfirmation/${thread.publicationId}`);
+     }else{
+      navigate(`/senttosmeconfirmation/${thread.publicationId}`);
+     }
+    
    }catch(error){
     toast.error('an error occured during save')
    }finally{
@@ -132,6 +153,30 @@ export default observer(function ThreadComponent({
  const setReviewStatus = (reviewStatus : string) => handleSetReviewStatus(threadId, reviewStatus)
 
 const [smeReviewError, setSMEReviewError] = useState(false);
+
+const handleSupervisorSaveClick = async () =>{
+  if(!thread.reviewStatus){
+    setSMEReviewError(true);
+    return;
+  }
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    await publicationStore.addSupervisorReviewThread(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.reviewStatus,
+      thread.publicationId);
+      navigate(`/sentfromsupervisorconfirmation/${thread.publicationId}/${thread.reviewStatus}`);
+  }
+ catch(error){
+  console.log(error);
+  toast.error('an error occured saving supervisor review')
+}finally{
+  setSaving(false);
+}
+}
 
  const handleSMESaveClick = async () =>{
   if(!thread.reviewStatus){
@@ -182,6 +227,26 @@ const [smeReviewError, setSMEReviewError] = useState(false);
   }
  }
 
+ const handleSubmitRevisedPublicationToSupervisorClick = async () => {
+  try{
+    const rawContent = JSON.parse(thread.comments);
+    const contentState = convertFromRaw(rawContent);
+    setSaving(true);
+    await publicationStore.resubmitToSupervisorAfterRevision(
+      threadId,
+      thread.comments,
+      stateToHTML(contentState),
+      thread.publicationId
+      )
+      navigate(`/senttosupervisorconfirmation/${thread.publicationId}`);
+     }catch(error){
+      console.log(error);
+       toast.error('an error occured saving supervisor review')
+      }finally{
+      setSaving(false);
+    }
+ }
+
  const handleSubmitRevisedPublicationToSMEClick = async () => {
   try{
     const rawContent = JSON.parse(thread.comments);
@@ -225,12 +290,14 @@ const [smeReviewError, setSMEReviewError] = useState(false);
  const getHeader = () => {
   if (ThreadType[thread.type] === 'AuthorRevisionForSME') return "Author's Revision After SME Rejection"
   if (ThreadType[thread.type] === 'AuthorRevisionForOPSEC') return "Author's Revision After Security Officer's Rejection"
+  if (ThreadType[thread.type] === 'AuthorRevisionForSupervisor') return "Author's Revision After Supervisor's Rejection"
   return `${ThreadType[thread.type]} Review` 
  }
 
  const getCommentsHeader = () => {
   if (ThreadType[thread.type] ===  'AuthorRevisionForSME') return "Author's Comments"
   if (ThreadType[thread.type] ===   'AuthorRevisionForOPSEC') return "Author's Comments"
+  if (ThreadType[thread.type] ===   'AuthorRevisionForSupervisor') return "Author's Comments"
   return `${ThreadType[thread.type]} Comments` 
  }
 
@@ -244,6 +311,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
    if (
     (ThreadType[thread.type] === 'AuthorRevisionForSME' || 
      ThreadType[thread.type] === 'AuthorRevisionForOPSEC' || 
+     ThreadType[thread.type] === 'AuthorRevisionForSupervisor' || 
      ThreadType[thread.type] === 'Author') &&
     (appUser?.personId === authorPersonId || appUser?.personId === creatorPersonId)
   ) {
@@ -280,20 +348,24 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         }
 
       </Header>
-    { !isAllowedToEdit() && thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
+    { !isAllowedToEdit() && thread.isActive && 
+    (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC' || ThreadType[thread.type] === 'AuthorRevisionForSupervisor') && 
         <Message info>
           <Message.Header>
-          {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Awaiting Author Revision, the Publication has been rejected by an SME' : 'Awaiting Author Revision, the publication has been rejected by the security officer'}
+          {ThreadType[thread.type] === 'AuthorRevisionForSupervisor' ? 'Awaiting Author Revision, the Publication has been rejected by the supervisor' :
+          ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Awaiting Author Revision, the Publication has been rejected by an SME' : 'Awaiting Author Revision, the publication has been rejected by the security officer'}
           </Message.Header>
         </Message>
     }
-     {isAllowedToEdit() && thread.isActive && (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC') && 
+     {isAllowedToEdit() && thread.isActive && 
+     (ThreadType[thread.type] === 'AuthorRevisionForSME' || ThreadType[thread.type] === 'AuthorRevisionForOPSEC' || ThreadType[thread.type] === 'AuthorRevisionForSupervisor') && 
       <div className="editor-container">
       <Header as="h4" className="industry">
         <Icon name="pencil" />
         <HeaderContent> Revise Your Publication</HeaderContent>
          <HeaderSubheader>
-            {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Your publication has been rejected by an SME' : 'Your publication has been rejected by the security officer'}
+            {ThreadType[thread.type] === 'AuthorRevisionForSupervisor' ? 'Your publication has been rejected by your supervisor' :
+            ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Your publication has been rejected by an SME' : 'Your publication has been rejected by the security officer'}
          </HeaderSubheader>
          <HeaderSubheader>
           <ol>
@@ -310,7 +382,8 @@ const [smeReviewError, setSMEReviewError] = useState(false);
             Enter any Comments that you feel are relevent 
             </li>
             <li>
-            {ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Submit your changes for SME Review' : 'Submit your changes for Security Officer Review'}
+            {ThreadType[thread.type] === 'AuthorRevisionForSupervisor' ? 'Submit your changes for Supervisor Review' :
+            ThreadType[thread.type] === 'AuthorRevisionForSME' ? 'Submit your changes for SME Review' : 'Submit your changes for Security Officer Review'}
             </li>
           </ol>
           </HeaderSubheader>
@@ -366,9 +439,71 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       </div>
       }
 
+     {thread.isActive && ThreadType[thread.type] === 'AuthorRevisionForSupervisor' && isAllowedToEdit() &&
+      <div className="editor-container" style={{ textAlign: "right" }}>
+          <Button icon labelPosition='left' color='brown' onClick={handleSubmitRevisedPublicationToSupervisorClick} float='right' loading={saving}>
+            <Icon name='save' />
+              Submit Revised Publication For Supervisor Review
+            </Button>
+      </div>
+      }
+
 
       {ThreadType[thread.type] === "Author" && 
       <>
+       
+       {(thread.isActive || supervisorPersonId) && 
+      <div className={`editor-container ${smeError ? 'error-border' : ''}`}>
+      <Header as="h4" className="industry">
+      <Icon name="user secret" />
+      <HeaderContent>Supervisor</HeaderContent>
+      </Header>
+      {thread.isActive && isAllowedToEdit() &&
+       <HeaderSubheader style={{marginBottom: '15px'}}>
+            Choose a supervisor <strong style={{color: 'red'}}>ONLY IF YOUR ORGANIZATION REQUIRES THIS</strong>
+        </HeaderSubheader>
+       }
+       {thread.isActive && isAllowedToEdit() && !supervisorPersonId &&
+       <div className="ui clearing" style={{marginBottom: '10px'}}>
+                    <Popup
+                     position='right center'
+                        trigger={
+                          <Button content='Add Supervisor' icon='plus'  color='brown' onClick={() => setOpen(true)} />
+                         }
+                           on="click"
+                          open={open}
+                          onClose={() => setOpen(false)}
+                        content={
+                        <div>
+                           <p>Are you sure your organization requires you to provide a supervisor for the pre pub review process?</p>
+                              <Button color="red" onClick={handleAddSupervisorClick} >
+                                Yes
+                              </Button>
+                            <Button color="grey" onClick={() => setOpen(false)}>
+                               No
+                             </Button>
+                        </div>
+                        }
+                        />
+
+       </div>
+       }
+
+        {supervisorPersonId &&
+         <CardGroup itemsPerRow={isMobile ? 1 : 3}>
+          <SupervisorCard 
+          supervisorPersonId={supervisorPersonId}
+           showDeleteButton={isAllowedToEdit() && thread.isActive}
+           updateSupervisorPersonId={updateSupervisorPersonId}  />
+         </CardGroup>
+        }
+
+       </div>
+      }
+
+
+
+
       <div className={`editor-container ${smeError ? 'error-border' : ''}`}>
        <Header as="h4" className="industry">
        <Icon name="graduation cap" />
@@ -384,6 +519,7 @@ const [smeReviewError, setSMEReviewError] = useState(false);
         </HeaderSubheader>
         }
        </Header>
+   
        {thread.isActive && isAllowedToEdit() && 
        <div className="ui clearing" style={{marginBottom: '10px'}}>
         <Button content='Add SME' icon='plus' labelPosition='left' color='brown' onClick={handleAddSMEButtonClick} />
@@ -469,9 +605,9 @@ const [smeReviewError, setSMEReviewError] = useState(false);
       {thread.isActive && isAllowedToEdit() &&
       <div className="ui clearing" style={{marginBottom: '50px'}}>
         <Button floated="right" size='large'  icon labelPosition="left" color='brown' onClick={handleSendToSMEClick} loading={saving}>
-          <Icon name='graduation cap' />
+          <Icon name={supervisorPersonId ? 'user secret' : 'graduation cap'} />
           <span className="industry">
-            SEND TO SME FOR REVIEW
+           {`SEND TO ${supervisorPersonId ? 'SUPERVISOR' : 'SME'} FOR REVIEW`}
           </span>
         </Button>
       </div>
@@ -520,11 +656,15 @@ const [smeReviewError, setSMEReviewError] = useState(false);
           color='brown' 
           type='button' 
           style={{ marginLeft: "auto" }}
-          onClick={ThreadType[thread.type] === 'SME' ? handleSMESaveClick : handleOPSECSaveClick }
+          onClick={ThreadType[thread.type] === 'Supervisor' ? handleSupervisorSaveClick :
+            ThreadType[thread.type] === 'SME' ? handleSMESaveClick : handleOPSECSaveClick }
           loading={saving}
         >
           <Icon name='save' />
            SAVE
+           {thread.reviewStatus === "accept" && ThreadType[thread.type] === "Supervisor" &&
+           <span> AND SEND TO SME FOR REVIEW </span>
+           }
            {thread.reviewStatus === "accept" && ThreadType[thread.type] === "SME" &&
            <span> AND SEND TO SECURITY OFFICER FOR REVIEW </span>
            }

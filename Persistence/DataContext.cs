@@ -22,6 +22,8 @@ namespace Persistence
 
         public DbSet<PrePublication_TeamMember> TeamMembers{ get; set; }
 
+        public DbSet<PrePublication_SMEPubLookup> SMEPubLookups{ get; set; }
+
 
     }
 

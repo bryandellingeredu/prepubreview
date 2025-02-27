@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+
 using Application.Core;
 using Domain;
 using MediatR;
@@ -49,6 +49,7 @@ namespace Application.Publications
                     PromotedToPress = p.PromotedToPress,
                     PromotedToSocial = p.PromotedToSocial,
                     PromotedToWeb = p.PromotedToWeb,
+                    SupervisorPersonId = p.SupervisorPersonId,
                     Threads = p.Threads.Select(t => new PrePublication_Thread
                     {
                         Id = t.Id,
@@ -72,6 +73,19 @@ namespace Application.Publications
                      }).ToList()
                   })
                   .FirstOrDefaultAsync(cancellationToken);
+
+                 foreach (var thread in publication.Threads){
+                    if (!thread.SubjectMatterExperts.Any()){
+                        var smelookups = await _context.SMEPubLookups.Where(x => x.PublicationLookup == request.Id).ToListAsync(); 
+                        List<PrePublication_SubjectMatterExpert> subjectMatterExperts = new List<PrePublication_SubjectMatterExpert>();
+                        foreach (var smelookup in smelookups){
+                            thread.SubjectMatterExperts.Add(new PrePublication_SubjectMatterExpert{
+                                Id = smelookup.Id,  
+                                PersonId = smelookup.SMEPersonId
+                            });
+                        }
+                    }
+                 }
 
 
                 return Result<PrePublication_Publication>.Success(publication);

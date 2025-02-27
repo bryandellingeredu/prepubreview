@@ -97,9 +97,12 @@ axios.interceptors.request.use((config) => {
 
   const Threads ={
     addInitialThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitial', initalThreadDTO ),
+    addInitialSupervisorThread: (initalThreadDTO: InitialThreadDTO) => requests.post<void>('/Threads/addinitialsupervisor', initalThreadDTO ),
     addSMEReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addSMEReviewThread', {threadId, comments, commentsAsHTML, reviewStatus}),
+    addSupervisorReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addSupervisorReviewThread', {threadId, comments, commentsAsHTML, reviewStatus}),
     resubmitToSMEAfterRevision: (threadId :string, comments : string, commentsAsHTML : string) =>  requests.post<void>('/Threads/resubmitToSMEAfterRevision', {threadId, comments, commentsAsHTML, reviewStatus: ''}),
     resubmitToOPSECAfterRevision: (threadId :string, comments : string, commentsAsHTML : string) =>  requests.post<void>('/Threads/resubmitToOPSECAfterRevision', {threadId, comments, commentsAsHTML, reviewStatus: ''}),
+    resubmitToSupervisorAfterRevision: (threadId :string, comments : string, commentsAsHTML : string) =>  requests.post<void>('/Threads/resubmitToSupervisorAfterRevision', {threadId, comments, commentsAsHTML, reviewStatus: ''}),
     addOPSECReviewThread: (threadId :string, comments : string, commentsAsHTML : string, reviewStatus : string) =>  requests.post<void>('/Threads/addOPSECReviewThread', {threadId, comments, commentsAsHTML, reviewStatus}),
   }
 

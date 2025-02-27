@@ -140,6 +140,7 @@ export default class PublicationStore{
                 dateUpdated: null,
                 createdByPersonId: publicationDTO.createdByPersonId,
                 updatedByPersonId: publicationDTO.updatedByPersonId,
+                supervisorPersonId: null,
                 authorPersonId: publicationDTO.authorPersonId,
                 authorFirstName: author!.firstName,
                 authorLastName: author!.lastName,
@@ -171,7 +172,12 @@ export default class PublicationStore{
 
     addInitialThread = async(initialThreadDTO : InitialThreadDTO) => {
         try{
-          await agent.Threads.addInitialThread(initialThreadDTO);
+          if(initialThreadDTO.supervisorPersonId){
+           await agent.Threads.addInitialSupervisorThread(initialThreadDTO);
+          }else{
+            await agent.Threads.addInitialThread(initialThreadDTO);
+          }
+          
           let publication = this.publicationRegistry.get(initialThreadDTO.publicationId);
           if(publication){
             const updatedPublication = await agent.Publications.details(initialThreadDTO.publicationId)
@@ -206,6 +212,25 @@ export default class PublicationStore{
             toast.error('Error adding sme review thread');
         }
     }
+
+    addSupervisorReviewThread = async( threadId: string, comments: string, commentsAsHTML: string, reviewStatus: string, publicationId: string) =>{
+      try{
+         await agent.Threads.addSupervisorReviewThread(threadId, comments, commentsAsHTML, reviewStatus);
+         let publication = this.publicationRegistry.get(publicationId);
+         if(publication){
+             const updatedPublication = await agent.Publications.details(publicationId)
+             runInAction(() => {
+                 this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+               });
+               runInAction(() => {
+                 this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
+               });
+           }
+         }catch(error){
+             console.error("Error adding supervisor review thread:", error);
+             toast.error('Error adding supervisor review thread');
+         }
+     }
 
     addOPSECReviewThread = async( threadId: string, comments: string, commentsAsHTML: string, reviewStatus: string, publicationId: string) =>{
         try{
@@ -265,6 +290,26 @@ export default class PublicationStore{
             toast.error('Error adding opsec review thread');
         }
     }
+
+    resubmitToSupervisorAfterRevision = async (threadId: string, comments: string, commentsAsHTML: string, publicationId: string) => {
+      try{
+        await agent.Threads.resubmitToSupervisorAfterRevision(threadId, comments, commentsAsHTML);
+        let publication = this.publicationRegistry.get(publicationId);
+        if(publication){
+          const updatedPublication = await agent.Publications.details(publicationId)
+          runInAction(() => {
+              this.publicationRegistry.set(updatedPublication.id, updatedPublication)
+            });
+            runInAction(() => {
+              this.myPublicationRegistry.set(updatedPublication.id, updatedPublication)
+            });
+        }
+
+      }catch(error){
+          console.error("Error adding supervisor review thread:", error);
+          toast.error('Error adding supervisor review thread');
+      }
+  }
 
     resetPublications = () => {
         this.publicationRegistry.clear();

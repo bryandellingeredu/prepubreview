@@ -17,5 +17,6 @@ namespace Application.Threads
          public Guid SecurityOfficerId {get; set;}
          public List<int> SubjectMatterExpertIds {get; set;} 
          public Guid NextThreadId {get; set;}
+         public int? SupervisorPersonId { get; set; }
     }
 }

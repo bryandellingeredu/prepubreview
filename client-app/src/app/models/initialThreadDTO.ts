@@ -6,4 +6,5 @@ export interface InitialThreadDTO{
     securityOfficerId: string
     subjectMatterExpertIds: number[]
     nextThreadId: string
+    supervisorPersonId: number | null
 }

@@ -14,6 +14,8 @@ import SentFromSMEConfirmation from '../../features/Threads/SentFromSMEConfirmat
 import SentFromOPSECConfirmation from '../../features/Threads/SentFromOPSECConfirmation';
 import SentToOPSECConfirmation from '../../features/Threads/SentToOPSECConfirmation';
 import ManageTeamMembers from '../../features/Administrators/ManageTeamMembers';
+import SentToSupervisorConfirmation from '../../features/Threads/SentToSupervisorConfirmation';
+import SentFromSupervisorConfirmation from '../../features/Threads/SentFromSupervisorConfirmation';
 
 
 export const routes: RouteObject[] = [
@@ -33,8 +35,10 @@ export const routes: RouteObject[] = [
             { path: 'newpublicationform/:pubid/:isRevision', element: <NewPublicationForm />},
             { path: 'threads/:id', element: <ThreadsMain />},
             { path: 'senttosmeconfirmation/:id', element: <SentToSMEConfirmation />},
+            { path: 'senttosupervisorconfirmation/:id', element: <SentToSupervisorConfirmation />},
             { path: 'editsecurityofficer/:id', element: <EditSecurityOfficerForm />},
             { path: 'sentfromsmeconfirmation/:id/:status', element: <SentFromSMEConfirmation />},
+            { path: 'sentfromsupervisorconfirmation/:id/:status', element: <SentFromSupervisorConfirmation />},
             { path: 'sentfromopsecconfirmation/:id/:status', element: <SentFromOPSECConfirmation />},
             { path: 'senttoopsecconfirmation/:id', element: <SentToOPSECConfirmation />},
             { path: '*', element: <HomePage /> }, // Wildcard to redirect any undefined paths to HomePage

@@ -26,6 +26,8 @@ export default function PublicationTableRow({ publication }: Props) {
         if (StatusType[publication.status] === 'SentToSecurityForReview') return 'Waiting for Operational Security Officer Review'
         if (StatusType[publication.status] === 'RejectedBySME') return "Rejected by SME, Awaiting Author's Revision"
         if (StatusType[publication.status] === 'RejectedBySecurity') return "Rejected by Security Officer, Awaiting Author's Revision" 
+        if (StatusType[publication.status] === 'SentToSupervisor') return "Waiting for Supervisor Review" 
+        if (StatusType[publication.status] === 'RejectedBySupervisor') return "Rejected by Supervisor, Awaiting Author's Revision" 
         return StatusType[publication.status];
     }
 

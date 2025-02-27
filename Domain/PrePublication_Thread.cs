@@ -8,7 +8,9 @@ namespace Domain
         SME,
         OPSEC,
         AuthorRevisionForSME,
-        AuthorRevisionForOPSEC, 
+        AuthorRevisionForOPSEC,
+        Supervisor,
+        AuthorRevisionForSupervisor
     }
     public class PrePublication_Thread
 {

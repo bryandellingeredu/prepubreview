@@ -116,7 +116,7 @@ namespace Application.Threads
                     if (!success)
                         return Result<Unit>.Failure("Failed to update publication and add new thread");
 
-                    await SendEmail(request.smeReviewThreadDTO.ThreadId, request.smeReviewThreadDTO.ReviewStatus, orderNumber, request.smeReviewThreadDTO.CommentsAsHtml);
+                    await SendEmail(request.smeReviewThreadDTO.ThreadId, request.smeReviewThreadDTO.ReviewStatus,  request.smeReviewThreadDTO.CommentsAsHtml);
 
                     return Result<Unit>.Success(Unit.Value);
                 }
@@ -127,7 +127,7 @@ namespace Application.Threads
                 }
             }
 
-            private async Task SendEmail(Guid threadId, string reviewStatus, int orderNumber, string commentsAsHTML)
+            private async Task SendEmail(Guid threadId, string reviewStatus, string commentsAsHTML)
             {
                 var publication = await _context.Publications
                  .Include(p => p.Threads)

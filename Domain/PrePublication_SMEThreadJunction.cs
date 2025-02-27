@@ -7,7 +7,7 @@ namespace Domain
 {
     public class PrePublication_SMEThreadJunction
     {
-           public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
     // Foreign Key to Thread
     public Guid ThreadId { get; set; }

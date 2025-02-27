@@ -50,6 +50,7 @@ export default observer(function NewPublicationForm() {
     title: false,
     author: false,
     publication: false,
+    publicationLink: false,
   });
   const [showDocumentUploadWidget, setShowDocumentUploadWidget] = useState(false);
   const [publicationName, setPublicationName] = useState("");
@@ -132,6 +133,15 @@ export default observer(function NewPublicationForm() {
     navigate('/publicationsmain')
   };
 
+  const isValidURL = (url: string) => {
+    try {
+      new URL(url); // This will throw an error if the URL is invalid
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -143,7 +153,8 @@ export default observer(function NewPublicationForm() {
     const errors = {
       title: title.trim() === "",
       author: author === null,
-      publication: !fileHasBeenUploaded && !publicationLink
+      publication: !fileHasBeenUploaded && !publicationLink,
+      publicationLink: publicationLink ? !isValidURL(publicationLink) : false,
     };
 
     setFormErrors(errors);
@@ -300,7 +311,7 @@ const handleCancel = () => {
               <Segment style={{ backgroundColor: "#F1E4C7" }}>
                 <Grid columns={2} relaxed="very" stackable>
                   <GridColumn>
-                    <Form.Field>
+                    <Form.Field error={formErrors.publicationLink} >
                       <label>PASTE A LINK TO YOUR PUBLICATION</label>
                       <TextArea
                         placeholder="Paste link here"
@@ -310,6 +321,11 @@ const handleCancel = () => {
                         disabled={fileHasBeenUploaded}
                         readOnly={fileHasBeenUploaded}
                       />
+                       {formErrors.publicationLink && (
+                        <Message color="red" size="small">
+                          Please paste a valid URL
+                      </Message>
+                      )}
                     </Form.Field>
                     <FormInput
                       fluid

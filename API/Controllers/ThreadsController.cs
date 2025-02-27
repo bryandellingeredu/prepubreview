@@ -17,11 +17,28 @@ namespace API.Controllers
         }
 
         [AuthorizeUSAWCEmail]
+        [HttpPost("addinitialsupervisor")]
+        public async Task<IActionResult> AddInitialSupervisor([FromBody] InitialThreadDTO initialThreadDTO){
+            var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+           return   HandleResult(await Mediator.Send(
+                new AddUpdateInitialSupervisorThread.Command { InitialThreadDTO = initialThreadDTO, Email = email }));
+        }
+
+        [AuthorizeUSAWCEmail]
         [HttpPost("addSMEReviewThread")]
         public async Task<IActionResult> addSMEReviewThread([FromBody] SMEReviewThreadDTO smeReviewThreadDTO){
             var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
            return   HandleResult(await Mediator.Send(
                 new AddSMEReviewThread.Command { smeReviewThreadDTO = smeReviewThreadDTO, Email = email }));
+        }
+
+        [AuthorizeUSAWCEmail]
+        [HttpPost("addSupervisorReviewThread")]
+        public async Task<IActionResult> addSupervisorReviewThread([FromBody] SMEReviewThreadDTO supervisorReviewThreadDTO)
+        {
+            var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+            return HandleResult(await Mediator.Send(
+                 new AddSupervisorReviewThread.Command { supervisorReviewThreadDTO = supervisorReviewThreadDTO, Email = email }));
         }
 
         [AuthorizeUSAWCEmail]
@@ -40,6 +57,15 @@ namespace API.Controllers
             var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
             return HandleResult(await Mediator.Send(
                  new ResubmitToOPSECAfterRevision.Command { smeReviewThreadDTO = smeReviewThreadDTO, Email = email }));
+        }
+
+        [AuthorizeUSAWCEmail]
+        [HttpPost("resubmitToSupervisorAfterRevision")]
+        public async Task<IActionResult> ResubmitToSupervisorAfterRevision([FromBody] SMEReviewThreadDTO smeReviewThreadDTO)
+        {
+            var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+            return HandleResult(await Mediator.Send(
+                 new ResubmitToSupervisorAfterRevision.Command { smeReviewThreadDTO = smeReviewThreadDTO, Email = email }));
         }
 
         [AuthorizeUSAWCEmail]

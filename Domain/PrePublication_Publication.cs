@@ -9,6 +9,8 @@ namespace Domain
         SentToSecurityForReview,
         RejectedBySecurity,
         Complete,
+        SentToSupervisor,
+        RejectedBySupervisor
     }
     public class PrePublication_Publication
     {
@@ -33,6 +35,7 @@ namespace Domain
         public bool PromotedToSocial {get; set;}
         public bool PromotedToPress {get; set;}
         public ICollection<PrePublication_Thread> Threads { get; set; } = new List<PrePublication_Thread>();
-          
+        public int? SupervisorPersonId { get; set; }
+
     }
 }

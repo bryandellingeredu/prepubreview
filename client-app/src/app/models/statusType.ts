@@ -4,5 +4,7 @@ export enum StatusType{
     RejectedBySME = 2,
     SentToSecurityForReview = 3,
     RejectedBySecurity = 4,
-    Complete = 5
+    Complete = 5,
+    SentToSupervisor = 6,
+    RejectedBySupervisor = 7
 }

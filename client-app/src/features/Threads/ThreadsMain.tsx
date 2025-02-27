@@ -32,6 +32,7 @@ export default observer(function ThreadsMain() {
         id: '',
         createdByPersonId : 0 ,
         updatedByPersonId: null,
+        supervisorPersonId: null,
         authorPersonId : 0,  
         authorFirstName: '',
         authorMiddleName: '',
@@ -223,6 +224,14 @@ export default observer(function ThreadsMain() {
         });
     };
 
+    const updateSupervisorPersonId = (newSupervisorPersonId: number | null) => {
+        debugger;
+        setPublication((prev) => ({
+            ...prev,
+            supervisorPersonId: newSupervisorPersonId,
+        }));
+    };
+
     const updateSecurityOfficerId = (threadId: string, newSecurityOfficerId: string) => {
         setPublication((prev) => ({
             ...prev,
@@ -280,6 +289,8 @@ export default observer(function ThreadsMain() {
         if (StatusType[publication.status] === 'SentToSecurityForReview') return 'Waiting for Operational Security Officer Review'
         if (StatusType[publication.status] === 'RejectedBySME') return "Rejected by SME, Awaiting Author's Revision"
         if (StatusType[publication.status] === 'RejectedBySecurity') return "Rejected by Security Officer, Awaiting Author's Revision" 
+        if (StatusType[publication.status] === 'RejectedBySupervisor') return "Rejected by Supervisor, Awaiting Author's Revision" 
+        if (StatusType[publication.status] === 'SentToSupervisor') return "Waiting for Supervisor Review" 
         return StatusType[publication.status];
     }
 
@@ -443,12 +454,14 @@ export default observer(function ThreadsMain() {
                         updateThreadComments={updateThreadComments}
                         addSME={addSME}
                         updateSecurityOfficerId={updateSecurityOfficerId}
+                        updateSupervisorPersonId={updateSupervisorPersonId}
                         removeSecurityOfficer={removeSecurityOfficer}
                         removeSME={removeSME}
                         threadId={thread.id}
                         handleSetReviewStatus={handleSetReviewStatus}
                         authorPersonId={publication.authorPersonId}
                         creatorPersonId={publication.createdByPersonId}
+                        supervisorPersonId={publication.supervisorPersonId}
                         />
                      ))}
                      {(!publication.threads || publication.threads.length === 0) && (

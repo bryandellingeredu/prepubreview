@@ -82,7 +82,7 @@ export default class UserStore {
             window.location.href = `${import.meta.env.VITE_AUTHORITY}/login?${queryParams}&buttons=army,edu`;
         } catch (error) {
             console.error("Login error:", error);
-            toast.error('Login Error');
+          //  toast.error('Login Error');
         }
     };
   
@@ -120,7 +120,7 @@ export default class UserStore {
                 this.setAppUser(appUser); // Set the AppUser
             });
         } catch (error) {
-            toast.error('Error in login app user');
+          //  toast.error('Error in login app user');
             console.error("Error during loginAppUser:", error);
             throw error; // Re-throw error to propagate it to the caller
         } finally {
@@ -156,7 +156,7 @@ export default class UserStore {
       
           if (!response.ok) {
             // Handle non-2xx HTTP responses
-            toast.error('Error in refresh token');
+          //  toast.error('Error in refresh token');
             throw new Error(`Failed to refresh token: ${response.status} ${response.statusText}`);
           }
       
@@ -173,7 +173,7 @@ export default class UserStore {
       
           console.log("Token refreshed successfully:", token);
         } catch (error) {
-            toast.error('Error refreshing token');
+        //    toast.error('Error refreshing token');
           console.error("Error refreshing token:", error);
       
         }
@@ -202,7 +202,7 @@ export default class UserStore {
             const user = await agent.AppUsers.login(); // Fetch user from API
             runInAction(() => this.setAppUser(user));
         } catch (error) {
-            toast.error('Error fetching user');
+          //  toast.error('Error fetching user');
             console.error("Error fetching user:", error);
             runInAction(() => {
                 this.token = null; // Clear token if user fetch fails
