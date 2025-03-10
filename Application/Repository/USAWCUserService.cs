@@ -182,10 +182,7 @@ public async Task<USAWCUser> GetUserByPersonIdAsync(int personId)
 
 public async Task<USAWCUser> GetUserByEmailAsync(string email)
         {
-            if(email == "BDellinger@hossrob.onmicrosoft.com")
-            {
-                email = "bryan.d.dellinger.civ@army.mil";
-            }
+           
             var emailLookup = await GetEmailLookupAsync();
 
             if(emailLookup.TryGetValue(email, out USAWCUser user)){

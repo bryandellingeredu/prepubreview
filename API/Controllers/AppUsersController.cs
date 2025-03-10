@@ -15,9 +15,6 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(){
             var email = User.FindFirstValue("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
-             if(email.ToLower() == "bdellinger@hossrob.onmicrosoft.com" ){
-                email = "bryan.d.dellinger.civ@army.mil";
-            }
             return HandleResult(await Mediator.Send(
                 new Login.Command { Email = email }));
              

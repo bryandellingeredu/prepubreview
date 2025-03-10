@@ -33,9 +33,6 @@ namespace API.Attributes
                 return;
             }
 
-            if(email.ToLower() == "bdellinger@hossrob.onmicrosoft.com" ){
-                email = "bryan.d.dellinger.civ@army.mil";
-            }
 
             var usawcUser = await usawcUserService.GetUserByEmailAsync(email);
 

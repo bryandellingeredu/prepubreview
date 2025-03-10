@@ -69,7 +69,8 @@ namespace API.Middleware
                     var serviceAccount = _config["GraphHelper:serviceAccount"];
                     var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
                     GraphServiceClient _appClient = new GraphServiceClient(credential, new[] { "https://graph.microsoft.com/.default" });
-                    var recipients = new string[] { "bryan.d.dellinger.civ@army.mil", "bryan.dellinger.civ@armywarcollege.edu" };
+                    var recipients = _config.GetSection("Settings:errorRepients").Get<List<string>>() ?? new List<string>();
+
 
                     var toRecipients = recipients.Select(email => new Recipient
                     {

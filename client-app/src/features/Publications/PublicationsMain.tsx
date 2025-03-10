@@ -207,6 +207,16 @@ export default observer(function PublicationsMain() {
                           paddingLeft: '10px',
                           paddingRight: '10px',
                           }}>
+            <div>
+                <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick}/>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <strong className="industry"  onClick={() => setShowAllData(false)}>SHOW MY PUBLICATIONS</strong>
+                    <Radio toggle   checked={showAllData}  onChange={() => setShowAllData(!showAllData)}/>
+                    <strong className="industry" onClick={() => setShowAllData(true)}>SHOW ALL PUBLICATIONS</strong>
+                </div>
+
         <Search
                     loading={loading}
                     results={results.length > 0 ? results.map(result => ({
@@ -224,13 +234,10 @@ export default observer(function PublicationsMain() {
                         }
                     }}
                 />
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <strong className="industry"  onClick={() => setShowAllData(false)}>SHOW MY PUBLICATIONS</strong>
-                    <Radio toggle   checked={showAllData}  onChange={() => setShowAllData(!showAllData)}/>
-                    <strong className="industry" onClick={() => setShowAllData(true)}>SHOW ALL PUBLICATIONS</strong>
-                </div>
 
-                <Button color="brown" icon="plus" content="NEW PUBLICATION" onClick={handleNewButtonClick}/>
+        
+
+            
             </div>
            }
 

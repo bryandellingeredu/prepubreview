@@ -29,9 +29,7 @@ namespace API.Attributes
                 return;
             }
 
-            if(email.ToLower() == "bdellinger@hossrob.onmicrosoft.com" ){
-                email = "bryan.d.dellinger.civ@army.mil";
-            }
+         
 
             // Fetch the cached email lookup from the repository
             var emailLookup = await usawcUserService.GetEmailLookupAsync();

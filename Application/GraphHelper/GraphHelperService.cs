@@ -257,12 +257,16 @@ public async Task SendChatWithAdaptiveCardAsync(string recipientEmail, string ca
             }
 
             if (!_hostEnvironment.IsDevelopment()){
-                List<Recipient> bccRecipients = new List<Recipient>
-               {
-                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.d.dellinger.civ@army.mil" } },
-                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.dellinger.civ@armywarcollege.edu" } }
-                };
-                message.BccRecipients = bccRecipients;
+                var bccEmails = _config.GetSection("Settings:BccRecipients").Get<List<string>>() ?? new List<string>();
+
+                if (bccEmails != null && bccEmails.Any())
+                {
+                    List<Recipient> bccRecipients = bccEmails
+                        .Select(email => new Recipient { EmailAddress = new EmailAddress { Address = email } })
+                        .ToList();
+
+                    message.BccRecipients = bccRecipients;
+                }
             }
 
 
@@ -375,12 +379,16 @@ public async Task SendChatWithAdaptiveCardAsync(string recipientEmail, string ca
 
             if (!_hostEnvironment.IsDevelopment())
             {
-                List<Recipient> bccRecipients = new List<Recipient>
-               {
-                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.d.dellinger.civ@army.mil" } },
-                    new Recipient { EmailAddress = new EmailAddress { Address = "bryan.dellinger.civ@armywarcollege.edu" } }
-                };
+              var bccEmails = _config.GetSection("Settings:BccRecipients").Get<List<string>>() ?? new List<string>();
+
+              if (bccEmails != null && bccEmails.Any())
+              {
+                List<Recipient> bccRecipients = bccEmails
+                    .Select(email => new Recipient { EmailAddress = new EmailAddress { Address = email } })
+                    .ToList();
+
                 message.BccRecipients = bccRecipients;
+              }
             }
 
             try
