@@ -46,6 +46,7 @@ namespace Application.Threads
 {
     try
     {
+        var subjectMatterExpertIdsFromRequest = request.InitialThreadDTO.SubjectMatterExpertIds.Distinct().ToList();
         // Set the time zone to Eastern Standard Time
         TimeZoneInfo easternZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 
@@ -69,7 +70,7 @@ namespace Application.Threads
 
         // Batch lookup for existing SMEs
         var existingSMEs = await _context.SubjectMatterExperts
-            .Where(x => request.InitialThreadDTO.SubjectMatterExpertIds.Contains(x.PersonId))
+            .Where(x => subjectMatterExpertIdsFromRequest.Contains(x.PersonId))
             .ToListAsync();
 
         // Prepare lists for new SMEs and junctions
@@ -77,7 +78,7 @@ namespace Application.Threads
         var junctions = new List<PrePublication_SMEThreadJunction>();
 
         // Iterate through each SME ID from the request
-        foreach (var smeId in request.InitialThreadDTO.SubjectMatterExpertIds)
+        foreach (var smeId in subjectMatterExpertIdsFromRequest )
         {
             // Check if the SME already exists
             var sme = existingSMEs.FirstOrDefault(x => x.PersonId == smeId);

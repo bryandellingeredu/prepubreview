@@ -79,6 +79,7 @@ namespace Application.Threads
                         var smePubLookups = await _context.SMEPubLookups
                             .Where(x => x.PublicationLookup == publication.Id)
                             .Select(x => new { x.Id, x.SMEPersonId })
+                            .DistinctBy(x => x.SMEPersonId)
                             .ToListAsync();
 
                         var existingSMEs = await _context.SubjectMatterExperts
