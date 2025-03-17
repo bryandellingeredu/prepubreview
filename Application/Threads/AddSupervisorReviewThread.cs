@@ -76,11 +76,12 @@ namespace Application.Threads
                     case "accept":
                         publication.Status = StatusType.SentToSMEForReview;
 
-                        var smePubLookups = await _context.SMEPubLookups
-                            .Where(x => x.PublicationLookup == publication.Id)
-                            .Select(x => new { x.Id, x.SMEPersonId })
-                            .DistinctBy(x => x.SMEPersonId)
-                            .ToListAsync();
+                        var smePubLookups = (await _context.SMEPubLookups
+                         .Where(x => x.PublicationLookup == publication.Id)
+                         .Select(x => new { x.Id, x.SMEPersonId })
+                        .ToListAsync())  // Fetch data first
+                        .DistinctBy(x => x.SMEPersonId)  // Remove duplicates in memory
+                        .ToList();
 
                         var existingSMEs = await _context.SubjectMatterExperts
                             .Where(x => smePubLookups.Select(y => y.SMEPersonId).Contains(x.PersonId))
